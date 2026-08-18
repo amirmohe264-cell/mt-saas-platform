@@ -31,11 +31,15 @@
         .filter-sidebar h6 { color: #1a2e1a; font-weight: 600; margin-bottom: 15px; }
         .filter-sidebar .form-check-label { color: #555; font-size: 0.9rem; }
         .filter-sidebar .form-check-input:checked { background-color: #4caf50; border-color: #4caf50; }
+        .filter-sidebar .subcategory-list { padding-left: 20px; margin-top: 5px; }
+        .filter-sidebar .subcategory-list .form-check { margin-bottom: 3px; }
+        .filter-sidebar .subcategory-list .form-check-label { font-size: 0.8rem; color: #777; }
         .product-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e8f0e8; transition: 0.3s; height: 100%; }
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(76, 175, 80, 0.12); border-color: #4caf50; }
         .product-card .product-image { height: 150px; object-fit: contain; width: 100%; }
         .product-card .product-name { color: #1a2e1a; font-weight: 600; font-size: 1rem; margin-top: 10px; }
         .product-card .product-category { color: #888; font-size: 0.85rem; }
+        .product-card .product-subcategory { color: #aaa; font-size: 0.75rem; }
         .product-card .price { color: #1a2e1a; font-weight: 700; font-size: 1.2rem; }
         .product-card .old-price { color: #aaa; font-size: 0.9rem; text-decoration: line-through; margin-left: 8px; }
         .product-card .btn-add { background: #4caf50; color: #fff; border: none; border-radius: 30px; padding: 8px 20px; font-weight: 600; font-size: 0.85rem; transition: 0.3s; width: 100%; text-decoration: none; display: inline-block; text-align: center; }
@@ -49,6 +53,10 @@
         .footer a:hover { color: #4caf50; }
         .navbar-toggler { border-color: #4caf50; }
         .navbar-toggler-icon { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(76, 175, 80, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); }
+        .category-toggle { cursor: pointer; user-select: none; }
+        .category-toggle:hover { color: #4caf50; }
+        .subcategory-list { display: none; }
+        .subcategory-list.show { display: block; }
     </style>
 </head>
 <body>
@@ -104,12 +112,29 @@
                 <div class="filter-sidebar">
                     <h6><i class="fas fa-filter me-2"></i>Filters</h6>
                     <hr>
-                    <h6 class="mt-3">Categories</h6>
+                    <h6 class="mt-3">Categories & Subcategories</h6>
                     <?php if (isset($categories) && !empty($categories)): ?>
                         <?php foreach ($categories as $cat): ?>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="cat_<?= $cat['id'] ?>" checked>
-                                <label class="form-check-label" for="cat_<?= $cat['id'] ?>"><?= $cat['category_name'] ?></label>
+                                <input class="form-check-input category-checkbox" type="checkbox" id="cat_<?= $cat['id'] ?>" checked data-category-id="<?= $cat['id'] ?>">
+                                <label class="form-check-label category-toggle" for="cat_<?= $cat['id'] ?>" onclick="toggleSubcategories(<?= $cat['id'] ?>)">
+                                    <?= $cat['category_name'] ?>
+                                    <i class="fas fa-chevron-down small ms-1"></i>
+                                </label>
+                            </div>
+                            <div class="subcategory-list" id="subcat_<?= $cat['id'] ?>">
+                                <?php if (isset($subcategories) && !empty($subcategories)): ?>
+                                    <?php foreach ($subcategories as $sub): ?>
+                                        <?php if ($sub['category_id'] == $cat['id']): ?>
+                                            <div class="form-check">
+                                                <input class="form-check-input subcategory-checkbox" type="checkbox" id="sub_<?= $sub['id'] ?>" checked data-subcategory-id="<?= $sub['id'] ?>">
+                                                <label class="form-check-label" for="sub_<?= $sub['id'] ?>">
+                                                    <small><?= $sub['subcategory_name'] ?></small>
+                                                </label>
+                                            </div>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
@@ -118,20 +143,23 @@
                     <hr>
                     <h6>Price Range</h6>
                     <div class="d-flex gap-2">
-                        <input type="number" class="form-control form-control-sm" placeholder="Min" style="width:45%;">
+                        <input type="number" class="form-control form-control-sm" placeholder="Min" style="width:45%;" id="minPrice">
                         <span class="text-muted">-</span>
-                        <input type="number" class="form-control form-control-sm" placeholder="Max" style="width:45%;">
+                        <input type="number" class="form-control form-control-sm" placeholder="Max" style="width:45%;" id="maxPrice">
                     </div>
-                    <button class="btn btn-success w-100 mt-3" style="background:#4caf50;border:none;">Apply Filters</button>
+                    <button class="btn btn-success w-100 mt-3" style="background:#4caf50;border:none;" onclick="applyFilters()">Apply Filters</button>
                 </div>
             </div>
 
             <!-- Product Grid -->
             <div class="col-lg-9">
-                <div class="row product-grid">
+                <div class="row product-grid" id="productGrid">
                     <?php if (isset($products) && !empty($products)): ?>
                         <?php foreach ($products as $product): ?>
-                            <div class="col-md-4 mb-4">
+                            <div class="col-md-4 mb-4 product-item" 
+                                 data-category="<?= $product['category'] ?? '' ?>" 
+                                 data-subcategory="<?= $product['subcategory'] ?? '' ?>"
+                                 data-price="<?= $product['price'] ?>">
                                 <div class="product-card">
                                     <div class="text-center">
                                         <img src="<?= $product['image'] ?>" alt="<?= $product['name'] ?>" class="product-image">
@@ -147,6 +175,9 @@
                                     </div>
                                     <h6 class="product-name"><?= $product['name'] ?></h6>
                                     <p class="product-category"><?= $product['category'] ?? 'General' ?></p>
+                                    <?php if (isset($product['subcategory']) && $product['subcategory']): ?>
+                                        <p class="product-subcategory"><i class="fas fa-tag me-1"></i><?= $product['subcategory'] ?></p>
+                                    <?php endif; ?>
                                     <div>
                                         <span class="price">$<?= number_format($product['price'], 2) ?></span>
                                         <?php if (isset($product['old_price']) && $product['old_price']): ?>
@@ -232,6 +263,93 @@
             navbar.classList.remove('navbar-scrolled');
         }
     });
+
+    function toggleSubcategories(categoryId) {
+        var subcatList = document.getElementById('subcat_' + categoryId);
+        if (subcatList) {
+            subcatList.classList.toggle('show');
+        }
+    }
+
+    function applyFilters() {
+        var selectedCategories = [];
+        var selectedSubcategories = [];
+        
+        document.querySelectorAll('.category-checkbox:checked').forEach(function(cb) {
+            selectedCategories.push(cb.dataset.categoryId);
+        });
+        
+        document.querySelectorAll('.subcategory-checkbox:checked').forEach(function(cb) {
+            selectedSubcategories.push(cb.dataset.subcategoryId);
+        });
+        
+        var minPrice = document.getElementById('minPrice').value;
+        var maxPrice = document.getElementById('maxPrice').value;
+        
+        minPrice = minPrice ? parseFloat(minPrice) : 0;
+        maxPrice = maxPrice ? parseFloat(maxPrice) : Infinity;
+        
+        var products = document.querySelectorAll('.product-item');
+        var visibleCount = 0;
+        
+        products.forEach(function(product) {
+            var category = product.dataset.category;
+            var subcategory = product.dataset.subcategory;
+            var price = parseFloat(product.dataset.price);
+            
+            var categoryMatch = selectedCategories.length === 0;
+            if (!categoryMatch) {
+                // Check if product's category matches any selected category
+                selectedCategories.forEach(function(catId) {
+                    // We need to check if the product belongs to this category
+                    // This requires knowing the category ID for each product
+                    // For now, we'll use the category name
+                    var catName = document.querySelector('#cat_' + catId)?.nextElementSibling?.textContent?.trim();
+                    if (catName && category === catName) {
+                        categoryMatch = true;
+                    }
+                });
+            }
+            
+            var subcategoryMatch = selectedSubcategories.length === 0;
+            if (!subcategoryMatch) {
+                selectedSubcategories.forEach(function(subId) {
+                    var subName = document.querySelector('#sub_' + subId)?.nextElementSibling?.textContent?.trim();
+                    if (subName && subcategory === subName) {
+                        subcategoryMatch = true;
+                    }
+                });
+            }
+            
+            var priceMatch = price >= minPrice && price <= maxPrice;
+            
+            var productCol = product;
+            if (categoryMatch && subcategoryMatch && priceMatch) {
+                productCol.style.display = 'block';
+                visibleCount++;
+            } else {
+                productCol.style.display = 'none';
+            }
+        });
+        
+        document.getElementById('productCount').textContent = 'Showing ' + visibleCount + ' products';
+        
+        if (visibleCount === 0) {
+            var grid = document.getElementById('productGrid');
+            var noProductsMsg = document.querySelector('.no-products-found');
+            if (!noProductsMsg) {
+                var msg = document.createElement('div');
+                msg.className = 'no-products-found col-12 text-center py-5';
+                msg.innerHTML = '<i class="fas fa-box-open fa-4x text-muted mb-3"></i><h5>No products found</h5><p class="text-muted">Try adjusting your filters.</p>';
+                grid.appendChild(msg);
+            }
+        } else {
+            var noProductsMsg = document.querySelector('.no-products-found');
+            if (noProductsMsg) {
+                noProductsMsg.remove();
+            }
+        }
+    }
 </script>
 </body>
 </html>

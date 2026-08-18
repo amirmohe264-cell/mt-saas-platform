@@ -129,3 +129,15 @@ $routes->get('test-cart-insert', function() {
         return "Cart insert failed. Error: " . print_r($cartModel->errors(), true);
     }
 });
+// Store Owner - Subcategories
+$routes->get('store/subcategories', 'SubcategoryController::index');
+$routes->get('store/subcategories/create', 'SubcategoryController::create');
+$routes->post('store/subcategories', 'SubcategoryController::store');
+$routes->get('store/subcategories/edit/(:num)', 'SubcategoryController::edit/$1');
+$routes->post('store/subcategories/update/(:num)', 'SubcategoryController::update/$1');
+$routes->get('store/subcategories/delete/(:num)', 'SubcategoryController::delete/$1');
+$routes->get('store/subcategories/toggle/(:num)', 'SubcategoryController::toggleStatus/$1');
+
+// API - Subcategories
+$routes->get('api/subcategories/category/(:num)', 'SubcategoryController::getByCategory/$1');
+$routes->get('api/subcategories/tenant', 'SubcategoryController::getByTenant');

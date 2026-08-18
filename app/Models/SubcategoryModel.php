@@ -29,4 +29,29 @@ class SubcategoryModel extends Model
                     ->where('is_active', true)
                     ->findAll();
     }
+
+    public function getSubcategoriesWithCategory($tenantId)
+    {
+        return $this->select('subcategories.*, categories.category_name')
+                    ->join('categories', 'categories.id = subcategories.category_id')
+                    ->where('subcategories.tenant_id', $tenantId)
+                    ->where('subcategories.is_active', true)
+                    ->orderBy('categories.category_name', 'ASC')
+                    ->orderBy('subcategories.subcategory_name', 'ASC')
+                    ->findAll();
+    }
+    public function getActiveSubcategories()
+{
+    return $this->where('is_active', true)
+                ->orderBy('subcategory_name', 'ASC')
+                ->findAll();
+}
+
+    public function getSubcategoryWithCategory($id)
+    {
+        return $this->select('subcategories.*, categories.category_name')
+                    ->join('categories', 'categories.id = subcategories.category_id')
+                    ->where('subcategories.id', $id)
+                    ->first();
+    }
 }

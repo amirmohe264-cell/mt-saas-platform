@@ -109,6 +109,73 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
+                    <thead>
+    <tr>
+        <th>Image</th>
+        <th>Product</th>
+        <th>Category</th>
+        <th>Subcategory</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+</thead>
+<tbody>
+    <?php if (isset($products) && !empty($products)): ?>
+        <?php foreach ($products as $product): ?>
+            <tr>
+                <td>
+                    <?php if ($product['product_image']): ?>
+                        <img src="/<?= $product['product_image'] ?>" alt="<?= $product['product_name'] ?>" class="product-image-thumb">
+                    <?php else: ?>
+                        <img src="https://via.placeholder.com/50x50?text=No+Image" alt="No Image" class="product-image-thumb">
+                    <?php endif; ?>
+                </td>
+                <td><strong><?= esc($product['product_name']) ?></strong></td>
+                <td>
+                    <?php 
+                    $category = $this->categoryModel->find($product['category_id']);
+                    echo esc($category ? $category['category_name'] : 'Uncategorized');
+                    ?>
+                </td>
+                <td>
+                    <?php 
+                    if ($product['subcategory_id']) {
+                        $subcategory = $this->subcategoryModel->find($product['subcategory_id']);
+                        echo esc($subcategory ? $subcategory['subcategory_name'] : 'N/A');
+                    } else {
+                        echo 'N/A';
+                    }
+                    ?>
+                </td>
+                <td>$<?= number_format($product['price'], 2) ?></td>
+                <td><?= $product['quantity'] ?></td>
+                <td>
+                    <span class="status-badge status-<?= $product['status'] ?? 'draft' ?>">
+                        <?= ucfirst($product['status'] ?? 'Draft') ?>
+                    </span>
+                </td>
+                <td class="action-btns">
+                    <a href="/store/products/edit/<?= $product['id'] ?>" class="btn btn-sm btn-outline-success" title="Edit"><i class="fas fa-edit"></i></a>
+                    <a href="/store/products/toggle/<?= $product['id'] ?>" class="btn btn-sm btn-outline-warning" title="<?= $product['status'] === 'published' ? 'Unpublish' : 'Publish' ?>" onclick="return confirm('Toggle product status?')">
+                        <i class="fas <?= $product['status'] === 'published' ? 'fa-eye-slash' : 'fa-eye' ?>"></i>
+                    </a>
+                    <a href="/store/products/delete/<?= $product['id'] ?>" class="btn btn-sm btn-outline-danger" title="Delete" onclick="return confirm('Delete this product? This action cannot be undone.')">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <tr>
+            <td colspan="8" class="text-center text-muted py-4">
+                <i class="fas fa-box-open fa-3x mb-3 d-block"></i>
+                No products yet. Click "Add Product" to create your first product.
+            </td>
+        </tr>
+    <?php endif; ?>
+</tbody>
                 <tbody>
     <?php if (isset($products) && !empty($products)): ?>
         <?php foreach ($products as $product): ?>

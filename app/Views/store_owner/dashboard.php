@@ -486,23 +486,26 @@
         </div>
         <div class="store-name"><?= session()->get('store_name') ?? 'Store' ?></div>
         <div class="store-status"><span class="badge bg-success">Active</span></div>
-
-        <!-- MANAGEMENT -->
-        <div class="sidebar-category">Management</div>
-        <ul class="sidebar-menu">
-            <li class="active" onclick="showSection('dashboard')" data-tooltip="Dashboard">
-                <i class="fas fa-tachometer-alt"></i>
-                <span class="menu-text">Dashboard</span>
-            </li>
-            <li onclick="showSection('products')" data-tooltip="Products">
-                <i class="fas fa-box"></i>
-                <span class="menu-text">Products</span>
-            </li>
-            <li onclick="showSection('orders')" data-tooltip="Orders">
-                <i class="fas fa-shopping-bag"></i>
-                <span class="menu-text">Orders</span>
-            </li>
-        </ul>
+<!-- MANAGEMENT -->
+<div class="sidebar-category">Management</div>
+<ul class="sidebar-menu">
+    <li class="active" onclick="showSection('dashboard')" data-tooltip="Dashboard">
+        <i class="fas fa-tachometer-alt"></i>
+        <span class="menu-text">Dashboard</span>
+    </li>
+    <li onclick="showSection('products')" data-tooltip="Products">
+        <i class="fas fa-box"></i>
+        <span class="menu-text">Products</span>
+    </li>
+    <li onclick="location.href='/store/subcategories'" data-tooltip="Subcategories">
+        <i class="fas fa-tags"></i>
+        <span class="menu-text">Subcategories</span>
+    </li>
+    <li onclick="showSection('orders')" data-tooltip="Orders">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="menu-text">Orders</span>
+    </li>
+</ul>
 
         <!-- FINANCE & EARNINGS -->
         <div class="sidebar-category">Finance & Earnings</div>
