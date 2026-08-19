@@ -383,6 +383,66 @@ public function index()
     }
     return view('public/dashboard');
 }
+public function store()
+{
+    $tenantId = session()->get('tenant_id');
+    if (!$tenantId) {
+        return redirect()->to('/login')->with('error', 'Please login.');
+    }
+
+    $rules = [
+        'category_id' => 'required|numeric',
+        'subcategory_name' => 'required|min_length[2]|max_length[255]',
+    ];
+
+    if (!$this->validate($rules)) {
+        return redirect()->back()->with('errors', $this->validator->getErrors())->withInput();
+    }
+
+    // Check if subcategory already exists
+    $existing = $this->subcategoryModel
+                    ->where('category_id', $this->request->getPost('category_id'))
+                    ->where('tenant_id', $tenantId)
+                    ->where('subcategory_name', $this->request->getPost('subcategory_name'))
+                    ->first();
+
+    if ($existing) {
+        return redirect()->back()->with('error', 'This subcategory already exists for your store.');
+    }
+
+    $data = [
+        'category_id' => $this->request->getPost('category_id'),
+        'tenant_id' => $tenantId,
+        'subcategory_name' => $this->request->getPost('subcategory_name'),
+        'is_active' => $this->request->getPost('is_active') ? true : false,  // ✅ Use true/false
+    ];
+
+    if ($this->subcategoryModel->insert($data)) {
+        return redirect()->to('/store/subcategories')->with('success', 'Subcategory created successfully!');
+    } else {
+        return redirect()->back()->with('error', 'Failed to create subcategory.');
+    }
+}
+
+public function toggleStatus($id)
+{
+    $tenantId = session()->get('tenant_id');
+    if (!$tenantId) {
+        return redirect()->to('/login')->with('error', 'Please login.');
+    }
+
+    $subcategory = $this->subcategoryModel->where('tenant_id', $tenantId)->find($id);
+    if (!$subcategory) {
+        return redirect()->to('/store/subcategories')->with('error', 'Subcategory not found.');
+    }
+
+    // ✅ Use true/false instead of 1/0
+    $newStatus = $subcategory['is_active'] ? false : true;
+    $this->subcategoryModel->update($id, ['is_active' => $newStatus]);
+
+    $statusText = $newStatus ? 'activated' : 'deactivated';
+    return redirect()->to('/store/subcategories')->with('success', "Subcategory $statusText successfully.");
+}
 
 public function storeDashboard()
 {

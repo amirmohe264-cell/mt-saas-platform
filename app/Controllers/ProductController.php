@@ -41,7 +41,9 @@ class ProductController extends BaseController
                     'slug' => strtolower(str_replace(' ', '-', $product['product_name'])),
                     'price' => $product['price'],
                     'old_price' => $product['old_price'] ?? null,
+                    'category_id' => $product['category_id'],
                     'category' => $category ? $category['category_name'] : 'General',
+                    'subcategory_id' => $product['subcategory_id'] ?? 0,
                     'subcategory' => $subcategory ? $subcategory['subcategory_name'] : null,
                     'image' => $product['product_image'] ?? 'https://via.placeholder.com/200x200?text=Product',
                     'badges' => $this->getBadges($product),
@@ -51,10 +53,17 @@ class ProductController extends BaseController
             
             $categories = $this->categoryModel->getActiveCategories();
             
+            // Get category counts for display
+            $categoryCounts = [];
+            foreach ($categories as $cat) {
+                $categoryCounts[$cat['id']] = $this->productModel->where('category_id', $cat['id'])->where('status', 'published')->countAllResults();
+            }
+            
             return view('public/products', [
                 'products' => $formattedProducts,
                 'categories' => $categories,
                 'subcategories' => $subcategories,
+                'categoryCounts' => $categoryCounts,
             ]);
         } catch (\Exception $e) {
             return "Error: " . $e->getMessage();
@@ -209,91 +218,165 @@ class ProductController extends BaseController
 
         $products = $this->productModel->where('tenant_id', $tenantId)->findAll();
         $categories = $this->categoryModel->getActiveCategories();
+        $subcategories = $this->subcategoryModel->getSubcategoriesByTenant($tenantId);
 
         return view('store_owner/products', [
             'products' => $products,
-            'categories' => $categories,
-        ]);
-    }
-
-    public function create()
-    {
-        $tenantId = session()->get('tenant_id');
-        if (!$tenantId) {
-            return redirect()->to('/login')->with('error', 'Please login to add products.');
-        }
-
-        $categories = $this->categoryModel->getActiveCategories();
-        $subcategories = $this->subcategoryModel->getSubcategoriesByTenant($tenantId);
-
-        return view('store_owner/product_add', [
             'categories' => $categories,
             'subcategories' => $subcategories,
         ]);
     }
 
-    public function store()
-    {
-        try {
-            $tenantId = session()->get('tenant_id');
-            if (!$tenantId) {
-                return redirect()->to('/login')->with('error', 'Please login to add products.');
-            }
+   public function create()
+{
+    $tenantId = session()->get('tenant_id');
+    if (!$tenantId) {
+        return redirect()->to('/login')->with('error', 'Please login to add products.');
+    }
 
-            $rules = [
-                'product_name' => 'required|min_length[3]|max_length[255]',
-                'category_id' => 'required|numeric',
-                'price' => 'required|numeric|greater_than[0]',
-                'quantity' => 'required|numeric',
-            ];
+    $categories = $this->categoryModel->getActiveCategories();
+    
+    // ✅ FIX: Get ALL subcategories for this tenant
+    $subcategories = $this->subcategoryModel->getSubcategoriesByTenant($tenantId);
+    
+    // ✅ OPTIONAL: Group subcategories by category for better organization
+    $groupedSubcategories = [];
+    foreach ($subcategories as $sub) {
+        $catId = $sub['category_id'];
+        if (!isset($groupedSubcategories[$catId])) {
+            $groupedSubcategories[$catId] = [];
+        }
+        $groupedSubcategories[$catId][] = $sub;
+    }
 
-            if (!$this->validate($rules)) {
-                return redirect()->back()->with('errors', $this->validator->getErrors())->withInput();
-            }
+    return view('store_owner/product_add', [
+        'categories' => $categories,
+        'subcategories' => $subcategories,        // ✅ Pass to view
+        'groupedSubcategories' => $groupedSubcategories, // ✅ Optional
+    ]);
+}
 
-            if ($this->request->getPost('quantity') < 0) {
-                return redirect()->back()->with('error', 'Quantity cannot be negative.')->withInput();
-            }
+  public function store()
+{
+    try {
+        $tenantId = session()->get('tenant_id');
+        if (!$tenantId) {
+            return redirect()->to('/login')->with('error', 'Please login to add products.');
+        }
 
-            $file = $this->request->getFile('product_image');
-            $imagePath = null;
+        // Validation rules
+        $rules = [
+            'product_name' => 'required|min_length[3]|max_length[255]',
+            'category_id' => 'required|numeric',
+            'price' => 'required|numeric|greater_than[0]',
+            'quantity' => 'required|numeric|greater_than_equal_to[0]',
+        ];
 
-            if ($file && $file->isValid() && !$file->hasMoved()) {
+        if (!$this->validate($rules)) {
+            return redirect()->back()
+                ->with('errors', $this->validator->getErrors())
+                ->withInput();
+        }
+
+        // Handle image upload
+        $file = $this->request->getFile('product_image');
+        $imagePath = null;
+
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            try {
                 $newName = 'product_' . time() . '_' . $file->getRandomName();
                 $uploadPath = ROOTPATH . 'public/uploads/products/';
+                
+                // Create directory if it doesn't exist
                 if (!is_dir($uploadPath)) {
                     mkdir($uploadPath, 0777, true);
                 }
+                
                 $file->move('uploads/products', $newName);
                 $imagePath = 'uploads/products/' . $newName;
+            } catch (\Exception $e) {
+                // Log error but continue
+                log_message('error', 'Image upload failed: ' . $e->getMessage());
             }
-
-            $data = [
-                'tenant_id' => $tenantId,
-                'category_id' => $this->request->getPost('category_id'),
-                'subcategory_id' => $this->request->getPost('subcategory_id') ?: null,
-                'product_name' => $this->request->getPost('product_name'),
-                'product_description' => $this->request->getPost('product_description'),
-                'price' => $this->request->getPost('price'),
-                'old_price' => $this->request->getPost('old_price') ?: null,
-                'quantity' => $this->request->getPost('quantity'),
-                'product_image' => $imagePath,
-                'status' => $this->request->getPost('status') ?: 'published',
-                'is_active' => true,
-            ];
-
-            if ($this->productModel->insert($data)) {
-                return redirect()->to('/store/products')->with('success', '✅ Product added successfully!');
-            } else {
-                return redirect()->back()->with('error', 'Failed to add product.');
-            }
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
         }
+
+        // Prepare data
+        $data = [
+            'tenant_id' => $tenantId,
+            'category_id' => $this->request->getPost('category_id'),
+            'subcategory_id' => $this->request->getPost('subcategory_id') ?: null,
+            'product_name' => $this->request->getPost('product_name'),
+            'product_description' => $this->request->getPost('product_description'),
+            'price' => $this->request->getPost('price'),
+            'old_price' => $this->request->getPost('old_price') ?: null,
+            'quantity' => $this->request->getPost('quantity'),
+            'product_image' => $imagePath,
+            'status' => $this->request->getPost('status') ?: 'draft',
+            'is_active' => true,
+        ];
+
+        // Debug: Log the data
+        log_message('debug', 'Product data being saved: ' . print_r($data, true));
+
+        // Insert the product
+        if ($this->productModel->insert($data)) {
+            $productId = $this->productModel->getInsertID();
+            log_message('debug', 'Product saved successfully with ID: ' . $productId);
+            return redirect()->to('/store/products')
+                ->with('success', '✅ Product added successfully!');
+        } else {
+            log_message('error', 'Failed to save product. Model errors: ' . print_r($this->productModel->errors(), true));
+            return redirect()->back()
+                ->with('error', 'Failed to save product. Please try again.')
+                ->withInput();
+        }
+    } catch (\Exception $e) {
+        log_message('error', 'Product save error: ' . $e->getMessage());
+        log_message('error', 'Stack trace: ' . $e->getTraceAsString());
+        
+        return redirect()->back()
+            ->with('error', 'Error: ' . $e->getMessage())
+            ->withInput();
+    }
+}
+
+   public function edit($id)
+{
+    $tenantId = session()->get('tenant_id');
+    if (!$tenantId) {
+        return redirect()->to('/login')->with('error', 'Please login.');
     }
 
-    public function edit($id)
-    {
+    $product = $this->productModel->where('tenant_id', $tenantId)->find($id);
+    if (!$product) {
+        return redirect()->to('/store/products')->with('error', 'Product not found.');
+    }
+
+    $categories = $this->categoryModel->getActiveCategories();
+    
+    // ✅ FIX: Get ALL subcategories for this tenant
+    $subcategories = $this->subcategoryModel->getSubcategoriesByTenant($tenantId);
+    
+    // ✅ OPTIONAL: Group subcategories by category
+    $groupedSubcategories = [];
+    foreach ($subcategories as $sub) {
+        $catId = $sub['category_id'];
+        if (!isset($groupedSubcategories[$catId])) {
+            $groupedSubcategories[$catId] = [];
+        }
+        $groupedSubcategories[$catId][] = $sub;
+    }
+
+    return view('store_owner/product_edit', [
+        'product' => $product,
+        'categories' => $categories,
+        'subcategories' => $subcategories,        // ✅ Pass to view
+        'groupedSubcategories' => $groupedSubcategories, // ✅ Optional
+    ]);
+}
+   public function update($id)
+{
+    try {
         $tenantId = session()->get('tenant_id');
         if (!$tenantId) {
             return redirect()->to('/login')->with('error', 'Please login.');
@@ -304,81 +387,75 @@ class ProductController extends BaseController
             return redirect()->to('/store/products')->with('error', 'Product not found.');
         }
 
-        $categories = $this->categoryModel->getActiveCategories();
-        $subcategories = $this->subcategoryModel->getSubcategoriesByTenant($tenantId);
+        $rules = [
+            'product_name' => 'required|min_length[3]|max_length[255]',
+            'category_id' => 'required|numeric',
+            'price' => 'required|numeric|greater_than[0]',
+            'quantity' => 'required|numeric|greater_than_equal_to[0]',
+        ];
 
-        return view('store_owner/product_edit', [
-            'product' => $product,
-            'categories' => $categories,
-            'subcategories' => $subcategories,
-        ]);
-    }
+        if (!$this->validate($rules)) {
+            return redirect()->back()
+                ->with('errors', $this->validator->getErrors())
+                ->withInput();
+        }
 
-    public function update($id)
-    {
-        try {
-            $tenantId = session()->get('tenant_id');
-            if (!$tenantId) {
-                return redirect()->to('/login')->with('error', 'Please login.');
-            }
+        // Handle image upload
+        $file = $this->request->getFile('product_image');
+        $imagePath = $product['product_image'];
 
-            $product = $this->productModel->where('tenant_id', $tenantId)->find($id);
-            if (!$product) {
-                return redirect()->to('/store/products')->with('error', 'Product not found.');
-            }
-
-            $rules = [
-                'product_name' => 'required|min_length[3]|max_length[255]',
-                'category_id' => 'required|numeric',
-                'price' => 'required|numeric|greater_than[0]',
-                'quantity' => 'required|numeric',
-            ];
-
-            if (!$this->validate($rules)) {
-                return redirect()->back()->with('errors', $this->validator->getErrors())->withInput();
-            }
-
-            if ($this->request->getPost('quantity') < 0) {
-                return redirect()->back()->with('error', 'Quantity cannot be negative.')->withInput();
-            }
-
-            $file = $this->request->getFile('product_image');
-            $imagePath = $product['product_image'];
-
-            if ($file && $file->isValid() && !$file->hasMoved()) {
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            try {
+                // Delete old image if exists
                 if ($product['product_image'] && file_exists(ROOTPATH . 'public/' . $product['product_image'])) {
                     unlink(ROOTPATH . 'public/' . $product['product_image']);
                 }
+                
                 $newName = 'product_' . time() . '_' . $file->getRandomName();
                 $uploadPath = ROOTPATH . 'public/uploads/products/';
+                
                 if (!is_dir($uploadPath)) {
                     mkdir($uploadPath, 0777, true);
                 }
+                
                 $file->move('uploads/products', $newName);
                 $imagePath = 'uploads/products/' . $newName;
+            } catch (\Exception $e) {
+                log_message('error', 'Image upload failed: ' . $e->getMessage());
             }
-
-            $data = [
-                'category_id' => $this->request->getPost('category_id'),
-                'subcategory_id' => $this->request->getPost('subcategory_id') ?: null,
-                'product_name' => $this->request->getPost('product_name'),
-                'product_description' => $this->request->getPost('product_description'),
-                'price' => $this->request->getPost('price'),
-                'old_price' => $this->request->getPost('old_price') ?: null,
-                'quantity' => $this->request->getPost('quantity'),
-                'product_image' => $imagePath,
-                'status' => $this->request->getPost('status'),
-            ];
-
-            if ($this->productModel->update($id, $data)) {
-                return redirect()->to('/store/products')->with('success', '✅ Product updated successfully!');
-            } else {
-                return redirect()->back()->with('error', 'Failed to update product.');
-            }
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
         }
+
+        $data = [
+            'category_id' => $this->request->getPost('category_id'),
+            'subcategory_id' => $this->request->getPost('subcategory_id') ?: null,
+            'product_name' => $this->request->getPost('product_name'),
+            'product_description' => $this->request->getPost('product_description'),
+            'price' => $this->request->getPost('price'),
+            'old_price' => $this->request->getPost('old_price') ?: null,
+            'quantity' => $this->request->getPost('quantity'),
+            'product_image' => $imagePath,
+            'status' => $this->request->getPost('status') ?: 'draft',
+        ];
+
+        log_message('debug', 'Product update data: ' . print_r($data, true));
+
+        if ($this->productModel->update($id, $data)) {
+            return redirect()->to('/store/products')
+                ->with('success', '✅ Product updated successfully!');
+        } else {
+            return redirect()->back()
+                ->with('error', 'Failed to update product.')
+                ->withInput();
+        }
+    } catch (\Exception $e) {
+        log_message('error', 'Product update error: ' . $e->getMessage());
+        log_message('error', 'Stack trace: ' . $e->getTraceAsString());
+        
+        return redirect()->back()
+            ->with('error', 'Error: ' . $e->getMessage())
+            ->withInput();
     }
+}
 
     public function delete($id)
     {
