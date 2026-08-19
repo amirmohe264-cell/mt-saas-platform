@@ -19,23 +19,22 @@ class SubcategoryController extends BaseController
     // ==========================================
     // STORE OWNER VIEWS
     // ==========================================
-
-    public function index()
-    {
-        $tenantId = session()->get('tenant_id');
-        if (!$tenantId) {
-            return redirect()->to('/login')->with('error', 'Please login.');
-        }
-
-        $subcategories = $this->subcategoryModel->getSubcategoriesWithCategory($tenantId);
-        $categories = $this->categoryModel->getActiveCategories();
-
-        return view('store_owner/subcategories', [
-            'subcategories' => $subcategories,
-            'categories' => $categories,
-        ]);
+public function index()
+{
+    $tenantId = session()->get('tenant_id');
+    if (!$tenantId) {
+        return redirect()->to('/login')->with('error', 'Please login.');
     }
 
+    // This calls the method we just added
+    $subcategories = $this->subcategoryModel->getSubcategoriesWithCategory($tenantId);
+    $categories = $this->categoryModel->getActiveCategories();
+
+    return view('store_owner/subcategories', [
+        'subcategories' => $subcategories,
+        'categories' => $categories,
+    ]);
+}
     public function create()
     {
         $tenantId = session()->get('tenant_id');
@@ -78,7 +77,7 @@ class SubcategoryController extends BaseController
             'category_id' => $this->request->getPost('category_id'),
             'tenant_id' => $tenantId,
             'subcategory_name' => $this->request->getPost('subcategory_name'),
-            'is_active' => $this->request->getPost('is_active') ? true : false,
+            'is_active' => $this->request->getPost('is_active') ? true : false,  // ✅ Fixed: true/false
         ];
 
         if ($this->subcategoryModel->insert($data)) {
@@ -131,7 +130,7 @@ class SubcategoryController extends BaseController
         $data = [
             'category_id' => $this->request->getPost('category_id'),
             'subcategory_name' => $this->request->getPost('subcategory_name'),
-            'is_active' => $this->request->getPost('is_active') ? true : false,
+            'is_active' => $this->request->getPost('is_active') ? true : false,  // ✅ Fixed: true/false
         ];
 
         if ($this->subcategoryModel->update($id, $data)) {
@@ -169,7 +168,7 @@ class SubcategoryController extends BaseController
             return redirect()->to('/store/subcategories')->with('error', 'Subcategory not found.');
         }
 
-        $newStatus = $subcategory['is_active'] ? false : true;
+        $newStatus = $subcategory['is_active'] ? false : true;  // ✅ Fixed: true/false
         $this->subcategoryModel->update($id, ['is_active' => $newStatus]);
 
         $statusText = $newStatus ? 'activated' : 'deactivated';
@@ -188,12 +187,6 @@ class SubcategoryController extends BaseController
             'data' => $subcategories
         ]);
     }
-    public function getActiveSubcategories()
-{
-    return $this->where('is_active', true)
-                ->orderBy('subcategory_name', 'ASC')
-                ->findAll();
-}
 
     public function getByTenant()
     {
