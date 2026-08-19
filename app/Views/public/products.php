@@ -29,32 +29,8 @@
         .page-header .breadcrumb { background: none; padding: 0; margin: 0; }
         .page-header .breadcrumb a { color: #4caf50; text-decoration: none; }
         .page-header .breadcrumb .active { color: #aaa; }
-<<<<<<< HEAD
-        .filter-sidebar { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e8f0e8; }
-        .filter-sidebar h6 { color: #1a2e1a; font-weight: 600; margin-bottom: 15px; }
-        .filter-sidebar .form-check-label { color: #555; font-size: 0.9rem; }
-        .filter-sidebar .form-check-input:checked { background-color: #4caf50; border-color: #4caf50; }
-        .filter-sidebar .subcategory-list { padding-left: 20px; margin-top: 5px; }
-        .filter-sidebar .subcategory-list .form-check { margin-bottom: 3px; }
-        .filter-sidebar .subcategory-list .form-check-label { font-size: 0.8rem; color: #777; }
-        .product-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e8f0e8; transition: 0.3s; height: 100%; display: flex; flex-direction: column; }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(76, 175, 80, 0.12); border-color: #4caf50; }
-        .product-card .product-image { height: 150px; object-fit: contain; width: 100%; }
-        .product-card .product-name { color: #1a2e1a; font-weight: 600; font-size: 1rem; margin-top: 10px; }
-        .product-card .product-category { color: #888; font-size: 0.85rem; }
-        .product-card .product-subcategory { color: #aaa; font-size: 0.75rem; }
-        .product-card .price { color: #1a2e1a; font-weight: 700; font-size: 1.2rem; }
-        .product-card .old-price { color: #aaa; font-size: 0.9rem; text-decoration: line-through; margin-left: 8px; }
-        .product-card .btn-add { background: #4caf50; color: #fff; border: none; border-radius: 30px; padding: 8px 20px; font-weight: 600; font-size: 0.85rem; transition: 0.3s; text-decoration: none; display: inline-block; text-align: center; }
-        .product-card .btn-add:hover { background: #388e3c; color: #fff; }
-        .product-card .btn-cart { background: #ff6b35; color: #fff; border: none; border-radius: 30px; padding: 8px 15px; font-weight: 600; font-size: 0.85rem; transition: 0.3s; cursor: pointer; flex: 0 0 auto; }
-        .product-card .btn-cart:hover { background: #e55a2b; transform: scale(1.05); }
-        .product-card .btn-cart:active { transform: scale(0.95); }
-=======
 
-        /* ========================================== */
-        /* FILTER SIDEBAR - WITH DROPDOWN */
-        /* ========================================== */
+        /* Filter Sidebar */
         .filter-sidebar {
             background: #fff;
             border-radius: 12px;
@@ -256,9 +232,7 @@
             color: #c62828;
         }
 
-        /* ========================================== */
-        /* PRODUCT CARDS */
-        /* ========================================== */
+        /* Product Cards */
         .product-card {
             background: #fff;
             border-radius: 12px;
@@ -267,6 +241,8 @@
             border: 1px solid #e8f0e8;
             transition: 0.3s;
             height: 100%;
+            display: flex;
+            flex-direction: column;
         }
         .product-card:hover {
             transform: translateY(-5px);
@@ -321,8 +297,23 @@
             background: #388e3c;
             color: #fff;
         }
+        .product-card .btn-cart {
+            background: #ff6b35;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 15px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: 0.3s;
+            cursor: pointer;
+            flex: 0 0 auto;
+        }
+        .product-card .btn-cart:hover {
+            background: #e55a2b;
+            transform: scale(1.05);
+        }
 
->>>>>>> 9f9f2c1c99aa331752e6690ee11d6046e2193527
         .pagination .page-link { color: #1a2e1a; }
         .pagination .page-item.active .page-link { background: #4caf50; border-color: #4caf50; color: #fff; }
         .pagination .page-link:hover { color: #4caf50; }
@@ -334,29 +325,23 @@
 
         .navbar-toggler { border-color: #4caf50; }
         .navbar-toggler-icon { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(76, 175, 80, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); }
-<<<<<<< HEAD
-        .category-toggle { cursor: pointer; user-select: none; }
-        .category-toggle:hover { color: #4caf50; }
-        .subcategory-list { display: none; }
-        .subcategory-list.show { display: block; }
-        .toast-container { position: fixed; top: 100px; right: 20px; z-index: 9999; }
-        .toast-custom { background: #fff; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin-bottom: 10px; border-left: 4px solid #4caf50; animation: slideIn 0.3s ease; }
-        .toast-custom.error { border-left-color: #dc3545; }
-        .toast-custom.success { border-left-color: #4caf50; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @media (max-width: 768px) { .product-card .product-image { height: 120px; } }
-=======
 
         .no-products-found { padding: 60px 0; }
         .no-products-found i { font-size: 4rem; color: #ddd; }
         .no-products-found h5 { color: #1a2e1a; }
         .no-products-found p { color: #888; }
 
+        .toast-container { position: fixed; top: 100px; right: 20px; z-index: 9999; }
+        .toast-custom { background: #fff; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin-bottom: 10px; border-left: 4px solid #4caf50; animation: slideIn 0.3s ease; }
+        .toast-custom.error { border-left-color: #dc3545; }
+        .toast-custom.success { border-left-color: #4caf50; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
         @media (max-width: 768px) {
             .filter-sidebar { margin-bottom: 20px; }
             .price-section .price-inputs input { width: 48%; }
+            .product-card .product-image { height: 120px; }
         }
->>>>>>> 9f9f2c1c99aa331752e6690ee11d6046e2193527
     </style>
 </head>
 <body>
@@ -416,22 +401,20 @@
             <!-- Filter Sidebar -->
             <div class="col-lg-3">
                 <div class="filter-sidebar">
-                    <!-- Header -->
                     <div class="filter-header">
                         <h6><i class="fas fa-filter me-2 text-success"></i>Filters</h6>
                         <a href="#" class="clear-all" onclick="clearAllFilters(event)">Clear All</a>
                     </div>
 
-                    <!-- Active Filters -->
                     <div class="active-filters" id="activeFilters"></div>
 
-                    <!-- Categories with Subcategories Dropdown -->
+                    <!-- Categories with Subcategories -->
                     <div class="filter-section">
                         <?php if (isset($categories) && !empty($categories)): ?>
                             <?php foreach ($categories as $cat): ?>
                                 <div class="category-accordion">
                                     <div class="category-header" data-category-id="<?= $cat['id'] ?>" onclick="toggleCategory(this)">
-                                        <span class="cat-name"><?= $cat['category_name'] ?></span>
+                                        <span class="cat-name"><?= esc($cat['category_name']) ?></span>
                                         <span class="count">(<?= isset($categoryCounts[$cat['id']]) ? $categoryCounts[$cat['id']] : 0 ?>)</span>
                                         <i class="fas fa-chevron-down arrow"></i>
                                     </div>
@@ -444,7 +427,7 @@
                                                     $hasSubs = true;
                                         ?>
                                             <button class="sub-filter-btn" data-subcategory-id="<?= $sub['id'] ?>" data-category-id="<?= $cat['id'] ?>" onclick="selectSubcategory(this)">
-                                                <?= $sub['subcategory_name'] ?>
+                                                <?= esc($sub['subcategory_name']) ?>
                                             </button>
                                         <?php 
                                                 endif; 
@@ -492,7 +475,7 @@
                                  data-price="<?= $product['price'] ?>">
                                 <div class="product-card">
                                     <div class="text-center">
-                                        <img src="<?= $product['image'] ?>" alt="<?= $product['name'] ?>" class="product-image">
+                                        <img src="<?= $product['image'] ?>" alt="<?= esc($product['name']) ?>" class="product-image">
                                     </div>
                                     <div class="d-flex justify-content-between mt-2">
                                         <?php if (isset($product['badges']) && !empty($product['badges'])): ?>
@@ -503,10 +486,10 @@
                                             <span class="badge bg-success">New</span>
                                         <?php endif; ?>
                                     </div>
-                                    <h6 class="product-name"><?= $product['name'] ?></h6>
-                                    <p class="product-category"><?= $product['category'] ?? 'General' ?></p>
+                                    <h6 class="product-name"><?= esc($product['name']) ?></h6>
+                                    <p class="product-category"><?= esc($product['category'] ?? 'General') ?></p>
                                     <?php if (isset($product['subcategory']) && $product['subcategory']): ?>
-                                        <p class="product-subcategory"><i class="fas fa-tag me-1"></i><?= $product['subcategory'] ?></p>
+                                        <p class="product-subcategory"><i class="fas fa-tag me-1"></i><?= esc($product['subcategory']) ?></p>
                                     <?php endif; ?>
                                     <div>
                                         <span class="price">$<?= number_format($product['price'], 2) ?></span>
@@ -594,13 +577,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-<<<<<<< HEAD
     // ============================================
     // NAVBAR SCROLL EFFECT
     // ============================================
-=======
-    // Navbar scroll effect
->>>>>>> 9f9f2c1c99aa331752e6690ee11d6046e2193527
     window.addEventListener('scroll', function() {
         var navbar = document.querySelector('.navbar');
         if (window.scrollY > 50) {
@@ -610,20 +589,16 @@
         }
     });
 
-<<<<<<< HEAD
     // ============================================
-    // TOGGLE SUBCATEGORIES
+    // FILTER STATE
     // ============================================
-    function toggleSubcategories(categoryId) {
-        var subcatList = document.getElementById('subcat_' + categoryId);
-        if (subcatList) {
-            subcatList.classList.toggle('show');
-=======
     var allSubcategories = <?= isset($subcategories) ? json_encode($subcategories) : '[]' ?>;
     var selectedCategoryId = null;
     var selectedSubcategoryId = null;
 
-    // Toggle category dropdown
+    // ============================================
+    // TOGGLE CATEGORY
+    // ============================================
     function toggleCategory(header) {
         var subList = header.nextElementSibling;
         var arrow = header.querySelector('.arrow');
@@ -647,39 +622,29 @@
         arrow.classList.toggle('open');
         header.classList.toggle('active');
         
-        // If opening, set as selected category
         if (subList.classList.contains('show')) {
             selectedCategoryId = header.dataset.categoryId;
-            // Remove active from all subcategory buttons
             document.querySelectorAll('.sub-filter-btn').forEach(function(btn) {
                 btn.classList.remove('active');
             });
             selectedSubcategoryId = null;
         } else {
             selectedCategoryId = null;
->>>>>>> 9f9f2c1c99aa331752e6690ee11d6046e2193527
         }
         
         applyFilters();
     }
 
-<<<<<<< HEAD
     // ============================================
-    // APPLY FILTERS
+    // SELECT SUBCATEGORY
     // ============================================
-=======
-    // Select subcategory
     function selectSubcategory(button) {
-        // Toggle active state
         button.classList.toggle('active');
         
-        // Get the parent category header
         var parent = button.closest('.category-accordion');
         var header = parent.querySelector('.category-header');
         
-        // If subcategory is selected, open the parent category
         if (button.classList.contains('active')) {
-            // Open the parent category
             var subList = header.nextElementSibling;
             var arrow = header.querySelector('.arrow');
             subList.classList.add('show');
@@ -688,7 +653,6 @@
             selectedCategoryId = header.dataset.categoryId;
             selectedSubcategoryId = button.dataset.subcategoryId;
             
-            // Close other categories
             document.querySelectorAll('.category-accordion .subcategory-list').forEach(function(list) {
                 if (list !== subList) {
                     list.classList.remove('show');
@@ -708,8 +672,9 @@
         applyFilters();
     }
 
-    // Apply filters
->>>>>>> 9f9f2c1c99aa331752e6690ee11d6046e2193527
+    // ============================================
+    // APPLY FILTERS
+    // ============================================
     function applyFilters() {
         var minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
         var maxPrice = parseFloat(document.getElementById('maxPrice').value) || Infinity;
@@ -720,19 +685,9 @@
 
         products.forEach(function(product) {
             var productCategoryId = product.dataset.categoryId;
+            var productCategory = product.dataset.category;
             var productSubcategory = product.dataset.subcategory;
             var price = parseFloat(product.dataset.price);
-<<<<<<< HEAD
-            
-            var categoryMatch = selectedCategories.length === 0;
-            if (!categoryMatch) {
-                selectedCategories.forEach(function(catId) {
-                    var catName = document.querySelector('#cat_' + catId)?.nextElementSibling?.textContent?.trim();
-                    if (catName && category === catName) {
-                        categoryMatch = true;
-                    }
-                });
-=======
 
             var categoryMatch = true;
             var subcategoryMatch = true;
@@ -740,30 +695,22 @@
             // Check category filter
             if (selectedCategoryId !== null) {
                 categoryMatch = productCategoryId == selectedCategoryId;
->>>>>>> 9f9f2c1c99aa331752e6690ee11d6046e2193527
             }
 
             // Check subcategory filter
             if (selectedSubcategoryId !== null) {
                 subcategoryMatch = false;
-                if (productSubcategory) {
-                    for (var i = 0; i < allSubcategories.length; i++) {
-                        if (allSubcategories[i].id == selectedSubcategoryId && 
-                            allSubcategories[i].subcategory_name === productSubcategory) {
-                            subcategoryMatch = true;
-                            break;
-                        }
-                    }
+                // Find the subcategory name from the data
+                var selectedSub = allSubcategories.find(function(s) {
+                    return s.id == selectedSubcategoryId;
+                });
+                if (selectedSub && productSubcategory === selectedSub.subcategory_name) {
+                    subcategoryMatch = true;
                 }
             }
 
             var priceMatch = price >= minPrice && price <= maxPrice;
-<<<<<<< HEAD
             
-=======
-
-            var productCol = product;
->>>>>>> 9f9f2c1c99aa331752e6690ee11d6046e2193527
             if (categoryMatch && subcategoryMatch && priceMatch) {
                 product.style.display = 'block';
                 visibleCount++;
@@ -777,175 +724,21 @@
 
         // Show/hide no products message
         var noProductsMsg = document.querySelector('.no-products-found');
+        var existingNoProducts = grid.querySelector('.no-products-found');
+        if (existingNoProducts) {
+            existingNoProducts.remove();
+        }
         if (visibleCount === 0) {
-            if (!noProductsMsg) {
-                var msg = document.createElement('div');
-                msg.className = 'no-products-found col-12 text-center py-5';
-                msg.innerHTML = '<i class="fas fa-box-open fa-4x text-muted mb-3"></i><h5>No products found</h5><p class="text-muted">Try adjusting your filters.</p>';
-                grid.appendChild(msg);
-            }
-        } else {
-            if (noProductsMsg) {
-                noProductsMsg.remove();
-            }
-        }
-    }
-
-<<<<<<< HEAD
-    // ============================================
-    // ADD TO CART FUNCTION
-    // ============================================
-    function addToCart(productId, quantity = 1) {
-    fetch('/cart/add', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: 'product_id=' + productId + '&quantity=' + quantity
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('✅ Product added to cart successfully!');
-            if (data.cart_count !== undefined) {
-                document.getElementById('cartBadge').textContent = data.cart_count;
-            }
-        } else {
-            if (data.redirect) {
-                // 🎯 ወደ ምዝገባ ገፅ አዙር
-                window.location.href = data.redirect;
-            } else {
-                alert('❌ ' + data.message);
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('❌ An error occurred.');
-    });
-}
-
-    // ============================================
-    // UPDATE CART BADGE
-    // ============================================
-    function updateCartBadge(count) {
-        var badge = document.getElementById('cartBadge');
-        if (badge) {
-            if (count > 0) {
-                badge.textContent = count;
-                badge.style.display = 'inline';
-            } else {
-                badge.textContent = '0';
-                badge.style.display = 'inline';
-            }
+            var msg = document.createElement('div');
+            msg.className = 'no-products-found col-12 text-center py-5';
+            msg.innerHTML = '<i class="fas fa-box-open fa-4x text-muted mb-3"></i><h5>No products found</h5><p class="text-muted">Try adjusting your filters.</p>';
+            grid.appendChild(msg);
         }
     }
 
     // ============================================
-    // SHOW TOAST NOTIFICATION
+    // UPDATE ACTIVE FILTERS DISPLAY
     // ============================================
-    function showToast(message, type = 'success') {
-        var container = document.getElementById('toastContainer');
-        var toast = document.createElement('div');
-        toast.className = 'toast-custom ' + type;
-        toast.textContent = message;
-        
-        container.appendChild(toast);
-        
-        // Auto remove after 4 seconds
-        setTimeout(function() {
-            toast.style.opacity = '0';
-            toast.style.transition = 'opacity 0.5s ease';
-            setTimeout(function() {
-                toast.remove();
-            }, 500);
-        }, 4000);
-    }
-
-    // ============================================
-    // CHECK FOR PENDING PRODUCT AFTER LOGIN
-    // ============================================
-    <?php if (session()->getFlashdata('pending_product_added')): ?>
-        showToast('✅ Product added to cart after login!', 'success');
-        <?php 
-        // Update cart badge
-        $cartCount = session()->get('cart_count') ?? 0;
-        ?>
-        updateCartBadge(<?= $cartCount ?>);
-    <?php endif; ?>
-
-    // ============================================
-    // CHECK PENDING PRODUCT FROM SESSION STORAGE
-    // ============================================
-    document.addEventListener('DOMContentLoaded', function() {
-        // Check if there's a pending product from sessionStorage (if user just logged in)
-        var pendingProduct = sessionStorage.getItem('pending_product');
-        if (pendingProduct) {
-            try {
-                var product = JSON.parse(pendingProduct);
-                // Try to add the product to cart
-                var isLoggedIn = <?= session()->get('user_id') ? 'true' : 'false' ?>;
-                if (isLoggedIn) {
-                    // Product was pending, now add it
-                    fetch('/cart/add', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: 'product_id=' + product.product_id + '&quantity=' + (product.quantity || 1)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showToast('✅ Product added to cart successfully!', 'success');
-                            if (data.cart_count !== undefined) {
-                                updateCartBadge(data.cart_count);
-                            }
-                            sessionStorage.removeItem('pending_product');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error adding pending product:', error);
-                    });
-                }
-            } catch (e) {
-                console.error('Error parsing pending product:', e);
-                sessionStorage.removeItem('pending_product');
-            }
-        }
-    });
-
-    // ============================================
-    // GET CART COUNT ON PAGE LOAD
-    // ============================================
-    function loadCartCount() {
-        var isLoggedIn = <?= session()->get('user_id') ? 'true' : 'false' ?>;
-        if (isLoggedIn) {
-            fetch('/cart/count', {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.count !== undefined) {
-                    updateCartBadge(data.count);
-                }
-            })
-            .catch(error => {
-                console.error('Error loading cart count:', error);
-            });
-        }
-    }
-
-    // Load cart count on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        loadCartCount();
-=======
-    // Update active filters display
     function updateActiveFilters() {
         var container = document.getElementById('activeFilters');
         container.innerHTML = '';
@@ -982,8 +775,10 @@
         }
     }
 
+    // ============================================
+    // CLEAR FUNCTIONS
+    // ============================================
     function clearCategoryFilter() {
-        // Close all categories
         document.querySelectorAll('.category-accordion .subcategory-list').forEach(function(list) {
             list.classList.remove('show');
         });
@@ -1038,10 +833,63 @@
         clearAllFilters(null);
     }
 
-    // Initialize
+    // ============================================
+    // ADD TO CART
+    // ============================================
+    function addToCart(productId, quantity = 1) {
+        fetch('/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: 'product_id=' + productId + '&quantity=' + quantity
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('✅ Product added to cart successfully!', 'success');
+                if (data.cart_count !== undefined) {
+                    document.getElementById('cartBadge').textContent = data.cart_count;
+                }
+            } else {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    showToast('❌ ' + data.message, 'error');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('❌ An error occurred.', 'error');
+        });
+    }
+
+    // ============================================
+    // SHOW TOAST
+    // ============================================
+    function showToast(message, type = 'success') {
+        var container = document.getElementById('toastContainer');
+        var toast = document.createElement('div');
+        toast.className = 'toast-custom ' + type;
+        toast.textContent = message;
+        container.appendChild(toast);
+        
+        setTimeout(function() {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.5s ease';
+            setTimeout(function() {
+                toast.remove();
+            }, 500);
+        }, 4000);
+    }
+
+    // ============================================
+    // INITIALIZE
+    // ============================================
     document.addEventListener('DOMContentLoaded', function() {
         updateActiveFilters();
->>>>>>> 9f9f2c1c99aa331752e6690ee11d6046e2193527
     });
 </script>
 </body>
