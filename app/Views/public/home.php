@@ -252,13 +252,21 @@ body {
     padding-left: 5px;
 }
 
+/* Custom 5-column grid for large screens (Bootstrap has no built-in 20% column) */
+@media (min-width: 992px) {
+    .col-lg-5th {
+        flex: 0 0 20%;
+        max-width: 20%;
+    }
+}
+
 /* ========================================== */
 /* HOME PAGE PRODUCT CARDS */
 /* ========================================== */
 .product-card-home {
     background: #fff;
     border-radius: 12px;
-    padding: 20px;
+    padding: 10px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     border: 1px solid #e8f0e8;
     transition: 0.3s;
@@ -270,28 +278,30 @@ body {
     border-color: #4caf50;
 }
 .product-card-home .product-image-home {
-    height: 180px;
+    height: 110px;
     object-fit: contain;
     width: 100%;
+    display: block;
+    margin: 0 auto;
 }
 .product-card-home .product-name-home {
     color: #1a2e1a;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.9rem;
     margin-top: 10px;
 }
 .product-card-home .product-category-home {
     color: #888;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
 }
 .product-card-home .price-home {
     color: #1a2e1a;
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 .product-card-home .old-price-home {
     color: #aaa;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     text-decoration: line-through;
     margin-left: 8px;
 }
@@ -300,9 +310,9 @@ body {
     color: #fff;
     border: none;
     border-radius: 30px;
-    padding: 8px 15px;
+    padding: 7px 15px;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     transition: 0.3s;
     width: 100%;
     text-decoration: none;
@@ -450,7 +460,6 @@ body {
             </ul>
             <div class="d-flex align-items-center">
                 <input class="search-box me-2" type="search" placeholder="Search for products...">
-          <button class="icon-btn" onclick="toggleWishlist(this)"><i class="far fa-heart"></i></button>
                 <a href="/cart" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="fas fa-shopping-cart"></i></a>
                 <a href="/login" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="far fa-user"></i></a>
             </div>
@@ -504,10 +513,10 @@ body {
             <h3 class="section-title">Featured Products</h3>
             <a href="/products" class="text-decoration-none text-success">View All <i class="fas fa-arrow-right"></i></a>
         </div>
-        <div class="row">
+        <div class="row g-2">
             <?php if (isset($featuredProducts) && !empty($featuredProducts)): ?>
                 <?php foreach ($featuredProducts as $product): ?>
-                    <div class="col-md-4 col-6 mb-4">
+                    <div class="col-lg-5th col-md-4 col-6 mb-4">
                      <div class="product-card-home">
     <div class="text-center">
         <img src="<?= $product['image'] ?>" alt="<?= $product['name'] ?>" class="product-image-home">

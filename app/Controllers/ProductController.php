@@ -62,15 +62,22 @@ class ProductController extends BaseController
     }
 
     public function show($slug)
-    {
-        $productName = str_replace('-', ' ', $slug);
-        $product = $this->productModel->where('product_name', $productName)
-                                      ->where('status', 'published')
-                                      ->first();
-        
-        if (!$product) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
-        }
+{
+    // Normalize the incoming slug the same way slugs are generated elsewhere
+    // (index/getByCategory/search all build slugs via
+    // strtolower(str_replace(' ', '-', $product_name))), and match
+    // case-insensitively so "nike" matches a stored name of "Nike" or "NIKE".
+    $productName = str_replace('-', ' ', $slug);
+
+    $product = $this->productModel
+    ->where('status', 'published')
+    ->where('LOWER(product_name)', strtolower($productName)) // ✅ value is safely bound
+    ->first();
+
+    if (!$product) {
+        throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+    }
+    
 
         $category = $this->categoryModel->find($product['category_id']);
         $subcategory = null;

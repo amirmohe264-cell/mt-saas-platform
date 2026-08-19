@@ -275,6 +275,35 @@
 </head>
 <body>
 
+<?php
+/**
+ * Normalizes an image path so it resolves correctly no matter what URL
+ * the current page is served from (e.g. /product/123).
+ *
+ * Without this, a relative path like "uploads/products/x.jpg" gets resolved
+ * by the browser against the CURRENT page URL's directory, turning it into
+ * "/product/uploads/products/x.jpg" -> 404.
+ *
+ * This forces the path to be root-relative ("/uploads/products/x.jpg")
+ * or leaves it alone if it's already absolute / a full URL.
+ */
+function resolveImageUrl($path) {
+    if (empty($path)) {
+        return 'https://via.placeholder.com/400x400?text=No+Image';
+    }
+    // Already a full URL (http:// or https://)
+    if (preg_match('#^https?://#i', $path)) {
+        return $path;
+    }
+    // Already root-relative (starts with /)
+    if (strpos($path, '/') === 0) {
+        return $path;
+    }
+    // Otherwise treat it as relative to the site root
+    return '/' . ltrim($path, './');
+}
+?>
+
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container">
@@ -314,9 +343,9 @@
         <div class="row">
 <!-- Product Images -->
 <div class="col-lg-6">
-    <?php 
-    // Get the main image
-    $mainImage = $product['image'] ?? 'https://via.placeholder.com/400x400?text=No+Image';
+    <?php
+    // Get the main image (normalized so it always resolves from site root)
+    $mainImage = resolveImageUrl($product['image'] ?? null);
     ?>
     <img src="<?= $mainImage ?>" alt="<?= $product['name'] ?? 'Product' ?>" class="product-image-main" id="mainImage">
     <div class="product-thumbnails mt-3 d-flex gap-2">
@@ -326,9 +355,10 @@
         if (empty($images)) {
             $images = ['https://via.placeholder.com/400x400?text=No+Image'];
         }
-        foreach ($images as $index => $image): 
+        foreach ($images as $index => $image):
+            $thumbSrc = resolveImageUrl($image);
         ?>
-            <img src="<?= $image ?>" alt="Thumb <?= $index + 1 ?>" class="<?= $index === 0 ? 'active' : '' ?>" onclick="changeImage(this.src, this)">
+            <img src="<?= $thumbSrc ?>" alt="Thumb <?= $index + 1 ?>" class="<?= $index === 0 ? 'active' : '' ?>" onclick="changeImage(this.src, this)">
         <?php endforeach; ?>
     </div>
 </div>

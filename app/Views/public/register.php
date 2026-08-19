@@ -60,6 +60,7 @@
             transition: 0.3s;
             background: none;
             border: none;
+            text-decoration: none;
         }
         .icon-btn:hover {
             color: #4caf50;
@@ -151,17 +152,6 @@
         .social-register .btn-social i {
             margin-right: 10px;
         }
-        .password-requirements {
-            font-size: 0.8rem;
-            color: #888;
-            margin-top: 5px;
-        }
-        .password-requirements .valid {
-            color: #4caf50;
-        }
-        .password-requirements .invalid {
-            color: #dc3545;
-        }
         .footer {
             background: #1a2e1a;
             color: #d4d4d4;
@@ -179,6 +169,9 @@
         }
         .footer a:hover {
             color: #4caf50;
+        }
+        .alert-danger p {
+            margin-bottom: 0;
         }
         @media (max-width: 768px) {
             .register-box {
@@ -202,13 +195,13 @@
                 <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
                 <li class="nav-item"><a class="nav-link" href="/cart">Cart</a></li>
                 <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-                <li class="nav-item"><a class="nav-link active" href="#">Register</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/register">Register</a></li>
             </ul>
             <div class="d-flex align-items-center">
                 <input class="search-box me-2" type="search" placeholder="Search for products...">
                 <button class="icon-btn"><i class="far fa-heart"></i></button>
-                <a href="/cart" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="fas fa-shopping-cart"></i></a>
-                <a href="/login" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="far fa-user"></i></a>
+                <a href="/cart" class="icon-btn"><i class="fas fa-shopping-cart"></i></a>
+                <a href="/login" class="icon-btn"><i class="far fa-user"></i></a>
             </div>
         </div>
     </div>
@@ -221,62 +214,86 @@
             <h3><i class="fas fa-user-plus text-success me-2"></i>Create Account</h3>
             <p class="subtitle">Join ShopEase and start shopping today.</p>
 
-           <form action="/register" method="post">
-    <?= csrf_field() ?>
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label>First Name <span class="text-danger">*</span></label>
-            <input type="text" name="first_name" class="form-control" placeholder="John" required>
-        </div>
-        <div class="col-md-6 mb-3">
-            <label>Last Name <span class="text-danger">*</span></label>
-            <input type="text" name="last_name" class="form-control" placeholder="Doe" required>
-        </div>
-    </div>
-    <div class="mb-3">
-        <label>Email Address <span class="text-danger">*</span></label>
-        <input type="email" name="email" class="form-control" placeholder="john@example.com" required>
-    </div>
-    <div class="mb-3">
-        <label>Phone Number</label>
-        <input type="tel" name="phone" class="form-control" placeholder="+1 234 567 890">
-    </div>
-    <div class="mb-3">
-        <label>Password <span class="text-danger">*</span></label>
-        <input type="password" name="password" class="form-control" placeholder="Min 8 characters" required>
-    </div>
-    <div class="mb-3">
-        <label>Confirm Password <span class="text-danger">*</span></label>
-        <input type="password" name="confirm_password" class="form-control" placeholder="Confirm your password" required>
-    </div>
-    <div class="mb-3">
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
-            <label class="form-check-label" for="terms">
-                I agree to the <a href="#" class="text-success">Terms & Conditions</a> and <a href="#" class="text-success">Privacy Policy</a>
-            </label>
-        </div>
-    </div>
-    <?php if (session()->getFlashdata('errors')): ?>
-        <div class="alert alert-danger">
-            <?php foreach (session()->getFlashdata('errors') as $error): ?>
-                <p class="mb-0"><?= $error ?></p>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
-    <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
-    <?php endif; ?>
-    <button type="submit" class="btn-register"><i class="fas fa-user-plus me-2"></i>Create Account</button>
-</form>
+            <!-- ✅ ማሳወቂያዎች -->
+            <?php if (session()->getFlashdata('error')): ?>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i><?= session()->getFlashdata('error') ?>
+                </div>
+            <?php endif; ?>
+            
+            <?php if (session()->getFlashdata('success')): ?>
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- ✅ የተስተካከለ ፎርም - ከ customers ሰንጠረዥ ጋር የሚዛመድ -->
+            <form action="/register" method="post">
+                <?= csrf_field() ?>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="first_name">First Name <span class="text-danger">*</span></label>
+                        <input type="text" name="first_name" id="first_name" class="form-control" placeholder="John" value="<?= old('first_name') ?>" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="last_name">Last Name <span class="text-danger">*</span></label>
+                        <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Doe" value="<?= old('last_name') ?>" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="email">Email Address <span class="text-danger">*</span></label>
+                    <input type="email" name="email" id="email" class="form-control" placeholder="john@example.com" value="<?= old('email') ?>" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" name="phone" id="phone" class="form-control" placeholder="+1 234 567 890" value="<?= old('phone') ?>">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password">Password <span class="text-danger">*</span></label>
+                    <input type="password" name="password" id="password" class="form-control" placeholder="Min 6 characters" required>
+                    <small class="text-muted">Password must be at least 6 characters long.</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password_confirm">Confirm Password <span class="text-danger">*</span></label>
+                    <input type="password" name="password_confirm" id="password_confirm" class="form-control" placeholder="Confirm your password" required>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                        <label class="form-check-label" for="terms">
+                            I agree to the <a href="#" class="text-success">Terms & Conditions</a> and <a href="#" class="text-success">Privacy Policy</a> <span class="text-danger">*</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- ✅ የማረጋገጫ ስህተቶች -->
+                <?php if (session()->getFlashdata('errors')): ?>
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <?php foreach (session()->getFlashdata('errors') as $error): ?>
+                            <p class="mb-0">• <?= $error ?></p>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+                
+                <button type="submit" class="btn-register"><i class="fas fa-user-plus me-2"></i>Create Account</button>
+            </form>
 
             <div class="divider">
                 <span>OR</span>
             </div>
 
-           <div class="social-register">
-    <button class="btn-social" onclick="alert('Google registration will be available soon. Please use email registration.')"><i class="fab fa-google text-danger"></i>Continue with Google</button>
-</div>
+            <div class="social-register">
+                <button class="btn-social" onclick="alert('Google registration will be available soon. Please use email registration.')">
+                    <i class="fab fa-google text-danger"></i>Continue with Google
+                </button>
+            </div>
 
             <div class="text-center mt-4">
                 <p class="text-muted">Already have an account? <a href="/login" class="login-link">Sign In</a></p>
@@ -296,17 +313,17 @@
             <div class="col-md-2 mb-4">
                 <h5>Quick Links</h5>
                 <ul class="list-unstyled">
-                    <li><a href="#">About Us</a></li>
-                    <li><a href="#">Contact</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="/privacy">Privacy Policy</a></li>
                 </ul>
             </div>
             <div class="col-md-3 mb-4">
                 <h5>Customer Service</h5>
                 <ul class="list-unstyled">
-                    <li><a href="#">Help Center</a></li>
-                    <li><a href="#">Returns</a></li>
-                    <li><a href="#">Shipping Info</a></li>
+                    <li><a href="/help">Help Center</a></li>
+                    <li><a href="/returns">Returns</a></li>
+                    <li><a href="/shipping">Shipping Info</a></li>
                 </ul>
             </div>
             <div class="col-md-3 mb-4">

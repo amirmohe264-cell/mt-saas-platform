@@ -20,8 +20,9 @@
         .search-box { background: #2a402a; border-radius: 30px; padding: 5px 15px; border: none; color: #fff; }
         .search-box::placeholder { color: #aaa; }
         .search-box:focus { outline: none; background: #2a402a; box-shadow: 0 0 0 2px #4caf50; }
-        .icon-btn { color: #d4d4d4; font-size: 1.2rem; margin: 0 8px; transition: 0.3s; background: none; border: none; }
+        .icon-btn { color: #d4d4d4; font-size: 1.2rem; margin: 0 8px; transition: 0.3s; background: none; border: none; position: relative; text-decoration: none; }
         .icon-btn:hover { color: #4caf50; transform: scale(1.1); }
+        .cart-badge { background: #dc3545; color: #fff; border-radius: 50%; padding: 2px 8px; font-size: 0.7rem; position: absolute; top: -8px; right: -8px; font-weight: 600; min-width: 18px; text-align: center; }
         .page-header { background: #1a2e1a; color: #fff; padding: 40px 0 30px; }
         .page-header h2 { font-weight: 700; }
         .page-header .breadcrumb { background: none; padding: 0; margin: 0; }
@@ -34,7 +35,7 @@
         .filter-sidebar .subcategory-list { padding-left: 20px; margin-top: 5px; }
         .filter-sidebar .subcategory-list .form-check { margin-bottom: 3px; }
         .filter-sidebar .subcategory-list .form-check-label { font-size: 0.8rem; color: #777; }
-        .product-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e8f0e8; transition: 0.3s; height: 100%; }
+        .product-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e8f0e8; transition: 0.3s; height: 100%; display: flex; flex-direction: column; }
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(76, 175, 80, 0.12); border-color: #4caf50; }
         .product-card .product-image { height: 150px; object-fit: contain; width: 100%; }
         .product-card .product-name { color: #1a2e1a; font-weight: 600; font-size: 1rem; margin-top: 10px; }
@@ -42,8 +43,11 @@
         .product-card .product-subcategory { color: #aaa; font-size: 0.75rem; }
         .product-card .price { color: #1a2e1a; font-weight: 700; font-size: 1.2rem; }
         .product-card .old-price { color: #aaa; font-size: 0.9rem; text-decoration: line-through; margin-left: 8px; }
-        .product-card .btn-add { background: #4caf50; color: #fff; border: none; border-radius: 30px; padding: 8px 20px; font-weight: 600; font-size: 0.85rem; transition: 0.3s; width: 100%; text-decoration: none; display: inline-block; text-align: center; }
+        .product-card .btn-add { background: #4caf50; color: #fff; border: none; border-radius: 30px; padding: 8px 20px; font-weight: 600; font-size: 0.85rem; transition: 0.3s; text-decoration: none; display: inline-block; text-align: center; }
         .product-card .btn-add:hover { background: #388e3c; color: #fff; }
+        .product-card .btn-cart { background: #ff6b35; color: #fff; border: none; border-radius: 30px; padding: 8px 15px; font-weight: 600; font-size: 0.85rem; transition: 0.3s; cursor: pointer; flex: 0 0 auto; }
+        .product-card .btn-cart:hover { background: #e55a2b; transform: scale(1.05); }
+        .product-card .btn-cart:active { transform: scale(0.95); }
         .pagination .page-link { color: #1a2e1a; }
         .pagination .page-item.active .page-link { background: #4caf50; border-color: #4caf50; color: #fff; }
         .pagination .page-link:hover { color: #4caf50; }
@@ -57,6 +61,12 @@
         .category-toggle:hover { color: #4caf50; }
         .subcategory-list { display: none; }
         .subcategory-list.show { display: block; }
+        .toast-container { position: fixed; top: 100px; right: 20px; z-index: 9999; }
+        .toast-custom { background: #fff; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin-bottom: 10px; border-left: 4px solid #4caf50; animation: slideIn 0.3s ease; }
+        .toast-custom.error { border-left-color: #dc3545; }
+        .toast-custom.success { border-left-color: #4caf50; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @media (max-width: 768px) { .product-card .product-image { height: 120px; } }
     </style>
 </head>
 <body>
@@ -77,12 +87,18 @@
             <div class="d-flex align-items-center">
                 <input class="search-box me-2" type="search" placeholder="Search for products...">
                 <button class="icon-btn"><i class="far fa-heart"></i></button>
-                <a href="/cart" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="fas fa-shopping-cart"></i></a>
-                <a href="/login" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="far fa-user"></i></a>
+                <a href="/cart" class="icon-btn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-badge" id="cartBadge"><?= session()->get('cart_count') ?? 0 ?></span>
+                </a>
+                <a href="/login" class="icon-btn"><i class="far fa-user"></i></a>
             </div>
         </div>
     </div>
 </nav>
+
+<!-- Toast Notification Container -->
+<div class="toast-container" id="toastContainer"></div>
 
 <!-- Page Header -->
 <section class="page-header">
@@ -184,7 +200,16 @@
                                             <span class="old-price">$<?= number_format($product['old_price'], 2) ?></span>
                                         <?php endif; ?>
                                     </div>
-                                    <a href="/product/<?= $product['slug'] ?>" class="btn-add mt-2"><i class="fas fa-eye me-2"></i>View Details</a>
+                                    <div class="d-flex gap-2 mt-2" style="margin-top: auto !important;">
+                                        <a href="/product/<?= $product['slug'] ?>" class="btn-add flex-grow-1">
+                                            <i class="fas fa-eye me-2"></i>View Details
+                                        </a>
+                                        <button onclick="addToCart(<?= $product['id'] ?>)" 
+                                                class="btn-cart" 
+                                                title="Add to Cart">
+                                            <i class="fas fa-cart-plus"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -255,6 +280,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // ============================================
+    // NAVBAR SCROLL EFFECT
+    // ============================================
     window.addEventListener('scroll', function() {
         var navbar = document.querySelector('.navbar');
         if (window.scrollY > 50) {
@@ -264,6 +292,9 @@
         }
     });
 
+    // ============================================
+    // TOGGLE SUBCATEGORIES
+    // ============================================
     function toggleSubcategories(categoryId) {
         var subcatList = document.getElementById('subcat_' + categoryId);
         if (subcatList) {
@@ -271,6 +302,9 @@
         }
     }
 
+    // ============================================
+    // APPLY FILTERS
+    // ============================================
     function applyFilters() {
         var selectedCategories = [];
         var selectedSubcategories = [];
@@ -299,11 +333,7 @@
             
             var categoryMatch = selectedCategories.length === 0;
             if (!categoryMatch) {
-                // Check if product's category matches any selected category
                 selectedCategories.forEach(function(catId) {
-                    // We need to check if the product belongs to this category
-                    // This requires knowing the category ID for each product
-                    // For now, we'll use the category name
                     var catName = document.querySelector('#cat_' + catId)?.nextElementSibling?.textContent?.trim();
                     if (catName && category === catName) {
                         categoryMatch = true;
@@ -323,12 +353,11 @@
             
             var priceMatch = price >= minPrice && price <= maxPrice;
             
-            var productCol = product;
             if (categoryMatch && subcategoryMatch && priceMatch) {
-                productCol.style.display = 'block';
+                product.style.display = 'block';
                 visibleCount++;
             } else {
-                productCol.style.display = 'none';
+                product.style.display = 'none';
             }
         });
         
@@ -350,6 +379,160 @@
             }
         }
     }
+
+    // ============================================
+    // ADD TO CART FUNCTION
+    // ============================================
+    function addToCart(productId, quantity = 1) {
+    fetch('/cart/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: 'product_id=' + productId + '&quantity=' + quantity
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ Product added to cart successfully!');
+            if (data.cart_count !== undefined) {
+                document.getElementById('cartBadge').textContent = data.cart_count;
+            }
+        } else {
+            if (data.redirect) {
+                // 🎯 ወደ ምዝገባ ገፅ አዙር
+                window.location.href = data.redirect;
+            } else {
+                alert('❌ ' + data.message);
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('❌ An error occurred.');
+    });
+}
+
+    // ============================================
+    // UPDATE CART BADGE
+    // ============================================
+    function updateCartBadge(count) {
+        var badge = document.getElementById('cartBadge');
+        if (badge) {
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'inline';
+            } else {
+                badge.textContent = '0';
+                badge.style.display = 'inline';
+            }
+        }
+    }
+
+    // ============================================
+    // SHOW TOAST NOTIFICATION
+    // ============================================
+    function showToast(message, type = 'success') {
+        var container = document.getElementById('toastContainer');
+        var toast = document.createElement('div');
+        toast.className = 'toast-custom ' + type;
+        toast.textContent = message;
+        
+        container.appendChild(toast);
+        
+        // Auto remove after 4 seconds
+        setTimeout(function() {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.5s ease';
+            setTimeout(function() {
+                toast.remove();
+            }, 500);
+        }, 4000);
+    }
+
+    // ============================================
+    // CHECK FOR PENDING PRODUCT AFTER LOGIN
+    // ============================================
+    <?php if (session()->getFlashdata('pending_product_added')): ?>
+        showToast('✅ Product added to cart after login!', 'success');
+        <?php 
+        // Update cart badge
+        $cartCount = session()->get('cart_count') ?? 0;
+        ?>
+        updateCartBadge(<?= $cartCount ?>);
+    <?php endif; ?>
+
+    // ============================================
+    // CHECK PENDING PRODUCT FROM SESSION STORAGE
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if there's a pending product from sessionStorage (if user just logged in)
+        var pendingProduct = sessionStorage.getItem('pending_product');
+        if (pendingProduct) {
+            try {
+                var product = JSON.parse(pendingProduct);
+                // Try to add the product to cart
+                var isLoggedIn = <?= session()->get('user_id') ? 'true' : 'false' ?>;
+                if (isLoggedIn) {
+                    // Product was pending, now add it
+                    fetch('/cart/add', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: 'product_id=' + product.product_id + '&quantity=' + (product.quantity || 1)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('✅ Product added to cart successfully!', 'success');
+                            if (data.cart_count !== undefined) {
+                                updateCartBadge(data.cart_count);
+                            }
+                            sessionStorage.removeItem('pending_product');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error adding pending product:', error);
+                    });
+                }
+            } catch (e) {
+                console.error('Error parsing pending product:', e);
+                sessionStorage.removeItem('pending_product');
+            }
+        }
+    });
+
+    // ============================================
+    // GET CART COUNT ON PAGE LOAD
+    // ============================================
+    function loadCartCount() {
+        var isLoggedIn = <?= session()->get('user_id') ? 'true' : 'false' ?>;
+        if (isLoggedIn) {
+            fetch('/cart/count', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.count !== undefined) {
+                    updateCartBadge(data.count);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading cart count:', error);
+            });
+        }
+    }
+
+    // Load cart count on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCartCount();
+    });
 </script>
 </body>
 </html>
