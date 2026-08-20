@@ -314,6 +314,10 @@ function resolveImageUrl($path) {
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+<<<<<<< HEAD
+=======
+                
+>>>>>>> 977198cdb71af1e4654176d1873205f2522a1b2c
                 <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
                 <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
             </ul>
