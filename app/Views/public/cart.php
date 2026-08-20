@@ -8,6 +8,41 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { padding-top: 80px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; }
+        
+        /* ✅ Notification Toast Styles */
+        .notification-container {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 380px;
+            width: 100%;
+        }
+        .notification-toast {
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            border-left: 4px solid #4caf50;
+            animation: slideInRight 0.4s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .notification-toast.error { border-left-color: #dc3545; }
+        .notification-toast.warning { border-left-color: #ffc107; }
+        .notification-toast.info { border-left-color: #17a2b8; }
+        .notification-toast .notif-icon { font-size: 1.3rem; margin-top: 2px; }
+        .notification-toast .notif-content { flex: 1; }
+        .notification-toast .notif-title { font-weight: 600; color: #1a2e1a; font-size: 0.9rem; }
+        .notification-toast .notif-message { color: #555; font-size: 0.85rem; }
+        .notification-toast .notif-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1rem; padding: 0 5px; }
+        .notification-toast .notif-close:hover { color: #333; }
+        .notification-toast.removing { animation: slideOutRight 0.3s ease forwards; }
+        @keyframes slideInRight { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100px); opacity: 0; } }
+        
         .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: #1a2e1a !important; padding: 15px 0; transition: all 0.3s ease; box-shadow: 0 2px 20px rgba(0,0,0,0.3); }
         .navbar-scrolled { background: rgba(26, 46, 26, 0.88) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 30px rgba(0,0,0,0.5); padding: 8px 0; }
         .navbar-brand { color: #fff !important; font-weight: bold; font-size: 1.5rem; }
@@ -53,6 +88,9 @@
     </style>
 </head>
 <body>
+
+<!-- ✅ Notification Container -->
+<div class="notification-container" id="notificationContainer"></div>
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg fixed-top">
@@ -144,7 +182,7 @@
                                             </td>
                                             <td class="product-price" id="total-<?= $item['product_id'] ?>">$<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
                                             <td>
-                                                <button class="btn-remove" onclick="removeFromCart(<?= $item['product_id'] ?>)"><i class="fas fa-trash-alt"></i></button>
+                                                <button class="btn-remove" onclick="removeFromCart(<?= $item['product_id'] ?>, '<?= $item['product_name'] ?>')"><i class="fas fa-trash-alt"></i></button>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -237,120 +275,173 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    window.addEventListener('scroll', function() {
-        var navbar = document.querySelector('.navbar');
-        if (window.scrollY > 50) {
-            navbar.classList.add('navbar-scrolled');
+// ==========================================
+// 1. SHOW FLASH MESSAGES
+// ==========================================
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if (session()->getFlashdata('success')): ?>
+        showNotification('success', '✅ Success', '<?= session()->getFlashdata('success') ?>');
+    <?php endif; ?>
+    
+    <?php if (session()->getFlashdata('error')): ?>
+        showNotification('error', '❌ Error', '<?= session()->getFlashdata('error') ?>');
+    <?php endif; ?>
+});
+
+// ==========================================
+// 2. NOTIFICATION FUNCTION
+// ==========================================
+function showNotification(type, title, message) {
+    const container = document.getElementById('notificationContainer');
+    if (!container) return;
+    
+    const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+    const icon = icons[type] || 'ℹ️';
+    
+    const toast = document.createElement('div');
+    toast.className = 'notification-toast ' + (type === 'error' ? 'error' : type === 'warning' ? 'warning' : type === 'info' ? 'info' : '');
+    toast.innerHTML = `
+        <div class="notif-icon">${icon}</div>
+        <div class="notif-content">
+            <div class="notif-title">${title}</div>
+            <div class="notif-message">${message}</div>
+        </div>
+        <button class="notif-close" onclick="this.closest('.notification-toast').remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.classList.add('removing');
+            setTimeout(() => {
+                if (toast.parentNode) toast.remove();
+            }, 300);
+        }
+    }, 5000);
+}
+
+// ==========================================
+// 3. CART FUNCTIONS
+// ==========================================
+window.addEventListener('scroll', function() {
+    var navbar = document.querySelector('.navbar');
+    if (window.scrollY > 50) {
+        navbar.classList.add('navbar-scrolled');
+    } else {
+        navbar.classList.remove('navbar-scrolled');
+    }
+});
+
+function updateCart(input) {
+    var productId = input.dataset.productId;
+    var quantity = parseInt(input.value);
+    var maxStock = parseInt(input.max);
+
+    if (quantity < 1) {
+        quantity = 1;
+        input.value = 1;
+    }
+
+    if (quantity > maxStock) {
+        showNotification('warning', '⚠️ Stock Limit', 'Not enough stock available. Max: ' + maxStock);
+        input.value = maxStock;
+        quantity = maxStock;
+    }
+
+    fetch('/cart/update', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: 'product_id=' + productId + '&quantity=' + quantity
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateCartTotals();
+            showNotification('success', '🔄 Updated', 'Quantity updated successfully!');
         } else {
-            navbar.classList.remove('navbar-scrolled');
+            showNotification('error', '❌ Error', data.message);
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('error', '❌ Error', 'Something went wrong.');
     });
+}
 
-    function updateCart(input) {
-        var productId = input.dataset.productId;
-        var quantity = parseInt(input.value);
-        var maxStock = parseInt(input.max);
-
-        if (quantity < 1) {
-            quantity = 1;
-            input.value = 1;
-        }
-
-        if (quantity > maxStock) {
-            alert('Not enough stock available. Max: ' + maxStock);
-            input.value = maxStock;
-            quantity = maxStock;
-        }
-
-        fetch('/cart/update', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: 'product_id=' + productId + '&quantity=' + quantity
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update cart total
-                updateCartTotals();
-            } else {
-                alert(data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+function removeFromCart(productId, productName) {
+    if (!confirm('Are you sure you want to remove "' + productName + '" from your cart?')) {
+        return;
     }
 
-    function removeFromCart(productId) {
-        if (!confirm('Are you sure you want to remove this item from your cart?')) {
-            return;
+    fetch('/cart/remove', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: 'product_id=' + productId
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('cart-row-' + productId).remove();
+            updateCartTotals();
+            updateCartBadge(data.cart_count);
+            showNotification('info', '🗑️ Removed', productName + ' removed from cart!');
+            
+            if (data.cart_count === 0) {
+                setTimeout(() => location.reload(), 1000);
+            }
+        } else {
+            showNotification('error', '❌ Error', data.message);
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('error', '❌ Error', 'Something went wrong.');
+    });
+}
 
-        fetch('/cart/remove', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: 'product_id=' + productId
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('cart-row-' + productId).remove();
-                updateCartTotals();
-                updateCartBadge(data.cart_count);
-                
-                // If cart is empty, reload to show empty message
-                if (data.cart_count === 0) {
-                    location.reload();
-                }
-            } else {
-                alert(data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }
+function updateCartTotals() {
+    fetch('/cart/totals', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('subtotal').textContent = '$' + data.subtotal.toFixed(2);
+            document.getElementById('shipping').textContent = data.shipping > 0 ? '$' + data.shipping.toFixed(2) : 'Free';
+            document.getElementById('tax').textContent = '$' + data.tax.toFixed(2);
+            document.getElementById('grandTotal').textContent = '$' + data.grandTotal.toFixed(2);
+            document.getElementById('itemCount').textContent = data.itemCount + ' items in your cart';
+            updateCartBadge(data.itemCount);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
 
-    function updateCartTotals() {
-        fetch('/cart/totals', {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('subtotal').textContent = '$' + data.subtotal.toFixed(2);
-                document.getElementById('shipping').textContent = data.shipping > 0 ? '$' + data.shipping.toFixed(2) : 'Free';
-                document.getElementById('tax').textContent = '$' + data.tax.toFixed(2);
-                document.getElementById('grandTotal').textContent = '$' + data.grandTotal.toFixed(2);
-                document.getElementById('itemCount').textContent = data.itemCount + ' items in your cart';
-                updateCartBadge(data.itemCount);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }
-
-    function updateCartBadge(count) {
-        var badge = document.getElementById('cartBadge');
-        if (badge) {
-            if (count > 0) {
-                badge.textContent = count;
-                badge.style.display = 'inline';
-            } else {
-                badge.style.display = 'none';
-            }
+function updateCartBadge(count) {
+    var badge = document.getElementById('cartBadge');
+    if (badge) {
+        if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = 'inline';
+        } else {
+            badge.style.display = 'none';
         }
     }
+}
 </script>
 </body>
 </html>

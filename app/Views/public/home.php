@@ -18,6 +18,75 @@ body {
     padding-top: 80px;
 }
 
+/* ✅ Notification Toast Styles */
+.notification-container {
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 380px;
+    width: 100%;
+}
+.notification-toast {
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+    border-left: 4px solid #4caf50;
+    animation: slideInRight 0.4s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+.notification-toast.error {
+    border-left-color: #dc3545;
+}
+.notification-toast.warning {
+    border-left-color: #ffc107;
+}
+.notification-toast.info {
+    border-left-color: #17a2b8;
+}
+.notification-toast .notif-icon {
+    font-size: 1.3rem;
+    margin-top: 2px;
+}
+.notification-toast .notif-content {
+    flex: 1;
+}
+.notification-toast .notif-title {
+    font-weight: 600;
+    color: #1a2e1a;
+    font-size: 0.9rem;
+}
+.notification-toast .notif-message {
+    color: #555;
+    font-size: 0.85rem;
+}
+.notification-toast .notif-close {
+    background: none;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 5px;
+}
+.notification-toast .notif-close:hover {
+    color: #333;
+}
+@keyframes slideInRight {
+    from { transform: translateX(100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100px); opacity: 0; }
+}
+.notification-toast.removing {
+    animation: slideOutRight 0.3s ease forwards;
+}
+
 /* Fixed Navbar - Glass Morphism Effect */
 .navbar {
     position: fixed;
@@ -445,6 +514,9 @@ body {
 </head>
 <body>
 
+<!-- ✅ Notification Container -->
+<div class="notification-container" id="notificationContainer"></div>
+
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container">
@@ -454,14 +526,57 @@ body {
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link <?= (current_url() == base_url('/') || current_url() == base_url()) ? 'active' : '' ?>" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link <?= strpos(current_url(), 'products') !== false ? 'active' : '' ?>" href="/products">Products</a></li>
-                <li class="nav-item"><a class="nav-link <?= strpos(current_url(), 'contact') !== false ? 'active' : '' ?>" href="/contact">Contact</a></li>
+                <li class="nav-item">
+                    <a class="nav-link <?= (current_url() == base_url('/') || current_url() == base_url()) ? 'active' : '' ?>" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= strpos(current_url(), 'products') !== false ? 'active' : '' ?>" href="/products">Products</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= strpos(current_url(), 'contact') !== false ? 'active' : '' ?>" href="/contact">Contact</a>
+                </li>
+                
+                <?php if(isset($is_logged_in) && $is_logged_in): ?>
+                    
+                    <?php if($user_role === 'customer'): ?>
+                        <li class="nav-item">
+                            <a class="nav-link <?= strpos(current_url(), 'dashboard') !== false && strpos(current_url(), 'store') === false && strpos(current_url(), 'admin') === false ? 'active' : '' ?>" href="/dashboard">
+                                <i class="fas fa-user"></i> My Dashboard
+                            </a>
+                        </li>
+                    <?php elseif($user_role === 'store_owner'): ?>
+                        <li class="nav-item">
+                            <a class="nav-link <?= strpos(current_url(), 'store/dashboard') !== false ? 'active' : '' ?>" href="/store/dashboard">
+                                <i class="fas fa-store"></i> Store Dashboard
+                            </a>
+                        </li>
+                    <?php elseif($user_role === 'super_admin'): ?>
+                        <li class="nav-item">
+                            <a class="nav-link <?= strpos(current_url(), 'admin/dashboard') !== false ? 'active' : '' ?>" href="/admin/dashboard">
+                                <i class="fas fa-crown"></i> Admin Dashboard
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                    
+                <?php else: ?>
+                    
+                <?php endif; ?>
             </ul>
             <div class="d-flex align-items-center">
                 <input class="search-box me-2" type="search" placeholder="Search for products...">
-                <a href="/cart" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="fas fa-shopping-cart"></i></a>
-                <a href="/login" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="far fa-user"></i></a>
+                <a href="/cart" class="icon-btn" style="color:#d4d4d4;text-decoration:none;position:relative;">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-badge" id="cartBadge"><?= session()->get('cart_count') ?? 0 ?></span>
+                </a>
+                <?php if(!isset($is_logged_in) || !$is_logged_in): ?>
+                    <a href="/login" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="far fa-user"></i></a>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -476,9 +591,9 @@ body {
                 <h1>Discover Everything <br><span>You Need</span></h1>
                 <p>From the latest tech to everyday essentials, find it all in one place with unbeatable deals.</p>
                 <div class="mt-4">
-    <a href="/products" class="btn btn-shop me-3">Shop Now</a>
-    <a href="/store/apply" class="btn btn-outline-shop mt-2 mt-md-0" style="border-color: #4caf50; color: #4caf50; background: transparent;">Open Your Store</a>
-</div>
+                    <a href="/products" class="btn btn-shop me-3">Shop Now</a>
+                    <a href="/store/apply" class="btn btn-outline-shop mt-2 mt-md-0" style="border-color: #4caf50; color: #4caf50; background: transparent;">Open Your Store</a>
+                </div>
             </div>
         </div>
     </div>
@@ -506,6 +621,7 @@ body {
         </div>
     </div>
 </section>
+
 <!-- Featured Products -->
 <section class="py-5">
     <div class="container">
@@ -517,25 +633,28 @@ body {
             <?php if (isset($featuredProducts) && !empty($featuredProducts)): ?>
                 <?php foreach ($featuredProducts as $product): ?>
                     <div class="col-lg-5th col-md-4 col-6 mb-4">
-                     <div class="product-card-home">
-    <div class="text-center">
-        <img src="<?= $product['image'] ?>" alt="<?= $product['name'] ?>" class="product-image-home">
-    </div>
-    <div class="d-flex justify-content-between mt-2">
-        <?php foreach ($product['badges'] as $badge): ?>
-            <span class="badge <?= $badge === 'New' ? 'bg-success' : 'bg-danger' ?>"><?= $badge ?></span>
-        <?php endforeach; ?>
-    </div>
-    <h6 class="product-name-home"><?= $product['name'] ?></h6>
-    <p class="product-category-home"><?= $product['category'] ?></p>
-    <div>
-        <span class="price-home">$<?= number_format($product['price'], 2) ?></span>
-        <?php if ($product['old_price']): ?>
-            <span class="old-price-home">$<?= number_format($product['old_price'], 2) ?></span>
-        <?php endif; ?>
-    </div>
-    <a href="/product/<?= $product['slug'] ?>" class="btn-add-home mt-2">View Details</a>
-</div>
+                        <div class="product-card-home">
+                            <div class="text-center">
+                                <img src="<?= $product['image'] ?>" alt="<?= $product['name'] ?>" class="product-image-home">
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <?php foreach ($product['badges'] as $badge): ?>
+                                    <span class="badge <?= $badge === 'New' ? 'bg-success' : 'bg-danger' ?>"><?= $badge ?></span>
+                                <?php endforeach; ?>
+                            </div>
+                            <h6 class="product-name-home"><?= $product['name'] ?></h6>
+                            <p class="product-category-home"><?= $product['category'] ?></p>
+                            <div>
+                                <span class="price-home">$<?= number_format($product['price'], 2) ?></span>
+                                <?php if ($product['old_price']): ?>
+                                    <span class="old-price-home">$<?= number_format($product['old_price'], 2) ?></span>
+                                <?php endif; ?>
+                            </div>
+                            <!-- ✅ Add to Cart Button with Notification -->
+                            <button class="btn-add-home mt-2 add-to-cart-btn" data-product-id="<?= $product['id'] ?>" data-product-name="<?= $product['name'] ?>" data-product-price="<?= $product['price'] ?>">
+                                <i class="fas fa-cart-plus me-1"></i> Add to Cart
+                            </button>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
@@ -546,7 +665,7 @@ body {
         </div>
     </div>
 </section>
-  
+
 <!-- Footer -->
 <footer class="footer">
     <div class="container">
@@ -594,94 +713,175 @@ body {
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ✅ Notification System Script -->
 <script>
-    // Navbar scroll effect - Glass Morphism
-    window.addEventListener('scroll', function() {
-        var navbar = document.querySelector('.navbar');
-        if (window.scrollY > 50) {
-            navbar.classList.add('navbar-scrolled');
-        } else {
-            navbar.classList.remove('navbar-scrolled');
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    // ==========================================
+    // 1. SHOW FLASH MESSAGES FROM CONTROLLER
+    // ==========================================
+    <?php if (session()->getFlashdata('success')): ?>
+        showNotification('success', '✅ Success', '<?= session()->getFlashdata('success') ?>');
+    <?php endif; ?>
+    
+    <?php if (session()->getFlashdata('error')): ?>
+        showNotification('error', '❌ Error', '<?= session()->getFlashdata('error') ?>');
+    <?php endif; ?>
+    
+    <?php if (session()->getFlashdata('warning')): ?>
+        showNotification('warning', '⚠️ Warning', '<?= session()->getFlashdata('warning') ?>');
+    <?php endif; ?>
+    
+    <?php if (session()->getFlashdata('info')): ?>
+        showNotification('info', 'ℹ️ Info', '<?= session()->getFlashdata('info') ?>');
+    <?php endif; ?>
+
+    // ==========================================
+    // 2. ADD TO CART FUNCTIONALITY
+    // ==========================================
+    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const productId = this.dataset.productId;
+            const productName = this.dataset.productName;
+            const productPrice = this.dataset.productPrice;
+            
+            // Show loading state
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Adding...';
+            this.disabled = true;
+            
+            fetch('/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: 'product_id=' + productId + '&quantity=1'
+            })
+            .then(response => response.json())
+            .then(data => {
+                this.innerHTML = originalText;
+                this.disabled = false;
+                
+                if (data.success) {
+                    // ✅ Show success notification
+                    showNotification(
+                        'success',
+                        '🛒 Added to Cart',
+                        productName + ' added to your cart! ($' + parseFloat(productPrice).toFixed(2) + ')'
+                    );
+                    
+                    // Update cart badge
+                    const badge = document.getElementById('cartBadge');
+                    if (badge) {
+                        badge.textContent = data.cart_count;
+                        badge.style.display = data.cart_count > 0 ? 'inline' : 'none';
+                    }
+                } else {
+                    showNotification('error', '❌ Error', data.message || 'Failed to add to cart.');
+                }
+            })
+            .catch(error => {
+                this.innerHTML = originalText;
+                this.disabled = false;
+                console.error('Error:', error);
+                showNotification('error', '❌ Error', 'Something went wrong. Please try again.');
+            });
+        });
     });
-</script>
-<script>
-    // Wishlist toggle function
-    function toggleWishlist(button) {
-        var icon = button.querySelector('i');
-        
-        // Toggle between far (empty) and fas (filled)
-        if (icon.classList.contains('far')) {
-            icon.classList.remove('far');
-            icon.classList.add('fas');
-            icon.style.color = '#dc3545';
-            button.classList.add('wishlist-active');
-            
-            // Show a quick notification
-            showNotification('Added to wishlist! ❤️');
-        } else {
-            icon.classList.remove('fas');
-            icon.classList.add('far');
-            icon.style.color = '';
-            button.classList.remove('wishlist-active');
-            
-            showNotification('Removed from wishlist! 💔');
-        }
-    }
+});
+
+// ==========================================
+// 3. NOTIFICATION FUNCTION
+// ==========================================
+function showNotification(type, title, message) {
+    const container = document.getElementById('notificationContainer');
+    if (!container) return;
     
-    // Notification function
-    function showNotification(message) {
-        // Check if notification already exists
-        var existing = document.querySelector('.wishlist-notification');
-        if (existing) {
-            existing.remove();
-        }
-        
-        var notification = document.createElement('div');
-        notification.className = 'wishlist-notification';
-        notification.innerHTML = message;
-        notification.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #1a2e1a;
-            color: #fff;
-            padding: 15px 25px;
-            border-radius: 12px;
-            z-index: 9999;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.3);
-            font-size: 1rem;
-            font-weight: 500;
-            animation: slideIn 0.3s ease;
-            border-left: 4px solid #4caf50;
-        `;
-        document.body.appendChild(notification);
-        
-        // Auto remove after 3 seconds
-        setTimeout(function() {
-            notification.style.animation = 'slideOut 0.3s ease';
-            setTimeout(function() {
-                notification.remove();
-            }, 300);
-        }, 3000);
-    }
+    // Icon mapping
+    const icons = {
+        success: '✅',
+        error: '❌',
+        warning: '⚠️',
+        info: 'ℹ️'
+    };
     
-    // Add CSS animations for notification
-    var style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideIn {
-            from { transform: translateX(100px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100px); opacity: 0; }
-        }
-        .wishlist-active i {
-            color: #dc3545 !important;
-        }
+    const icon = icons[type] || 'ℹ️';
+    
+    // Create notification element
+    const toast = document.createElement('div');
+    toast.className = 'notification-toast ' + (type === 'error' ? 'error' : type === 'warning' ? 'warning' : type === 'info' ? 'info' : '');
+    toast.innerHTML = `
+        <div class="notif-icon">${icon}</div>
+        <div class="notif-content">
+            <div class="notif-title">${title}</div>
+            <div class="notif-message">${message}</div>
+        </div>
+        <button class="notif-close" onclick="this.closest('.notification-toast').remove()">
+            <i class="fas fa-times"></i>
+        </button>
     `;
-    document.head.appendChild(style);
+    
+    // Add to container
+    container.appendChild(toast);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.classList.add('removing');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 300);
+        }
+    }, 5000);
+}
+
+// ==========================================
+// 4. CLOSE NOTIFICATION ON CLICK
+// ==========================================
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.notification-toast')) {
+        // Don't auto-close, let user close manually
+    }
+});
+
+// ==========================================
+// 5. NAVBAR SCROLL EFFECT
+// ==========================================
+window.addEventListener('scroll', function() {
+    var navbar = document.querySelector('.navbar');
+    if (window.scrollY > 50) {
+        navbar.classList.add('navbar-scrolled');
+    } else {
+        navbar.classList.remove('navbar-scrolled');
+    }
+});
+
+// ==========================================
+// 6. WISHLIST FUNCTIONALITY
+// ==========================================
+function toggleWishlist(button) {
+    var icon = button.querySelector('i');
+    
+    if (icon.classList.contains('far')) {
+        icon.classList.remove('far');
+        icon.classList.add('fas');
+        icon.style.color = '#dc3545';
+        button.classList.add('wishlist-active');
+        showNotification('success', '❤️ Wishlist', 'Added to wishlist!');
+    } else {
+        icon.classList.remove('fas');
+        icon.classList.add('far');
+        icon.style.color = '';
+        button.classList.remove('wishlist-active');
+        showNotification('info', '💔 Wishlist', 'Removed from wishlist!');
+    }
+}
 </script>
+
 </body>
 </html>
