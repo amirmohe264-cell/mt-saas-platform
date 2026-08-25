@@ -396,6 +396,7 @@ class Home extends BaseController
         if (!$tenantId) {
             return $this->redirectWithMessage('/login', 'Please login.', 'error');
         }
+<<<<<<< HEAD
 
         $rules = [
             'category_id' => 'required|numeric',
@@ -511,6 +512,127 @@ class Home extends BaseController
         
         return $this->view('admin/dashboard');
     }
+=======
+
+        $rules = [
+            'category_id' => 'required|numeric',
+            'subcategory_name' => 'required|min_length[2]|max_length[255]',
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->with('errors', $this->validator->getErrors())->withInput();
+        }
+
+        // Check if subcategory already exists
+        $existing = $this->subcategoryModel
+                        ->where('category_id', $this->request->getPost('category_id'))
+                        ->where('tenant_id', $tenantId)
+                        ->where('subcategory_name', $this->request->getPost('subcategory_name'))
+                        ->first();
+
+        if ($existing) {
+            return redirect()->back()->with('error', 'This subcategory already exists for your store.');
+        }
+
+        $data = [
+            'category_id' => $this->request->getPost('category_id'),
+            'tenant_id' => $tenantId,
+            'subcategory_name' => $this->request->getPost('subcategory_name'),
+            'is_active' => $this->request->getPost('is_active') ? true : false,
+        ];
+
+        if ($this->subcategoryModel->insert($data)) {
+            return redirect()->to('/store/subcategories')->with('success', 'Subcategory created successfully!');
+        } else {
+            return redirect()->back()->with('error', 'Failed to create subcategory.');
+        }
+    }
+
+    public function toggleStatus($id)
+    {
+        $tenantId = $this->getTenantId();
+        if (!$tenantId) {
+            return $this->redirectWithMessage('/login', 'Please login.', 'error');
+        }
+
+        $subcategory = $this->subcategoryModel->where('tenant_id', $tenantId)->find($id);
+        if (!$subcategory) {
+            return redirect()->to('/store/subcategories')->with('error', 'Subcategory not found.');
+        }
+
+        $newStatus = $subcategory['is_active'] ? false : true;
+        $this->subcategoryModel->update($id, ['is_active' => $newStatus]);
+
+        $statusText = $newStatus ? 'activated' : 'deactivated';
+        return redirect()->to('/store/subcategories')->with('success', "Subcategory $statusText successfully.");
+    }
+
+    public function storeDashboard()
+    {
+        // Check if user is logged in as store owner
+        if (!$this->isLoggedIn()) {
+            return $this->redirectWithMessage('/login', 'Please login to access your store dashboard.', 'error');
+        }
+        
+        if ($this->getUserRole() !== 'store_owner') {
+            return $this->redirectWithMessage('/dashboard', 'You do not have permission to access this page.', 'error');
+        }
+        
+        $tenantId = $this->getTenantId();
+        
+        // Get store data
+        $tenantModel = new \App\Models\TenantModel();
+        $tenant = $tenantModel->find($tenantId);
+        
+        // Get products
+        $productModel = new \App\Models\ProductModel();
+        $products = $productModel->where('tenant_id', $tenantId)->findAll();
+        $totalProducts = count($products);
+        $publishedProducts = $productModel->where('tenant_id', $tenantId)->where('status', 'published')->countAllResults();
+        
+        // Get order counts
+        $orderModel = new \App\Models\OrderModel();
+        $totalOrders = $orderModel->where('tenant_id', $tenantId)->countAllResults();
+        $pendingOrders = $orderModel->where('tenant_id', $tenantId)->where('order_status', 'pending')->countAllResults();
+        
+        // Get revenue
+        $revenue = $orderModel->getRevenueByPeriod($tenantId, 'all');
+        
+        // Get recent orders
+        $recentOrders = $orderModel->getOrdersByTenant($tenantId);
+        $recentOrders = array_slice($recentOrders, 0, 5);
+        
+        // Get best selling products
+        $bestSellers = $productModel->getBestSellingProducts($tenantId, 5);
+        
+        return $this->view('store_owner/dashboard', [
+            'tenant' => $tenant,
+            'products' => $products,
+            'totalProducts' => $totalProducts,
+            'publishedProducts' => $publishedProducts,
+            'totalOrders' => $totalOrders,
+            'pendingOrders' => $pendingOrders,
+            'revenue' => $revenue,
+            'recentOrders' => $recentOrders,
+            'bestSellers' => $bestSellers,
+        ]);
+    }
+
+    public function adminDashboard()
+    {
+        // Check if user is logged in as super admin
+        if (!$this->isLoggedIn()) {
+            return $this->redirectWithMessage('/login', 'Please login to access the admin dashboard.', 'error');
+        }
+        
+        // Check if user has super_admin role
+        if ($this->getUserRole() !== 'super_admin') {
+            return $this->redirectWithMessage('/dashboard', 'You do not have permission to access this page.', 'error');
+        }
+        
+        return $this->view('admin/dashboard');
+    }
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
 
     public function contact()
     {

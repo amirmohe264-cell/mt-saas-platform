@@ -527,6 +527,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
         }
         .section-content::-webkit-scrollbar {
             width: 4px;
+<<<<<<< HEAD
         }
         .section-content::-webkit-scrollbar-thumb {
             background: #4caf50;
@@ -785,6 +786,15 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             background: #f8d7da;
             color: #c82333;
             transform: scale(1.1);
+=======
+        }
+        .section-content::-webkit-scrollbar-thumb {
+            background: #4caf50;
+            border-radius: 4px;
+        }
+        .section-content::-webkit-scrollbar-track {
+            background: #e8f0e8;
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
         }
 
         @media (max-width: 992px) {
@@ -830,6 +840,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             }
             html, body {
                 overflow: auto;
+<<<<<<< HEAD
             }
             .address-item {
                 flex-direction: column;
@@ -858,13 +869,19 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                 margin-left: 0;
                 margin-top: 10px;
                 width: 100%;
+=======
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
             }
         }
     </style>
 </head>
 <body id="mainBody">
 
+<<<<<<< HEAD
 <!-- Notification Container -->
+=======
+<!-- ✅ Notification Container -->
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
 <div class="notification-container" id="notificationContainer"></div>
 
 <!-- Navbar -->
@@ -1000,6 +1017,19 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                 <div class="col-md-3 mb-2">
                     <div class="dashboard-card" style="border-left: 4px solid #28a745;">
                         <i class="fas fa-check-circle card-icon text-success"></i>
+<<<<<<< HEAD
+=======
+                        <div class="card-number">8</div>
+                        <div class="card-label">Delivered Orders</div>
+                        <button class="btn btn-sm btn-outline-success mt-1" onclick="showNotification('success', '✅ Delivered', '8 orders delivered successfully!')">
+                            View
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <div class="dashboard-card" style="border-left: 4px solid #dc3545;">
+                        <i class="fas fa-heart card-icon text-danger"></i>
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                         <div class="card-number">8</div>
                         <div class="card-label">Delivered Orders</div>
                         <button class="btn btn-sm btn-outline-success mt-1" onclick="showNotification('success', '✅ Delivered', '8 orders delivered successfully!')">
@@ -1012,14 +1042,22 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                         <i class="fas fa-heart card-icon text-danger"></i>
                         <div class="card-number" id="wishlistCardCount">0</div>
                         <div class="card-label">Wishlist Items</div>
+<<<<<<< HEAD
                         <button class="btn btn-sm btn-outline-danger mt-1" onclick="showSection('wishlist')">
+=======
+                        <button class="btn btn-sm btn-outline-danger mt-1" onclick="showNotification('info', '❤️ Wishlist', '8 items in your wishlist.')">
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                             View
                         </button>
                     </div>
                 </div>
             </div>
 
+<<<<<<< HEAD
             <!-- Recent Orders -->
+=======
+            <!-- Recent Orders - Takes remaining space -->
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
             <div class="recent-orders-section" style="height: 65%;">
                 <h5 class="fw-bold mb-2" style="font-size: 1.1rem;"><i class="fas fa-clock me-2 text-success"></i>Recent Orders</h5>
                 <div class="orders-list">
@@ -1080,6 +1118,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                 <div class="bg-white rounded-3 p-4 border">
                     <h5 class="fw-bold"><i class="fas fa-user-cog me-2 text-success"></i>My Profile</h5>
                     <hr>
+<<<<<<< HEAD
                     <form id="profileForm" onsubmit="return updateProfile(event)">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -1089,10 +1128,22 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                             <div class="col-md-6 mb-3">
                                 <label>Last Name</label>
                                 <input type="text" class="form-control" id="lastName" value="Doe" required>
+=======
+                    <form id="profileForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>First Name</label>
+                                <input type="text" class="form-control" value="John">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Last Name</label>
+                                <input type="text" class="form-control" value="Doe">
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                             </div>
                         </div>
                         <div class="mb-3">
                             <label>Email Address</label>
+<<<<<<< HEAD
                             <input type="email" class="form-control" id="email" value="john@example.com" required>
                         </div>
                         <div class="mb-3">
@@ -1100,6 +1151,15 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                             <input type="tel" class="form-control" id="phone" value="+1 234 567 890" required>
                         </div>
                         <button type="submit" class="btn-add-product">
+=======
+                            <input type="email" class="form-control" value="john@example.com">
+                        </div>
+                        <div class="mb-3">
+                            <label>Phone Number</label>
+                            <input type="tel" class="form-control" value="+1 234 567 890">
+                        </div>
+                        <button type="button" class="btn-add-product" onclick="updateProfile()">
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                             <i class="fas fa-save me-2"></i>Update Profile
                         </button>
                     </form>
@@ -1111,6 +1171,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
         <div id="ordersSection" class="sections">
             <div class="section-content">
                 <div class="bg-white rounded-3 p-4 border">
+<<<<<<< HEAD
                     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                         <h5 class="fw-bold"><i class="fas fa-shopping-bag me-2 text-success"></i>My Orders</h5>
                         <div class="d-flex gap-2 flex-wrap">
@@ -1151,6 +1212,57 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                     <hr>
                     <div id="wishlistContainer">
                         <!-- Wishlist items will be rendered here -->
+=======
+                    <h5 class="fw-bold"><i class="fas fa-shopping-bag me-2 text-success"></i>My Orders</h5>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#ORD-2026-08-07-001</td>
+                                    <td>Aug 7, 2026</td>
+                                    <td>$317.11</td>
+                                    <td><span class="status-badge status-pending">Pending</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-warning" onclick="showNotification('warning', '⏳ Pending', 'Order is pending.')">
+                                            <i class="fas fa-clock"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD-2026-08-05-002</td>
+                                    <td>Aug 5, 2026</td>
+                                    <td>$129.99</td>
+                                    <td><span class="status-badge status-delivered">Delivered</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-success" onclick="showNotification('success', '✅ Delivered', 'Order delivered successfully!')">
+                                            <i class="fas fa-check-circle"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>#ORD-2026-08-03-003</td>
+                                    <td>Aug 3, 2026</td>
+                                    <td>$199.00</td>
+                                    <td><span class="status-badge status-processing">Processing</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-info" onclick="showNotification('info', '⏳ Processing', 'Order is being processed.')">
+                                            <i class="fas fa-spinner"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                     </div>
                 </div>
             </div>
@@ -1162,11 +1274,16 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                 <div class="bg-white rounded-3 p-4 border">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="fw-bold"><i class="fas fa-address-book me-2 text-success"></i>Saved Addresses</h5>
+<<<<<<< HEAD
                         <button class="btn-add-product" onclick="showSection('addAddress')">
+=======
+                        <button class="btn-add-product" onclick="showNotification('success', '📍 Address', 'Add address form will open.')">
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                             <i class="fas fa-plus me-2"></i>Add Address
                         </button>
                     </div>
                     <hr>
+<<<<<<< HEAD
                     <div id="addressList">
                         <!-- Addresses will be rendered here -->
                     </div>
@@ -1244,6 +1361,22 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                             </button>
                         </div>
                     </form>
+=======
+                    <div class="p-3 border rounded-3 mb-3">
+                        <h6>Home Address</h6>
+                        <p class="mb-1">123 Main Street, New York, NY 10001</p>
+                        <p class="mb-1">Phone: +1 234 567 890</p>
+                        <button class="btn btn-sm btn-outline-success" onclick="showNotification('success', '✏️ Edit', 'Edit address form.')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="showNotification('error', '🗑️ Remove', 'Remove this address?')"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div class="p-3 border rounded-3">
+                        <h6>Work Address</h6>
+                        <p class="mb-1">456 Business Ave, New York, NY 10002</p>
+                        <p class="mb-1">Phone: +1 987 654 321</p>
+                        <button class="btn btn-sm btn-outline-success" onclick="showNotification('success', '✏️ Edit', 'Edit address form.')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="showNotification('error', '🗑️ Remove', 'Remove this address?')"><i class="fas fa-trash"></i></button>
+                    </div>
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                 </div>
             </div>
         </div>
@@ -1254,6 +1387,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                 <div class="bg-white rounded-3 p-4 border">
                     <h5 class="fw-bold"><i class="fas fa-cog me-2 text-success"></i>Account Settings</h5>
                     <hr>
+<<<<<<< HEAD
                     <form id="settingsForm" onsubmit="return changePassword(event)">
                         <div class="mb-3">
                             <label>Current Password <span class="text-danger">*</span></label>
@@ -1268,6 +1402,22 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                             <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password" required>
                         </div>
                         <button type="submit" class="btn-add-product">
+=======
+                    <form id="settingsForm">
+                        <div class="mb-3">
+                            <label>Current Password</label>
+                            <input type="password" class="form-control" placeholder="Enter current password">
+                        </div>
+                        <div class="mb-3">
+                            <label>New Password</label>
+                            <input type="password" class="form-control" placeholder="Enter new password">
+                        </div>
+                        <div class="mb-3">
+                            <label>Confirm New Password</label>
+                            <input type="password" class="form-control" placeholder="Confirm new password">
+                        </div>
+                        <button type="button" class="btn-add-product" onclick="changePassword()">
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                             <i class="fas fa-save me-2"></i>Change Password
                         </button>
                     </form>
@@ -1275,19 +1425,31 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                     
                     <h6><i class="fas fa-bell me-2 text-warning"></i>Notification Preferences</h6>
                     <div class="form-check">
+<<<<<<< HEAD
                         <input class="form-check-input" type="checkbox" id="emailNotif" checked>
+=======
+                        <input class="form-check-input" type="checkbox" id="emailNotif" checked onchange="savePreference('emailNotif', this.checked)">
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                         <label class="form-check-label" for="emailNotif">
                             <i class="fas fa-envelope me-1 text-primary"></i> Order Updates via Email
                         </label>
                     </div>
                     <div class="form-check">
+<<<<<<< HEAD
                         <input class="form-check-input" type="checkbox" id="promoNotif">
+=======
+                        <input class="form-check-input" type="checkbox" id="promoNotif" onchange="savePreference('promoNotif', this.checked)">
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                         <label class="form-check-label" for="promoNotif">
                             <i class="fas fa-tag me-1 text-success"></i> Promotional Emails
                         </label>
                     </div>
                     <div class="form-check">
+<<<<<<< HEAD
                         <input class="form-check-input" type="checkbox" id="smsNotif" checked>
+=======
+                        <input class="form-check-input" type="checkbox" id="smsNotif" checked onchange="savePreference('smsNotif', this.checked)">
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                         <label class="form-check-label" for="smsNotif">
                             <i class="fas fa-sms me-1 text-info"></i> Order Updates via SMS
                         </label>
@@ -1320,10 +1482,13 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php if (session()->getFlashdata('info')): ?>
         showNotification('info', 'ℹ️ Info', '<?= session()->getFlashdata('info') ?>');
     <?php endif; ?>
+<<<<<<< HEAD
     
     loadAddresses();
     loadOrders();
     loadWishlist();
+=======
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
 });
 
 // ==========================================
@@ -1353,6 +1518,7 @@ function showNotification(type, title, message) {
         if (toast.parentNode) {
             toast.classList.add('removing');
             setTimeout(() => { if (toast.parentNode) toast.remove(); }, 300);
+<<<<<<< HEAD
         }
     }, 5000);
 }
@@ -2175,6 +2341,45 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch(e) {}
     }
 });
+=======
+        }
+    }, 5000);
+}
+
+// ==========================================
+// 3. SIDEBAR
+// ==========================================
+function showSection(section) {
+    document.querySelectorAll('.sections').forEach(el => el.classList.remove('active'));
+    const map = { 'dashboard': 'dashboardSection', 'profile': 'profileSection', 'orders': 'ordersSection', 'addresses': 'addressesSection', 'settings': 'settingsSection' };
+    const el = document.getElementById(map[section]);
+    if (el) el.classList.add('active');
+    
+    document.querySelectorAll('.sidebar-menu li').forEach(item => item.classList.remove('active'));
+    const items = document.querySelectorAll('.sidebar-menu li');
+    const idx = ['dashboard', 'profile', 'orders', 'addresses', 'settings'].indexOf(section);
+    if (items[idx]) items[idx].classList.add('active');
+}
+
+function toggleSidebar() {
+    const wrapper = document.getElementById('sidebarWrapper');
+    const body = document.getElementById('mainBody');
+    const txt = document.getElementById('toggleText');
+    wrapper.classList.toggle('collapsed');
+    body.classList.toggle('sidebar-collapsed');
+    txt.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+}
+
+function updateProfile() { showNotification('success', '✅ Profile Updated', 'Profile updated successfully!'); }
+function changePassword() { showNotification('success', '✅ Password Changed', 'Password changed successfully!'); }
+function savePreference(id, checked) { console.log(id + ':', checked); }
+function savePreferences() {
+    const e = document.getElementById('emailNotif').checked;
+    const p = document.getElementById('promoNotif').checked;
+    const s = document.getElementById('smsNotif').checked;
+    showNotification('success', '✅ Preferences Saved', 'Email: ' + (e ? '✅' : '❌') + ' | Promo: ' + (p ? '✅' : '❌') + ' | SMS: ' + (s ? '✅' : '❌'));
+}
+>>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
 </script>
 
 </body>
