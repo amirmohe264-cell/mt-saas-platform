@@ -51,7 +51,9 @@ class CartModel extends Model
                          ->first();
         
         if ($existing) {
+            // Update existing item
             if ($quantity <= 0) {
+                // Remove if quantity is 0 or less
                 return $this->where('customer_id', $customerId)
                            ->where('product_id', $productId)
                            ->delete();
@@ -59,6 +61,7 @@ class CartModel extends Model
             return $this->update($existing['id'], ['quantity' => $quantity]);
         }
         
+        // Add new item if quantity > 0
         if ($quantity > 0) {
             return $this->insert([
                 'customer_id' => $customerId,
@@ -75,5 +78,19 @@ class CartModel extends Model
         return $this->where('customer_id', $customerId)
                     ->where('product_id', $productId)
                     ->delete();
+    }
+
+    // ✅ NEW: Clear all items for a customer
+    public function clearCart($customerId)
+    {
+        return $this->where('customer_id', $customerId)->delete();
+    }
+
+    // ✅ NEW: Check if product is already in cart
+    public function itemExists($customerId, $productId)
+    {
+        return $this->where('customer_id', $customerId)
+                    ->where('product_id', $productId)
+                    ->first() ? true : false;
     }
 }

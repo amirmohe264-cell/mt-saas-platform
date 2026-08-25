@@ -9,6 +9,17 @@ class AuthController extends BaseController
 {
     public function login()
     {
+        // If already logged in, redirect to appropriate dashboard
+        if (session()->get('customer_id')) {
+            return redirect()->to('/dashboard');
+        }
+        if (session()->get('tenant_id')) {
+            return redirect()->to('/store/dashboard');
+        }
+        if (session()->get('admin_id')) {
+            return redirect()->to('/admin/dashboard');
+        }
+
         return view('public/login');
     }
 
@@ -33,9 +44,9 @@ class AuthController extends BaseController
             ]);
 
             if ($user['role'] === 'super_admin') {
-                return redirect()->to('/admin/dashboard');
+                return redirect()->to('/admin/dashboard')->with('success', 'Welcome Admin!');
             } elseif ($user['role'] === 'store_owner') {
-                return redirect()->to('/store/dashboard');
+                return redirect()->to('/store/dashboard')->with('success', 'Welcome to your store!');
             }
         }
 
@@ -44,15 +55,24 @@ class AuthController extends BaseController
         $customer = $customerModel->findByEmail($email);
 
         if ($customer && password_verify($password, $customer['password'])) {
+            // ✅ FIX: Set BOTH user_id AND customer_id
             session()->set([
                 'user_id' => $customer['id'],
+                'customer_id' => $customer['id'],  // ← CRITICAL: Add this!
+                'first_name' => $customer['first_name'],
+                'last_name' => $customer['last_name'],
                 'full_name' => $customer['first_name'] . ' ' . $customer['last_name'],
                 'email' => $customer['email'],
+                'phone' => $customer['phone'] ?? '',
                 'role' => 'customer',
-                'tenant_id' => $customer['tenant_id'],
+                'tenant_id' => $customer['tenant_id'] ?? null,
                 'is_logged_in' => true,
             ]);
-            return redirect()->to('/dashboard');
+
+            // ✅ Debug: Log to verify
+            log_message('debug', '✅ Customer logged in. customer_id: ' . session()->get('customer_id'));
+
+            return redirect()->to('/dashboard')->with('success', 'Welcome back, ' . $customer['first_name'] . '!');
         }
 
         return redirect()->back()->with('error', 'Invalid email or password.');
@@ -60,6 +80,17 @@ class AuthController extends BaseController
 
     public function register()
     {
+        // If already logged in, redirect
+        if (session()->get('customer_id')) {
+            return redirect()->to('/dashboard');
+        }
+        if (session()->get('tenant_id')) {
+            return redirect()->to('/store/dashboard');
+        }
+        if (session()->get('admin_id')) {
+            return redirect()->to('/admin/dashboard');
+        }
+
         return view('public/register');
     }
 
@@ -79,6 +110,7 @@ class AuthController extends BaseController
             'phone' => $this->request->getPost('phone'),
             'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
             'is_active' => true,
+            'created_at' => date('Y-m-d H:i:s'),
         ];
 
         if ($model->save($data)) {

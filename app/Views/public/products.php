@@ -8,8 +8,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; }
-        body { padding-top: 80px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; padding-top: 80px; }
+        
+        /* Navbar */
         .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: #1a2e1a !important; padding: 15px 0; transition: all 0.3s ease; box-shadow: 0 2px 20px rgba(0,0,0,0.3); }
         .navbar-scrolled { background: rgba(26, 46, 26, 0.88) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 30px rgba(0,0,0,0.5); padding: 8px 0; }
         .navbar-brand { color: #fff !important; font-weight: bold; font-size: 1.5rem; }
@@ -20,43 +21,327 @@
         .search-box { background: #2a402a; border-radius: 30px; padding: 5px 15px; border: none; color: #fff; }
         .search-box::placeholder { color: #aaa; }
         .search-box:focus { outline: none; background: #2a402a; box-shadow: 0 0 0 2px #4caf50; }
-        .icon-btn { color: #d4d4d4; font-size: 1.2rem; margin: 0 8px; transition: 0.3s; background: none; border: none; }
+        .icon-btn { color: #d4d4d4; font-size: 1.2rem; margin: 0 8px; transition: 0.3s; background: none; border: none; position: relative; text-decoration: none; }
         .icon-btn:hover { color: #4caf50; transform: scale(1.1); }
+        .cart-badge { background: #dc3545; color: #fff; border-radius: 50%; padding: 2px 8px; font-size: 0.7rem; position: absolute; top: -8px; right: -8px; font-weight: 600; min-width: 18px; text-align: center; }
         .page-header { background: #1a2e1a; color: #fff; padding: 40px 0 30px; }
         .page-header h2 { font-weight: 700; }
         .page-header .breadcrumb { background: none; padding: 0; margin: 0; }
         .page-header .breadcrumb a { color: #4caf50; text-decoration: none; }
         .page-header .breadcrumb .active { color: #aaa; }
-        .filter-sidebar { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e8f0e8; }
-        .filter-sidebar h6 { color: #1a2e1a; font-weight: 600; margin-bottom: 15px; }
-        .filter-sidebar .form-check-label { color: #555; font-size: 0.9rem; }
-        .filter-sidebar .form-check-input:checked { background-color: #4caf50; border-color: #4caf50; }
-        .filter-sidebar .subcategory-list { padding-left: 20px; margin-top: 5px; }
-        .filter-sidebar .subcategory-list .form-check { margin-bottom: 3px; }
-        .filter-sidebar .subcategory-list .form-check-label { font-size: 0.8rem; color: #777; }
-        .product-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e8f0e8; transition: 0.3s; height: 100%; }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(76, 175, 80, 0.12); border-color: #4caf50; }
-        .product-card .product-image { height: 150px; object-fit: contain; width: 100%; }
-        .product-card .product-name { color: #1a2e1a; font-weight: 600; font-size: 1rem; margin-top: 10px; }
-        .product-card .product-category { color: #888; font-size: 0.85rem; }
-        .product-card .product-subcategory { color: #aaa; font-size: 0.75rem; }
-        .product-card .price { color: #1a2e1a; font-weight: 700; font-size: 1.2rem; }
-        .product-card .old-price { color: #aaa; font-size: 0.9rem; text-decoration: line-through; margin-left: 8px; }
-        .product-card .btn-add { background: #4caf50; color: #fff; border: none; border-radius: 30px; padding: 8px 20px; font-weight: 600; font-size: 0.85rem; transition: 0.3s; width: 100%; text-decoration: none; display: inline-block; text-align: center; }
-        .product-card .btn-add:hover { background: #388e3c; color: #fff; }
+
+        /* Filter Sidebar */
+        .filter-sidebar {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #e8f0e8;
+        }
+        .filter-sidebar .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .filter-sidebar .filter-header h6 {
+            color: #1a2e1a;
+            font-weight: 700;
+            margin: 0;
+        }
+        .filter-sidebar .filter-header .clear-all {
+            color: #dc3545;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .filter-sidebar .filter-header .clear-all:hover {
+            text-decoration: underline;
+        }
+
+        /* Category Accordion */
+        .category-accordion {
+            margin-bottom: 5px;
+        }
+        .category-accordion .category-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            border: 2px solid #e8f0e8;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #fff;
+            user-select: none;
+        }
+        .category-accordion .category-header:hover {
+            border-color: #4caf50;
+        }
+        .category-accordion .category-header.active {
+            background: #4caf50;
+            border-color: #4caf50;
+            color: #fff;
+        }
+        .category-accordion .category-header .cat-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            flex: 1;
+        }
+        .category-accordion .category-header .count {
+            font-size: 0.7rem;
+            color: #aaa;
+            margin: 0 10px;
+        }
+        .category-accordion .category-header.active .count {
+            color: #c8e6c9;
+        }
+        .category-accordion .category-header .arrow {
+            font-size: 0.7rem;
+            transition: transform 0.3s;
+        }
+        .category-accordion .category-header .arrow.open {
+            transform: rotate(180deg);
+        }
+        .category-accordion .subcategory-list {
+            padding-left: 25px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            display: none;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .category-accordion .subcategory-list.show {
+            display: flex;
+        }
+        .category-accordion .sub-filter-btn {
+            background: #fafafa;
+            border: 1.5px solid #e8f0e8;
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-size: 0.7rem;
+            color: #777;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .category-accordion .sub-filter-btn:hover {
+            border-color: #4caf50;
+            color: #4caf50;
+        }
+        .category-accordion .sub-filter-btn.active {
+            background: #e8f5e9;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        /* Price Range */
+        .price-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .price-section .price-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .price-section .price-inputs {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        .price-section .price-inputs input {
+            width: 45%;
+            padding: 6px 10px;
+            border: 2px solid #e8f0e8;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        .price-section .price-inputs input:focus {
+            border-color: #4caf50;
+            outline: none;
+        }
+        .price-section .price-inputs span {
+            color: #888;
+        }
+
+        /* Filter Actions */
+        .filter-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .filter-actions .btn-apply {
+            background: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 20px;
+            font-weight: 600;
+            flex: 1;
+            transition: 0.3s;
+        }
+        .filter-actions .btn-apply:hover {
+            background: #388e3c;
+        }
+        .filter-actions .btn-reset {
+            background: #f5f5f5;
+            color: #555;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 20px;
+            font-weight: 600;
+            flex: 1;
+            transition: 0.3s;
+        }
+        .filter-actions .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        /* Active Filters */
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+            min-height: 30px;
+        }
+        .active-filters .filter-tag {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .active-filters .filter-tag .remove {
+            cursor: pointer;
+            font-weight: 700;
+        }
+        .active-filters .filter-tag .remove:hover {
+            color: #c62828;
+        }
+
+        /* Product Cards */
+        .product-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #e8f0e8;
+            transition: 0.3s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.12);
+            border-color: #4caf50;
+        }
+        .product-card .product-image {
+            height: 150px;
+            object-fit: contain;
+            width: 100%;
+        }
+        .product-card .product-name {
+            color: #1a2e1a;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+        .product-card .product-category {
+            color: #888;
+            font-size: 0.85rem;
+        }
+        .product-card .product-subcategory {
+            color: #aaa;
+            font-size: 0.75rem;
+        }
+        .product-card .price {
+            color: #1a2e1a;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .product-card .old-price {
+            color: #aaa;
+            font-size: 0.9rem;
+            text-decoration: line-through;
+            margin-left: 8px;
+        }
+        .product-card .btn-add {
+            background: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: 0.3s;
+            width: 100%;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .product-card .btn-add:hover {
+            background: #388e3c;
+            color: #fff;
+        }
+        .product-card .btn-cart {
+            background: #ff6b35;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 15px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: 0.3s;
+            cursor: pointer;
+            flex: 0 0 auto;
+        }
+        .product-card .btn-cart:hover {
+            background: #e55a2b;
+            transform: scale(1.05);
+        }
+
         .pagination .page-link { color: #1a2e1a; }
         .pagination .page-item.active .page-link { background: #4caf50; border-color: #4caf50; color: #fff; }
         .pagination .page-link:hover { color: #4caf50; }
+
         .footer { background: #1a2e1a; color: #d4d4d4; padding: 50px 0 20px; }
         .footer h5 { color: #fff; font-weight: 600; }
         .footer a { color: #aaa; text-decoration: none; transition: 0.3s; }
         .footer a:hover { color: #4caf50; }
+
         .navbar-toggler { border-color: #4caf50; }
         .navbar-toggler-icon { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(76, 175, 80, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); }
-        .category-toggle { cursor: pointer; user-select: none; }
-        .category-toggle:hover { color: #4caf50; }
-        .subcategory-list { display: none; }
-        .subcategory-list.show { display: block; }
+
+        .no-products-found { padding: 60px 0; }
+        .no-products-found i { font-size: 4rem; color: #ddd; }
+        .no-products-found h5 { color: #1a2e1a; }
+        .no-products-found p { color: #888; }
+
+        .toast-container { position: fixed; top: 100px; right: 20px; z-index: 9999; }
+        .toast-custom { background: #fff; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin-bottom: 10px; border-left: 4px solid #4caf50; animation: slideIn 0.3s ease; }
+        .toast-custom.error { border-left-color: #dc3545; }
+        .toast-custom.success { border-left-color: #4caf50; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        @media (max-width: 768px) {
+            .filter-sidebar { margin-bottom: 20px; }
+            .price-section .price-inputs input { width: 48%; }
+            .product-card .product-image { height: 120px; }
+        }
     </style>
 </head>
 <body>
@@ -77,19 +362,25 @@
             <div class="d-flex align-items-center">
                 <input class="search-box me-2" type="search" placeholder="Search for products...">
                 <button class="icon-btn"><i class="far fa-heart"></i></button>
-                <a href="/cart" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="fas fa-shopping-cart"></i></a>
-                <a href="/login" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="far fa-user"></i></a>
+                <a href="/cart" class="icon-btn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-badge" id="cartBadge"><?= session()->get('cart_count') ?? 0 ?></span>
+                </a>
+                <a href="/login" class="icon-btn"><i class="far fa-user"></i></a>
             </div>
         </div>
     </div>
 </nav>
+
+<!-- Toast Notification Container -->
+<div class="toast-container" id="toastContainer"></div>
 
 <!-- Page Header -->
 <section class="page-header">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h2>All Products</h2>
+                <h2>Products</h2>
                 <nav class="breadcrumb">
                     <a href="/">Home</a>
                     <span class="mx-2 text-white-50">/</span>
@@ -106,63 +397,85 @@
 <!-- Products Section -->
 <section class="py-4">
     <div class="container">
-        <div class="row product-grid">
+        <div class="row">
             <!-- Filter Sidebar -->
             <div class="col-lg-3">
                 <div class="filter-sidebar">
-                    <h6><i class="fas fa-filter me-2"></i>Filters</h6>
-                    <hr>
-                    <h6 class="mt-3">Categories & Subcategories</h6>
-                    <?php if (isset($categories) && !empty($categories)): ?>
-                        <?php foreach ($categories as $cat): ?>
-                            <div class="form-check">
-                                <input class="form-check-input category-checkbox" type="checkbox" id="cat_<?= $cat['id'] ?>" checked data-category-id="<?= $cat['id'] ?>">
-                                <label class="form-check-label category-toggle" for="cat_<?= $cat['id'] ?>" onclick="toggleSubcategories(<?= $cat['id'] ?>)">
-                                    <?= $cat['category_name'] ?>
-                                    <i class="fas fa-chevron-down small ms-1"></i>
-                                </label>
-                            </div>
-                            <div class="subcategory-list" id="subcat_<?= $cat['id'] ?>">
-                                <?php if (isset($subcategories) && !empty($subcategories)): ?>
-                                    <?php foreach ($subcategories as $sub): ?>
-                                        <?php if ($sub['category_id'] == $cat['id']): ?>
-                                            <div class="form-check">
-                                                <input class="form-check-input subcategory-checkbox" type="checkbox" id="sub_<?= $sub['id'] ?>" checked data-subcategory-id="<?= $sub['id'] ?>">
-                                                <label class="form-check-label" for="sub_<?= $sub['id'] ?>">
-                                                    <small><?= $sub['subcategory_name'] ?></small>
-                                                </label>
-                                            </div>
-                                        <?php endif; ?>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <p class="text-muted">No categories</p>
-                    <?php endif; ?>
-                    <hr>
-                    <h6>Price Range</h6>
-                    <div class="d-flex gap-2">
-                        <input type="number" class="form-control form-control-sm" placeholder="Min" style="width:45%;" id="minPrice">
-                        <span class="text-muted">-</span>
-                        <input type="number" class="form-control form-control-sm" placeholder="Max" style="width:45%;" id="maxPrice">
+                    <div class="filter-header">
+                        <h6><i class="fas fa-filter me-2 text-success"></i>Filters</h6>
+                        <a href="#" class="clear-all" onclick="clearAllFilters(event)">Clear All</a>
                     </div>
-                    <button class="btn btn-success w-100 mt-3" style="background:#4caf50;border:none;" onclick="applyFilters()">Apply Filters</button>
+
+                    <div class="active-filters" id="activeFilters"></div>
+
+                    <!-- Categories with Subcategories -->
+                    <div class="filter-section">
+                        <?php if (isset($categories) && !empty($categories)): ?>
+                            <?php foreach ($categories as $cat): ?>
+                                <div class="category-accordion">
+                                    <div class="category-header" data-category-id="<?= $cat['id'] ?>" onclick="toggleCategory(this)">
+                                        <span class="cat-name"><?= esc($cat['category_name']) ?></span>
+                                        <span class="count">(<?= isset($categoryCounts[$cat['id']]) ? $categoryCounts[$cat['id']] : 0 ?>)</span>
+                                        <i class="fas fa-chevron-down arrow"></i>
+                                    </div>
+                                    <div class="subcategory-list" id="subcat_<?= $cat['id'] ?>">
+                                        <?php 
+                                        $hasSubs = false;
+                                        if (isset($subcategories) && !empty($subcategories)): 
+                                            foreach ($subcategories as $sub): 
+                                                if ($sub['category_id'] == $cat['id']): 
+                                                    $hasSubs = true;
+                                        ?>
+                                            <button class="sub-filter-btn" data-subcategory-id="<?= $sub['id'] ?>" data-category-id="<?= $cat['id'] ?>" onclick="selectSubcategory(this)">
+                                                <?= esc($sub['subcategory_name']) ?>
+                                            </button>
+                                        <?php 
+                                                endif; 
+                                            endforeach; 
+                                        endif; 
+                                        ?>
+                                        <?php if (!$hasSubs): ?>
+                                            <span class="text-muted small" style="padding:4px 0;">No subcategories</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p class="text-muted">No categories available</p>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="price-section">
+                        <div class="price-title">Price Range</div>
+                        <div class="price-inputs">
+                            <input type="number" id="minPrice" placeholder="Min" value="0" onchange="applyFilters()">
+                            <span>to</span>
+                            <input type="number" id="maxPrice" placeholder="Max" value="1000" onchange="applyFilters()">
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="filter-actions">
+                        <button class="btn-apply" onclick="applyFilters()"><i class="fas fa-check me-2"></i>Apply</button>
+                        <button class="btn-reset" onclick="resetFilters()"><i class="fas fa-undo me-2"></i>Reset</button>
+                    </div>
                 </div>
             </div>
 
             <!-- Product Grid -->
             <div class="col-lg-9">
-                <div class="row product-grid" id="productGrid">
+                <div class="row" id="productGrid">
                     <?php if (isset($products) && !empty($products)): ?>
                         <?php foreach ($products as $product): ?>
                             <div class="col-md-4 mb-4 product-item" 
+                                 data-category-id="<?= $product['category_id'] ?? 0 ?>" 
                                  data-category="<?= $product['category'] ?? '' ?>" 
                                  data-subcategory="<?= $product['subcategory'] ?? '' ?>"
                                  data-price="<?= $product['price'] ?>">
                                 <div class="product-card">
                                     <div class="text-center">
-                                        <img src="<?= $product['image'] ?>" alt="<?= $product['name'] ?>" class="product-image">
+                                        <img src="<?= $product['image'] ?>" alt="<?= esc($product['name']) ?>" class="product-image">
                                     </div>
                                     <div class="d-flex justify-content-between mt-2">
                                         <?php if (isset($product['badges']) && !empty($product['badges'])): ?>
@@ -173,10 +486,10 @@
                                             <span class="badge bg-success">New</span>
                                         <?php endif; ?>
                                     </div>
-                                    <h6 class="product-name"><?= $product['name'] ?></h6>
-                                    <p class="product-category"><?= $product['category'] ?? 'General' ?></p>
+                                    <h6 class="product-name"><?= esc($product['name']) ?></h6>
+                                    <p class="product-category"><?= esc($product['category'] ?? 'General') ?></p>
                                     <?php if (isset($product['subcategory']) && $product['subcategory']): ?>
-                                        <p class="product-subcategory"><i class="fas fa-tag me-1"></i><?= $product['subcategory'] ?></p>
+                                        <p class="product-subcategory"><i class="fas fa-tag me-1"></i><?= esc($product['subcategory']) ?></p>
                                     <?php endif; ?>
                                     <div>
                                         <span class="price">$<?= number_format($product['price'], 2) ?></span>
@@ -184,7 +497,16 @@
                                             <span class="old-price">$<?= number_format($product['old_price'], 2) ?></span>
                                         <?php endif; ?>
                                     </div>
-                                    <a href="/product/<?= $product['slug'] ?>" class="btn-add mt-2"><i class="fas fa-eye me-2"></i>View Details</a>
+                                    <div class="d-flex gap-2 mt-2" style="margin-top: auto !important;">
+                                        <a href="/product/<?= $product['slug'] ?>" class="btn-add flex-grow-1">
+                                            <i class="fas fa-eye me-2"></i>View Details
+                                        </a>
+                                        <button onclick="addToCart(<?= $product['id'] ?>)" 
+                                                class="btn-cart" 
+                                                title="Add to Cart">
+                                            <i class="fas fa-cart-plus"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -255,6 +577,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // ============================================
+    // NAVBAR SCROLL EFFECT
+    // ============================================
     window.addEventListener('scroll', function() {
         var navbar = document.querySelector('.navbar');
         if (window.scrollY > 50) {
@@ -264,92 +589,308 @@
         }
     });
 
-    function toggleSubcategories(categoryId) {
-        var subcatList = document.getElementById('subcat_' + categoryId);
-        if (subcatList) {
-            subcatList.classList.toggle('show');
+    // ============================================
+    // FILTER STATE
+    // ============================================
+    var allSubcategories = <?= isset($subcategories) ? json_encode($subcategories) : '[]' ?>;
+    var selectedCategoryId = null;
+    var selectedSubcategoryId = null;
+
+    // ============================================
+    // TOGGLE CATEGORY
+    // ============================================
+    function toggleCategory(header) {
+        var subList = header.nextElementSibling;
+        var arrow = header.querySelector('.arrow');
+        
+        // Close all other categories
+        document.querySelectorAll('.category-accordion .subcategory-list').forEach(function(list) {
+            if (list !== subList) {
+                list.classList.remove('show');
+                var otherArrow = list.previousElementSibling.querySelector('.arrow');
+                if (otherArrow) otherArrow.classList.remove('open');
+            }
+        });
+        document.querySelectorAll('.category-accordion .category-header').forEach(function(h) {
+            if (h !== header) {
+                h.classList.remove('active');
+            }
+        });
+
+        // Toggle this category
+        subList.classList.toggle('show');
+        arrow.classList.toggle('open');
+        header.classList.toggle('active');
+        
+        if (subList.classList.contains('show')) {
+            selectedCategoryId = header.dataset.categoryId;
+            document.querySelectorAll('.sub-filter-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            selectedSubcategoryId = null;
+        } else {
+            selectedCategoryId = null;
+        }
+        
+        applyFilters();
+    }
+
+    // ============================================
+    // SELECT SUBCATEGORY
+    // ============================================
+    function selectSubcategory(button) {
+        button.classList.toggle('active');
+        
+        var parent = button.closest('.category-accordion');
+        var header = parent.querySelector('.category-header');
+        
+        if (button.classList.contains('active')) {
+            var subList = header.nextElementSibling;
+            var arrow = header.querySelector('.arrow');
+            subList.classList.add('show');
+            arrow.classList.add('open');
+            header.classList.add('active');
+            selectedCategoryId = header.dataset.categoryId;
+            selectedSubcategoryId = button.dataset.subcategoryId;
+            
+            document.querySelectorAll('.category-accordion .subcategory-list').forEach(function(list) {
+                if (list !== subList) {
+                    list.classList.remove('show');
+                    var otherArrow = list.previousElementSibling.querySelector('.arrow');
+                    if (otherArrow) otherArrow.classList.remove('open');
+                }
+            });
+            document.querySelectorAll('.category-accordion .category-header').forEach(function(h) {
+                if (h !== header) {
+                    h.classList.remove('active');
+                }
+            });
+        } else {
+            selectedSubcategoryId = null;
+        }
+        
+        applyFilters();
+    }
+
+    // ============================================
+    // APPLY FILTERS
+    // ============================================
+    function applyFilters() {
+        var minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
+        var maxPrice = parseFloat(document.getElementById('maxPrice').value) || Infinity;
+
+        var products = document.querySelectorAll('.product-item');
+        var visibleCount = 0;
+        var grid = document.getElementById('productGrid');
+
+        products.forEach(function(product) {
+            var productCategoryId = product.dataset.categoryId;
+            var productCategory = product.dataset.category;
+            var productSubcategory = product.dataset.subcategory;
+            var price = parseFloat(product.dataset.price);
+
+            var categoryMatch = true;
+            var subcategoryMatch = true;
+
+            // Check category filter
+            if (selectedCategoryId !== null) {
+                categoryMatch = productCategoryId == selectedCategoryId;
+            }
+
+            // Check subcategory filter
+            if (selectedSubcategoryId !== null) {
+                subcategoryMatch = false;
+                // Find the subcategory name from the data
+                var selectedSub = allSubcategories.find(function(s) {
+                    return s.id == selectedSubcategoryId;
+                });
+                if (selectedSub && productSubcategory === selectedSub.subcategory_name) {
+                    subcategoryMatch = true;
+                }
+            }
+
+            var priceMatch = price >= minPrice && price <= maxPrice;
+            
+            if (categoryMatch && subcategoryMatch && priceMatch) {
+                product.style.display = 'block';
+                visibleCount++;
+            } else {
+                product.style.display = 'none';
+            }
+        });
+
+        document.getElementById('productCount').textContent = 'Showing ' + visibleCount + ' products';
+        updateActiveFilters();
+
+        // Show/hide no products message
+        var noProductsMsg = document.querySelector('.no-products-found');
+        var existingNoProducts = grid.querySelector('.no-products-found');
+        if (existingNoProducts) {
+            existingNoProducts.remove();
+        }
+        if (visibleCount === 0) {
+            var msg = document.createElement('div');
+            msg.className = 'no-products-found col-12 text-center py-5';
+            msg.innerHTML = '<i class="fas fa-box-open fa-4x text-muted mb-3"></i><h5>No products found</h5><p class="text-muted">Try adjusting your filters.</p>';
+            grid.appendChild(msg);
         }
     }
 
-    function applyFilters() {
-        var selectedCategories = [];
-        var selectedSubcategories = [];
-        
-        document.querySelectorAll('.category-checkbox:checked').forEach(function(cb) {
-            selectedCategories.push(cb.dataset.categoryId);
-        });
-        
-        document.querySelectorAll('.subcategory-checkbox:checked').forEach(function(cb) {
-            selectedSubcategories.push(cb.dataset.subcategoryId);
-        });
-        
-        var minPrice = document.getElementById('minPrice').value;
-        var maxPrice = document.getElementById('maxPrice').value;
-        
-        minPrice = minPrice ? parseFloat(minPrice) : 0;
-        maxPrice = maxPrice ? parseFloat(maxPrice) : Infinity;
-        
-        var products = document.querySelectorAll('.product-item');
-        var visibleCount = 0;
-        
-        products.forEach(function(product) {
-            var category = product.dataset.category;
-            var subcategory = product.dataset.subcategory;
-            var price = parseFloat(product.dataset.price);
-            
-            var categoryMatch = selectedCategories.length === 0;
-            if (!categoryMatch) {
-                // Check if product's category matches any selected category
-                selectedCategories.forEach(function(catId) {
-                    // We need to check if the product belongs to this category
-                    // This requires knowing the category ID for each product
-                    // For now, we'll use the category name
-                    var catName = document.querySelector('#cat_' + catId)?.nextElementSibling?.textContent?.trim();
-                    if (catName && category === catName) {
-                        categoryMatch = true;
-                    }
-                });
-            }
-            
-            var subcategoryMatch = selectedSubcategories.length === 0;
-            if (!subcategoryMatch) {
-                selectedSubcategories.forEach(function(subId) {
-                    var subName = document.querySelector('#sub_' + subId)?.nextElementSibling?.textContent?.trim();
-                    if (subName && subcategory === subName) {
-                        subcategoryMatch = true;
-                    }
-                });
-            }
-            
-            var priceMatch = price >= minPrice && price <= maxPrice;
-            
-            var productCol = product;
-            if (categoryMatch && subcategoryMatch && priceMatch) {
-                productCol.style.display = 'block';
-                visibleCount++;
-            } else {
-                productCol.style.display = 'none';
-            }
-        });
-        
-        document.getElementById('productCount').textContent = 'Showing ' + visibleCount + ' products';
-        
-        if (visibleCount === 0) {
-            var grid = document.getElementById('productGrid');
-            var noProductsMsg = document.querySelector('.no-products-found');
-            if (!noProductsMsg) {
-                var msg = document.createElement('div');
-                msg.className = 'no-products-found col-12 text-center py-5';
-                msg.innerHTML = '<i class="fas fa-box-open fa-4x text-muted mb-3"></i><h5>No products found</h5><p class="text-muted">Try adjusting your filters.</p>';
-                grid.appendChild(msg);
-            }
-        } else {
-            var noProductsMsg = document.querySelector('.no-products-found');
-            if (noProductsMsg) {
-                noProductsMsg.remove();
+    // ============================================
+    // UPDATE ACTIVE FILTERS DISPLAY
+    // ============================================
+    function updateActiveFilters() {
+        var container = document.getElementById('activeFilters');
+        container.innerHTML = '';
+
+        if (selectedCategoryId !== null) {
+            var header = document.querySelector('.category-header[data-category-id="' + selectedCategoryId + '"]');
+            if (header) {
+                var name = header.querySelector('.cat-name').textContent;
+                var tag = document.createElement('span');
+                tag.className = 'filter-tag';
+                tag.innerHTML = name + ' <span class="remove" onclick="clearCategoryFilter()">&times;</span>';
+                container.appendChild(tag);
             }
         }
+
+        if (selectedSubcategoryId !== null) {
+            var btn = document.querySelector('.sub-filter-btn[data-subcategory-id="' + selectedSubcategoryId + '"]');
+            if (btn) {
+                var name = btn.textContent.trim();
+                var tag = document.createElement('span');
+                tag.className = 'filter-tag';
+                tag.innerHTML = name + ' <span class="remove" onclick="clearSubcategoryFilter()">&times;</span>';
+                container.appendChild(tag);
+            }
+        }
+
+        var minPrice = document.getElementById('minPrice').value;
+        var maxPrice = document.getElementById('maxPrice').value;
+        if (minPrice > 0 || maxPrice < 1000) {
+            var tag = document.createElement('span');
+            tag.className = 'filter-tag';
+            tag.innerHTML = '$' + minPrice + ' - $' + maxPrice + ' <span class="remove" onclick="resetPrice()">&times;</span>';
+            container.appendChild(tag);
+        }
     }
+
+    // ============================================
+    // CLEAR FUNCTIONS
+    // ============================================
+    function clearCategoryFilter() {
+        document.querySelectorAll('.category-accordion .subcategory-list').forEach(function(list) {
+            list.classList.remove('show');
+        });
+        document.querySelectorAll('.category-accordion .category-header').forEach(function(h) {
+            h.classList.remove('active');
+            var arrow = h.querySelector('.arrow');
+            if (arrow) arrow.classList.remove('open');
+        });
+        document.querySelectorAll('.sub-filter-btn').forEach(function(btn) {
+            btn.classList.remove('active');
+        });
+        selectedCategoryId = null;
+        selectedSubcategoryId = null;
+        applyFilters();
+    }
+
+    function clearSubcategoryFilter() {
+        document.querySelectorAll('.sub-filter-btn').forEach(function(btn) {
+            btn.classList.remove('active');
+        });
+        selectedSubcategoryId = null;
+        applyFilters();
+    }
+
+    function resetPrice() {
+        document.getElementById('minPrice').value = 0;
+        document.getElementById('maxPrice').value = 1000;
+        applyFilters();
+    }
+
+    function clearAllFilters(e) {
+        if (e) e.preventDefault();
+        document.querySelectorAll('.category-accordion .subcategory-list').forEach(function(list) {
+            list.classList.remove('show');
+        });
+        document.querySelectorAll('.category-accordion .category-header').forEach(function(h) {
+            h.classList.remove('active');
+            var arrow = h.querySelector('.arrow');
+            if (arrow) arrow.classList.remove('open');
+        });
+        document.querySelectorAll('.sub-filter-btn').forEach(function(btn) {
+            btn.classList.remove('active');
+        });
+        document.getElementById('minPrice').value = 0;
+        document.getElementById('maxPrice').value = 1000;
+        selectedCategoryId = null;
+        selectedSubcategoryId = null;
+        applyFilters();
+    }
+
+    function resetFilters() {
+        clearAllFilters(null);
+    }
+
+    // ============================================
+    // ADD TO CART
+    // ============================================
+    function addToCart(productId, quantity = 1) {
+        fetch('/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: 'product_id=' + productId + '&quantity=' + quantity
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('✅ Product added to cart successfully!', 'success');
+                if (data.cart_count !== undefined) {
+                    document.getElementById('cartBadge').textContent = data.cart_count;
+                }
+            } else {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    showToast('❌ ' + data.message, 'error');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('❌ An error occurred.', 'error');
+        });
+    }
+
+    // ============================================
+    // SHOW TOAST
+    // ============================================
+    function showToast(message, type = 'success') {
+        var container = document.getElementById('toastContainer');
+        var toast = document.createElement('div');
+        toast.className = 'toast-custom ' + type;
+        toast.textContent = message;
+        container.appendChild(toast);
+        
+        setTimeout(function() {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.5s ease';
+            setTimeout(function() {
+                toast.remove();
+            }, 500);
+        }, 4000);
+    }
+
+    // ============================================
+    // INITIALIZE
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        updateActiveFilters();
+    });
 </script>
 </body>
 </html>

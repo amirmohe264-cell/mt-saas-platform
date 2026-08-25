@@ -1,3 +1,11 @@
+<!-- app/Views/public/cart.php -->
+<?php
+if (!session()->get('customer_id')) {
+    header('Location: /login');
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +16,41 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { padding-top: 80px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; }
+        
+        /* Notification Toast Styles */
+        .notification-container {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 380px;
+            width: 100%;
+        }
+        .notification-toast {
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            border-left: 4px solid #4caf50;
+            animation: slideInRight 0.4s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .notification-toast.error { border-left-color: #dc3545; }
+        .notification-toast.warning { border-left-color: #ffc107; }
+        .notification-toast.info { border-left-color: #17a2b8; }
+        .notification-toast .notif-icon { font-size: 1.3rem; margin-top: 2px; }
+        .notification-toast .notif-content { flex: 1; }
+        .notification-toast .notif-title { font-weight: 600; color: #1a2e1a; font-size: 0.9rem; }
+        .notification-toast .notif-message { color: #555; font-size: 0.85rem; }
+        .notification-toast .notif-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1rem; padding: 0 5px; }
+        .notification-toast .notif-close:hover { color: #333; }
+        .notification-toast.removing { animation: slideOutRight 0.3s ease forwards; }
+        @keyframes slideInRight { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100px); opacity: 0; } }
+        
         .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: #1a2e1a !important; padding: 15px 0; transition: all 0.3s ease; box-shadow: 0 2px 20px rgba(0,0,0,0.3); }
         .navbar-scrolled { background: rgba(26, 46, 26, 0.88) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 30px rgba(0,0,0,0.5); padding: 8px 0; }
         .navbar-brand { color: #fff !important; font-weight: bold; font-size: 1.5rem; }
@@ -20,6 +63,7 @@
         .search-box:focus { outline: none; background: #2a402a; box-shadow: 0 0 0 2px #4caf50; }
         .icon-btn { color: #d4d4d4; font-size: 1.2rem; margin: 0 8px; transition: 0.3s; background: none; border: none; }
         .icon-btn:hover { color: #4caf50; transform: scale(1.1); }
+        .cart-badge { background: #dc3545; color: #fff; border-radius: 50%; padding: 2px 8px; font-size: 0.7rem; position: absolute; top: -8px; right: -8px; font-weight: 600; min-width: 18px; text-align: center; }
         .page-header { background: #1a2e1a; color: #fff; padding: 40px 0 30px; }
         .page-header h2 { font-weight: 700; }
         .page-header .breadcrumb { background: none; padding: 0; margin: 0; }
@@ -48,11 +92,13 @@
         .footer h5 { color: #fff; font-weight: 600; }
         .footer a { color: #aaa; text-decoration: none; transition: 0.3s; }
         .footer a:hover { color: #4caf50; }
-        .cart-badge { background: #dc3545; color: #fff; border-radius: 50%; padding: 2px 8px; font-size: 0.7rem; position: absolute; top: -5px; right: -5px; }
         @media (max-width: 768px) { .cart-table img { width: 60px; height: 60px; } }
     </style>
 </head>
 <body>
+
+<!-- Notification Container -->
+<div class="notification-container" id="notificationContainer"></div>
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg fixed-top">
@@ -64,7 +110,6 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="/categories">Categories</a></li>
                 <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
                 <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
             </ul>
@@ -73,9 +118,33 @@
                 <button class="icon-btn"><i class="far fa-heart"></i></button>
                 <a href="/cart" class="icon-btn" style="color:#d4d4d4;text-decoration:none;position:relative;">
                     <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-badge" id="cartBadge"><?= isset($itemCount) && $itemCount > 0 ? $itemCount : 0 ?></span>
+                    <span class="cart-badge" id="cartBadge"><?= $itemCount ?? 0 ?></span>
                 </a>
-                <a href="/login" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="far fa-user"></i></a>
+                
+                <?php if (session()->get('customer_id')): ?>
+                    <div class="dropdown ms-2">
+                        <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i> <?= session()->get('first_name') ?? 'Account' ?>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+                            <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="/orders"><i class="fas fa-box me-2"></i>Orders</a></li>
+                            <li><a class="dropdown-item" href="/cart"><i class="fas fa-shopping-cart me-2"></i>Cart</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                <?php elseif (session()->get('tenant_id')): ?>
+                    <a href="/store/dashboard" class="icon-btn"><i class="fas fa-store"></i></a>
+                    <a href="/logout" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="fas fa-sign-out-alt"></i></a>
+                <?php elseif (session()->get('admin_id')): ?>
+                    <a href="/admin/dashboard" class="icon-btn"><i class="fas fa-crown"></i></a>
+                    <a href="/logout" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="fas fa-sign-out-alt"></i></a>
+                <?php else: ?>
+                    <a href="/login" class="icon-btn"><i class="fas fa-sign-in-alt"></i></a>
+                    <a href="/register" class="btn btn-success btn-sm ms-2">Register</a>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -94,7 +163,7 @@
                 </nav>
             </div>
             <div>
-                <span class="text-white-50" id="itemCount"><?= isset($itemCount) ? $itemCount : 0 ?> items in your cart</span>
+                <span class="text-white-50"><?= $itemCount ?? 0 ?> items in your cart</span>
             </div>
         </div>
     </div>
@@ -131,20 +200,24 @@
                                         <tr id="cart-row-<?= $item['product_id'] ?>">
                                             <td>
                                                 <div class="d-flex align-items-center gap-3">
-                                                    <img src="/<?= $item['product_image'] ?? 'uploads/default-product.jpg' ?>" alt="<?= $item['product_name'] ?>">
+                                                    <?php if (!empty($item['product_image'])): ?>
+                                                        <img src="/<?= $item['product_image'] ?>" alt="<?= $item['product_name'] ?>">
+                                                    <?php else: ?>
+                                                        <img src="https://via.placeholder.com/80?text=<?= urlencode($item['product_name']) ?>" alt="<?= $item['product_name'] ?>">
+                                                    <?php endif; ?>
                                                     <div>
                                                         <div class="product-name"><?= $item['product_name'] ?></div>
                                                         <small class="text-muted">SKU: <?= str_pad($item['product_id'], 6, '0', STR_PAD_LEFT) ?></small>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="product-price" id="price-<?= $item['product_id'] ?>">$<?= number_format($item['price'], 2) ?></td>
+                                            <td class="product-price">$<?= number_format($item['price'], 2) ?></td>
                                             <td>
-                                                <input type="number" class="quantity-input" value="<?= $item['quantity'] ?>" min="1" max="<?= $item['stock'] ?>" data-product-id="<?= $item['product_id'] ?>" onchange="updateCart(this)">
+                                                <input type="number" class="quantity-input" value="<?= $item['quantity'] ?>" min="1" max="<?= $item['stock'] ?? 99 ?>" data-product-id="<?= $item['product_id'] ?>" onchange="updateCart(this)">
                                             </td>
-                                            <td class="product-price" id="total-<?= $item['product_id'] ?>">$<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
+                                            <td class="product-price">$<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
                                             <td>
-                                                <button class="btn-remove" onclick="removeFromCart(<?= $item['product_id'] ?>)"><i class="fas fa-trash-alt"></i></button>
+                                                <button class="btn-remove" onclick="removeFromCart(<?= $item['product_id'] ?>, '<?= addslashes($item['product_name']) ?>')"><i class="fas fa-trash-alt"></i></button>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -153,6 +226,7 @@
                         </div>
                         <div class="mt-3">
                             <a href="/products" class="btn-continue"><i class="fas fa-arrow-left me-2"></i>Continue Shopping</a>
+                            <a href="/cart/clear" class="btn btn-danger btn-sm ms-2" onclick="return confirm('Clear all items?')"><i class="fas fa-trash me-1"></i>Clear Cart</a>
                         </div>
                     </div>
                 </div>
@@ -231,126 +305,182 @@
             </div>
         </div>
         <hr class="border-top">
-        <p class="text-center text-muted small">&copy; 2026 ShopEase. All rights reserved.</p>
+        <p class="text-center text-muted small">&copy; <?= date('Y') ?> ShopEase. All rights reserved.</p>
     </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    window.addEventListener('scroll', function() {
-        var navbar = document.querySelector('.navbar');
-        if (window.scrollY > 50) {
-            navbar.classList.add('navbar-scrolled');
+// ==========================================
+// SHOW FLASH MESSAGES
+// ==========================================
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if (session()->getFlashdata('success')): ?>
+        showNotification('success', '✅ Success', '<?= session()->getFlashdata('success') ?>');
+    <?php endif; ?>
+    
+    <?php if (session()->getFlashdata('error')): ?>
+        showNotification('error', '❌ Error', '<?= session()->getFlashdata('error') ?>');
+    <?php endif; ?>
+});
+
+// ==========================================
+// NOTIFICATION FUNCTION
+// ==========================================
+function showNotification(type, title, message) {
+    const container = document.getElementById('notificationContainer');
+    if (!container) return;
+    
+    const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+    const icon = icons[type] || 'ℹ️';
+    
+    const toast = document.createElement('div');
+    toast.className = 'notification-toast ' + (type === 'error' ? 'error' : type === 'warning' ? 'warning' : type === 'info' ? 'info' : '');
+    toast.innerHTML = `
+        <div class="notif-icon">${icon}</div>
+        <div class="notif-content">
+            <div class="notif-title">${title}</div>
+            <div class="notif-message">${message}</div>
+        </div>
+        <button class="notif-close" onclick="this.closest('.notification-toast').remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.classList.add('removing');
+            setTimeout(() => {
+                if (toast.parentNode) toast.remove();
+            }, 300);
+        }
+    }, 5000);
+}
+
+// ==========================================
+// NAVBAR SCROLL
+// ==========================================
+window.addEventListener('scroll', function() {
+    var navbar = document.querySelector('.navbar');
+    if (window.scrollY > 50) {
+        navbar.classList.add('navbar-scrolled');
+    } else {
+        navbar.classList.remove('navbar-scrolled');
+    }
+});
+
+// ==========================================
+// CART FUNCTIONS
+// ==========================================
+function updateCart(input) {
+    var productId = input.dataset.productId;
+    var quantity = parseInt(input.value);
+    var maxStock = parseInt(input.max);
+
+    if (quantity < 1) {
+        quantity = 1;
+        input.value = 1;
+    }
+
+    if (quantity > maxStock) {
+        showNotification('warning', '⚠️ Stock Limit', 'Not enough stock available. Max: ' + maxStock);
+        input.value = maxStock;
+        quantity = maxStock;
+    }
+
+    fetch('/cart/update', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: 'product_id=' + productId + '&quantity=' + quantity
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateCartTotals();
+            showNotification('success', '🔄 Updated', 'Quantity updated successfully!');
         } else {
-            navbar.classList.remove('navbar-scrolled');
+            showNotification('error', '❌ Error', data.message);
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('error', '❌ Error', 'Something went wrong.');
     });
+}
 
-    function updateCart(input) {
-        var productId = input.dataset.productId;
-        var quantity = parseInt(input.value);
-        var maxStock = parseInt(input.max);
-
-        if (quantity < 1) {
-            quantity = 1;
-            input.value = 1;
-        }
-
-        if (quantity > maxStock) {
-            alert('Not enough stock available. Max: ' + maxStock);
-            input.value = maxStock;
-            quantity = maxStock;
-        }
-
-        fetch('/cart/update', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: 'product_id=' + productId + '&quantity=' + quantity
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update cart total
-                updateCartTotals();
-            } else {
-                alert(data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+function removeFromCart(productId, productName) {
+    if (!confirm('Are you sure you want to remove "' + productName + '" from your cart?')) {
+        return;
     }
 
-    function removeFromCart(productId) {
-        if (!confirm('Are you sure you want to remove this item from your cart?')) {
-            return;
+    fetch('/cart/remove', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: 'product_id=' + productId
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('cart-row-' + productId).remove();
+            updateCartTotals();
+            updateCartBadge(data.cart_count);
+            showNotification('info', '🗑️ Removed', productName + ' removed from cart!');
+            
+            if (data.cart_count === 0) {
+                setTimeout(() => location.reload(), 1000);
+            }
+        } else {
+            showNotification('error', '❌ Error', data.message);
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('error', '❌ Error', 'Something went wrong.');
+    });
+}
 
-        fetch('/cart/remove', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: 'product_id=' + productId
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('cart-row-' + productId).remove();
-                updateCartTotals();
-                updateCartBadge(data.cart_count);
-                
-                // If cart is empty, reload to show empty message
-                if (data.cart_count === 0) {
-                    location.reload();
-                }
-            } else {
-                alert(data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }
+function updateCartTotals() {
+    fetch('/cart/totals', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('subtotal').textContent = '$' + data.subtotal.toFixed(2);
+            document.getElementById('shipping').textContent = data.shipping > 0 ? '$' + data.shipping.toFixed(2) : 'Free';
+            document.getElementById('tax').textContent = '$' + data.tax.toFixed(2);
+            document.getElementById('grandTotal').textContent = '$' + data.grandTotal.toFixed(2);
+            document.getElementById('itemCount').textContent = data.itemCount + ' items in your cart';
+            updateCartBadge(data.itemCount);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
 
-    function updateCartTotals() {
-        fetch('/cart/totals', {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('subtotal').textContent = '$' + data.subtotal.toFixed(2);
-                document.getElementById('shipping').textContent = data.shipping > 0 ? '$' + data.shipping.toFixed(2) : 'Free';
-                document.getElementById('tax').textContent = '$' + data.tax.toFixed(2);
-                document.getElementById('grandTotal').textContent = '$' + data.grandTotal.toFixed(2);
-                document.getElementById('itemCount').textContent = data.itemCount + ' items in your cart';
-                updateCartBadge(data.itemCount);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }
-
-    function updateCartBadge(count) {
-        var badge = document.getElementById('cartBadge');
-        if (badge) {
-            if (count > 0) {
-                badge.textContent = count;
-                badge.style.display = 'inline';
-            } else {
-                badge.style.display = 'none';
-            }
+function updateCartBadge(count) {
+    var badge = document.getElementById('cartBadge');
+    if (badge) {
+        if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = 'inline';
+        } else {
+            badge.style.display = 'none';
         }
     }
+}
 </script>
 </body>
 </html>

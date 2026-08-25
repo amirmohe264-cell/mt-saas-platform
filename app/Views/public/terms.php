@@ -49,7 +49,6 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="/categories">Categories</a></li>
                 <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
                 <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
             </ul>
@@ -150,7 +149,8 @@
                 <ul class="list-unstyled">
                     <li><a href="/about">About Us</a></li>
                     <li><a href="/contact">Contact</a></li>
-                    <li><a href="/terms">Terms & Conditions</a></li>
+                    <li><a href="privacy">Privacy Policy</a></li>
+                    <li><a href="/terms">Terms</a></li>
                 </ul>
             </div>
             <div class="col-md-3 mb-4">

@@ -35,6 +35,10 @@
         .footer a:hover { color: #4caf50; }
         .required { color: #dc3545; }
         .preview-image { max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid #e8f0e8; padding: 5px; }
+        .subcategory-field { margin-top: 5px; }
+        .text-muted a { color: #4caf50; text-decoration: none; }
+        .text-muted a:hover { text-decoration: underline; }
+        .alert ul { margin-bottom: 0; padding-left: 20px; }
     </style>
 </head>
 <body>
@@ -82,9 +86,15 @@
     <div class="container">
         <?php if (session()->getFlashdata('errors')): ?>
             <div class="alert alert-danger">
-                <?php foreach (session()->getFlashdata('errors') as $error): ?>
-                    <p class="mb-0"><?= $error ?></p>
-                <?php endforeach; ?>
+                <?php if (is_array(session()->getFlashdata('errors'))): ?>
+                    <ul>
+                        <?php foreach (session()->getFlashdata('errors') as $error): ?>
+                            <li><?= $error ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <p class="mb-0"><?= session()->getFlashdata('errors') ?></p>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
         <?php if (session()->getFlashdata('error')): ?>
@@ -102,14 +112,35 @@
                 
                 <div class="mb-3">
                     <label>Category <span class="required">*</span></label>
-                    <select name="category_id" class="form-control" required>
+                    <select name="category_id" id="categorySelect" class="form-control" required>
                         <option value="">Select Category</option>
                         <?php foreach ($categories as $category): ?>
                             <option value="<?= $category['id'] ?>" <?= old('category_id') == $category['id'] ? 'selected' : '' ?>>
-                                <?= $category['category_name'] ?>
+                                <?= esc($category['category_name']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
+                </div>
+
+                <!-- ✅ FIXED: No $product reference here -->
+                <div class="mb-3 subcategory-field">
+                    <label>Subcategory</label>
+                    <select name="subcategory_id" id="subcategorySelect" class="form-control">
+                        <option value="">Select Subcategory</option>
+                        <?php if (isset($subcategories) && !empty($subcategories)): ?>
+                            <?php foreach ($subcategories as $sub): ?>
+                                <option value="<?= $sub['id'] ?>" data-category-id="<?= $sub['category_id'] ?>" <?= old('subcategory_id') == $sub['id'] ? 'selected' : '' ?>>
+                                    <?= esc($sub['subcategory_name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <option value="">No subcategories available</option>
+                        <?php endif; ?>
+                    </select>
+                    <small class="text-muted">
+                        <a href="/store/subcategories/create">+ Add new subcategory</a> 
+                        (Select a category first to filter subcategories)
+                    </small>
                 </div>
 
                 <div class="row">
@@ -219,8 +250,76 @@
                 preview.style.display = 'block';
             };
             reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.style.display = 'none';
         }
     }
+
+    // Dynamic subcategories based on selected category
+    document.addEventListener('DOMContentLoaded', function() {
+        var categorySelect = document.getElementById('categorySelect');
+        var subcategorySelect = document.getElementById('subcategorySelect');
+        
+        // Store all original subcategory options
+        var allOptions = [];
+        var defaultOption = null;
+        
+        subcategorySelect.querySelectorAll('option').forEach(function(opt) {
+            if (opt.value === '') {
+                defaultOption = opt.cloneNode(true);
+            } else {
+                allOptions.push(opt.cloneNode(true));
+            }
+        });
+
+        function updateSubcategories() {
+            var selectedCategory = categorySelect.value;
+            
+            // Clear subcategory select
+            subcategorySelect.innerHTML = '';
+            
+            // Add default option
+            if (defaultOption) {
+                subcategorySelect.appendChild(defaultOption.cloneNode(true));
+            } else {
+                var defaultOpt = document.createElement('option');
+                defaultOpt.value = '';
+                defaultOpt.textContent = 'Select Subcategory';
+                subcategorySelect.appendChild(defaultOpt);
+            }
+            
+            // If no category selected, show a message
+            if (selectedCategory === '') {
+                var msgOpt = document.createElement('option');
+                msgOpt.value = '';
+                msgOpt.textContent = '-- Select a category first --';
+                subcategorySelect.appendChild(msgOpt);
+                return;
+            }
+            
+            // Filter subcategories by selected category
+            var hasSubcategories = false;
+            allOptions.forEach(function(option) {
+                var categoryId = option.getAttribute('data-category-id');
+                if (categoryId == selectedCategory) {
+                    var newOption = option.cloneNode(true);
+                    subcategorySelect.appendChild(newOption);
+                    hasSubcategories = true;
+                }
+            });
+            
+            // If no subcategories found for this category
+            if (!hasSubcategories) {
+                var msgOpt = document.createElement('option');
+                msgOpt.value = '';
+                msgOpt.textContent = '-- No subcategories available --';
+                subcategorySelect.appendChild(msgOpt);
+            }
+        }
+
+        categorySelect.addEventListener('change', updateSubcategories);
+        updateSubcategories();
+    });
 </script>
 </body>
 </html>

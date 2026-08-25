@@ -14,8 +14,6 @@
         .navbar-brand i { color: #4caf50; }
         .navbar .nav-link { color: #d4d4d4 !important; font-weight: 500; transition: 0.3s; }
         .navbar .nav-link:hover { color: #4caf50 !important; }
-        .icon-btn { color: #d4d4d4; font-size: 1.2rem; margin: 0 8px; transition: 0.3s; background: none; border: none; }
-        .icon-btn:hover { color: #4caf50; transform: scale(1.1); }
         .page-header { background: #1a2e1a; color: #fff; padding: 40px 0 30px; }
         .page-header h2 { font-weight: 700; }
         .page-header .breadcrumb { background: none; padding: 0; margin: 0; }
@@ -52,7 +50,7 @@
             </ul>
             <div class="d-flex align-items-center">
                 <span class="text-white me-3">Store: <?= session()->get('store_name') ?? 'Store' ?></span>
-                <a href="/logout" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="fas fa-sign-out-alt"></i></a>
+                <a href="/logout" class="text-white" style="text-decoration:none;"><i class="fas fa-sign-out-alt"></i></a>
             </div>
         </div>
     </div>
@@ -64,6 +62,8 @@
             <div>
                 <h2><i class="fas fa-plus-circle me-2"></i>Add Subcategory</h2>
                 <nav class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="mx-2 text-white-50">/</span>
                     <a href="/store/dashboard">Dashboard</a>
                     <span class="mx-2 text-white-50">/</span>
                     <a href="/store/subcategories">Subcategories</a>
@@ -93,30 +93,30 @@
                 <?= csrf_field() ?>
                 
                 <div class="mb-3">
-                    <label>Main Category <span class="required">*</span></label>
+                    <label>Category <span class="required">*</span></label>
                     <select name="category_id" class="form-control" required>
                         <option value="">Select Category</option>
                         <?php foreach ($categories as $category): ?>
                             <option value="<?= $category['id'] ?>" <?= old('category_id') == $category['id'] ? 'selected' : '' ?>>
-                                <?= $category['category_name'] ?>
+                                <?= esc($category['category_name']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                
+
                 <div class="mb-3">
                     <label>Subcategory Name <span class="required">*</span></label>
-                    <input type="text" name="subcategory_name" class="form-control" placeholder="e.g. T-Shirts, Shoes, Jackets" value="<?= old('subcategory_name') ?>" required>
-                    <small class="text-muted">Example: For Fashion category, you can add subcategories like T-Shirts, Shoes, Jackets, etc.</small>
+                    <input type="text" name="subcategory_name" class="form-control" placeholder="Enter subcategory name" value="<?= old('subcategory_name') ?>" required>
                 </div>
-                
+
                 <div class="mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="is_active" id="isActive" checked>
-                        <label class="form-check-label" for="isActive">Active</label>
-                    </div>
+                    <label>Status</label>
+                    <select name="is_active" class="form-control">
+                        <option value="1" <?= old('is_active') == '1' ? 'selected' : '' ?>>Active</option>
+                        <option value="0" <?= old('is_active') == '0' ? 'selected' : '' ?>>Inactive</option>
+                    </select>
                 </div>
-                
+
                 <div class="d-flex gap-3">
                     <button type="submit" class="btn-save"><i class="fas fa-save me-2"></i>Save Subcategory</button>
                     <a href="/store/subcategories" class="btn-cancel"><i class="fas fa-times me-2"></i>Cancel</a>
@@ -166,15 +166,5 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    window.addEventListener('scroll', function() {
-        var navbar = document.querySelector('.navbar');
-        if (window.scrollY > 50) {
-            navbar.classList.add('navbar-scrolled');
-        } else {
-            navbar.classList.remove('navbar-scrolled');
-        }
-    });
-</script>
 </body>
 </html>

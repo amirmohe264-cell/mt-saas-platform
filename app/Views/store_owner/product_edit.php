@@ -25,10 +25,12 @@
         .form-card label { font-weight: 600; color: #1a2e1a; }
         .form-card .form-control { border-radius: 8px; border: 2px solid #e8f0e8; padding: 10px 15px; }
         .form-card .form-control:focus { border-color: #4caf50; box-shadow: none; }
+        .form-card .form-control:disabled { background: #f8f9fa; cursor: not-allowed; }
         .btn-save { background: #4caf50; color: #fff; border: none; border-radius: 30px; padding: 12px 40px; font-weight: 600; transition: 0.3s; }
         .btn-save:hover { background: #388e3c; color: #fff; }
         .btn-cancel { background: #6c757d; color: #fff; border: none; border-radius: 30px; padding: 12px 40px; font-weight: 600; transition: 0.3s; text-decoration: none; display: inline-block; }
         .btn-cancel:hover { background: #5a6268; color: #fff; }
+        .btn-loading { background: #4caf50; color: #fff; border: none; border-radius: 30px; padding: 12px 40px; font-weight: 600; opacity: 0.7; cursor: not-allowed; }
         .footer { background: #1a2e1a; color: #d4d4d4; padding: 40px 0 20px; margin-top: 40px; }
         .footer h5 { color: #fff; font-weight: 600; }
         .footer a { color: #aaa; text-decoration: none; transition: 0.3s; }
@@ -36,6 +38,10 @@
         .required { color: #dc3545; }
         .preview-image { max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid #e8f0e8; padding: 5px; }
         .current-image { max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid #e8f0e8; padding: 5px; }
+        .subcategory-field { margin-top: 5px; }
+        .text-muted a { color: #4caf50; text-decoration: none; }
+        .text-muted a:hover { text-decoration: underline; }
+        .alert ul { margin-bottom: 0; padding-left: 20px; }
     </style>
 </head>
 <body>
@@ -83,70 +89,99 @@
     <div class="container">
         <?php if (session()->getFlashdata('errors')): ?>
             <div class="alert alert-danger">
-                <?php foreach (session()->getFlashdata('errors') as $error): ?>
-                    <p class="mb-0"><?= $error ?></p>
-                <?php endforeach; ?>
+                <?php if (is_array(session()->getFlashdata('errors'))): ?>
+                    <ul>
+                        <?php foreach (session()->getFlashdata('errors') as $error): ?>
+                            <li><?= $error ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <p class="mb-0"><?= session()->getFlashdata('errors') ?></p>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
         <?php if (session()->getFlashdata('error')): ?>
             <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
         <?php endif; ?>
+        <?php if (session()->getFlashdata('success')): ?>
+            <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
+        <?php endif; ?>
 
         <div class="form-card">
-            <form action="/store/products/update/<?= $product['id'] ?>" method="post" enctype="multipart/form-data">
+            <form action="/store/products/update/<?= $product['id'] ?>" method="post" enctype="multipart/form-data" id="productForm">
                 <?= csrf_field() ?>
+                <input type="hidden" name="_method" value="PUT">
                 
                 <div class="mb-3">
                     <label>Product Name <span class="required">*</span></label>
-                    <input type="text" name="product_name" class="form-control" value="<?= old('product_name', $product['product_name']) ?>" required>
+                    <input type="text" name="product_name" class="form-control" placeholder="Enter product name" value="<?= old('product_name', $product['product_name']) ?>" required>
                 </div>
                 
                 <div class="mb-3">
                     <label>Category <span class="required">*</span></label>
-                    <select name="category_id" class="form-control" required>
-                        <option value="">Select Category</option>
+                    <select name="category_id" id="categorySelect" class="form-control" required>
+                        <option value="">-- Select Category --</option>
                         <?php foreach ($categories as $category): ?>
                             <option value="<?= $category['id'] ?>" <?= (old('category_id', $product['category_id']) == $category['id']) ? 'selected' : '' ?>>
-                                <?= $category['category_name'] ?>
+                                <?= esc($category['category_name']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
 
+                <!-- ✅ FIXED: Subcategory Field -->
+                <div class="mb-3 subcategory-field">
+                    <label>Subcategory</label>
+                    <select name="subcategory_id" id="subcategorySelect" class="form-control">
+                        <option value="">-- Select Subcategory --</option>
+                        <?php if (isset($subcategories) && !empty($subcategories)): ?>
+                            <?php foreach ($subcategories as $sub): ?>
+                                <option value="<?= $sub['id'] ?>" data-category-id="<?= $sub['category_id'] ?>" <?= (old('subcategory_id', $product['subcategory_id'] ?? 0) == $sub['id']) ? 'selected' : '' ?>>
+                                    <?= esc($sub['subcategory_name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                    <small class="text-muted">
+                        <a href="/store/subcategories/create">+ Add new subcategory</a> 
+                        (Select a category above to filter subcategories)
+                    </small>
+                </div>
+
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label>Price <span class="required">*</span></label>
-                        <input type="number" step="0.01" name="price" class="form-control" value="<?= old('price', $product['price']) ?>" required>
+                        <input type="number" step="0.01" name="price" class="form-control" placeholder="0.00" value="<?= old('price', $product['price']) ?>" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label>Old Price (Optional)</label>
-                        <input type="number" step="0.01" name="old_price" class="form-control" value="<?= old('old_price', $product['old_price']) ?>">
+                        <input type="number" step="0.01" name="old_price" class="form-control" placeholder="0.00" value="<?= old('old_price', $product['old_price'] ?? '') ?>">
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label>Quantity / Stock <span class="required">*</span></label>
-                        <input type="number" name="quantity" class="form-control" value="<?= old('quantity', $product['quantity']) ?>" required>
+                        <input type="number" name="quantity" class="form-control" placeholder="0" value="<?= old('quantity', $product['quantity']) ?>" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label>Status</label>
                         <select name="status" class="form-control">
-                            <option value="draft" <?= old('status', $product['status']) == 'draft' ? 'selected' : '' ?>>Draft</option>
-                            <option value="published" <?= old('status', $product['status']) == 'published' ? 'selected' : '' ?>>Published</option>
-                            <option value="archived" <?= old('status', $product['status']) == 'archived' ? 'selected' : '' ?>>Archived</option>
+                            <option value="draft" <?= old('status', $product['status'] ?? 'draft') == 'draft' ? 'selected' : '' ?>>Draft</option>
+                            <option value="published" <?= old('status', $product['status'] ?? 'draft') == 'published' ? 'selected' : '' ?>>Published</option>
+                            <option value="archived" <?= old('status', $product['status'] ?? 'draft') == 'archived' ? 'selected' : '' ?>>Archived</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label>Product Description</label>
-                    <textarea name="product_description" class="form-control" rows="4"><?= old('product_description', $product['product_description']) ?></textarea>
+                    <textarea name="product_description" class="form-control" rows="4" placeholder="Describe your product..."><?= old('product_description', $product['product_description'] ?? '') ?></textarea>
                 </div>
 
                 <div class="mb-3">
                     <label>Product Image</label>
-                    <?php if ($product['product_image']): ?>
+                    <?php if (!empty($product['product_image'])): ?>
                         <div class="mb-2">
                             <img src="/<?= $product['product_image'] ?>" alt="Current Image" class="current-image">
                             <br>
@@ -161,7 +196,7 @@
                 </div>
 
                 <div class="d-flex gap-3">
-                    <button type="submit" class="btn-save"><i class="fas fa-save me-2"></i>Update Product</button>
+                    <button type="submit" class="btn-save" id="submitBtn"><i class="fas fa-save me-2"></i>Update Product</button>
                     <a href="/store/products" class="btn-cancel"><i class="fas fa-times me-2"></i>Cancel</a>
                 </div>
             </form>
@@ -228,8 +263,101 @@
                 preview.style.display = 'block';
             };
             reader.readAsDataURL(input.files[0]);
+        } else {
+            preview.style.display = 'none';
         }
     }
+
+    // =============================================
+    // ✅ FIXED: DYNAMIC SUBCATEGORIES
+    // =============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        var categorySelect = document.getElementById('categorySelect');
+        var subcategorySelect = document.getElementById('subcategorySelect');
+        
+        // Store the currently selected subcategory value (from PHP)
+        var currentSubcategoryValue = '<?= old('subcategory_id', $product['subcategory_id'] ?? 0) ?>';
+        
+        // Store all original subcategory options
+        var allOptions = [];
+        var defaultOption = null;
+        
+        // Loop through all options and store them
+        subcategorySelect.querySelectorAll('option').forEach(function(opt) {
+            if (opt.value === '') {
+                // Store the default option separately
+                defaultOption = opt.cloneNode(true);
+            } else {
+                // Store all subcategory options with their data-category-id
+                allOptions.push(opt.cloneNode(true));
+            }
+        });
+
+        function updateSubcategories() {
+            var selectedCategory = categorySelect.value;
+            
+            // Clear subcategory select
+            subcategorySelect.innerHTML = '';
+            
+            // Add default option
+            if (defaultOption) {
+                subcategorySelect.appendChild(defaultOption.cloneNode(true));
+            } else {
+                var defaultOpt = document.createElement('option');
+                defaultOpt.value = '';
+                defaultOpt.textContent = '-- Select Subcategory --';
+                subcategorySelect.appendChild(defaultOpt);
+            }
+            
+            // If no category selected, show a message
+            if (selectedCategory === '') {
+                var msgOpt = document.createElement('option');
+                msgOpt.value = '';
+                msgOpt.textContent = '-- Select a category first --';
+                subcategorySelect.appendChild(msgOpt);
+                return;
+            }
+            
+            // Filter subcategories by selected category
+            var hasSubcategories = false;
+            allOptions.forEach(function(option) {
+                var categoryId = option.getAttribute('data-category-id');
+                if (categoryId == selectedCategory) {
+                    var newOption = option.cloneNode(true);
+                    // Check if this option matches the current subcategory value
+                    if (newOption.value == currentSubcategoryValue) {
+                        newOption.selected = true;
+                    }
+                    subcategorySelect.appendChild(newOption);
+                    hasSubcategories = true;
+                }
+            });
+            
+            // If no subcategories found for this category
+            if (!hasSubcategories) {
+                var msgOpt = document.createElement('option');
+                msgOpt.value = '';
+                msgOpt.textContent = '-- No subcategories available --';
+                subcategorySelect.appendChild(msgOpt);
+            }
+        }
+
+        // Add change event listener
+        categorySelect.addEventListener('change', updateSubcategories);
+        
+        // Initial update - filter based on currently selected category
+        updateSubcategories();
+    });
+
+    // Form submit validation - prevents double submission
+    document.getElementById('productForm').addEventListener('submit', function(e) {
+        var btn = document.getElementById('submitBtn');
+        if (!btn.disabled) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+            btn.className = 'btn-loading';
+            btn.disabled = true;
+        }
+    });
 </script>
 </body>
 </html>

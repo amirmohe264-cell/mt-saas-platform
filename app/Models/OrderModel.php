@@ -23,12 +23,12 @@ class OrderModel extends Model
                     ->findAll();
     }
 
-    public function getOrdersByCustomer($customerId)
-    {
-        return $this->where('customer_id', $customerId)
-                    ->orderBy('created_at', 'DESC')
-                    ->findAll();
-    }
+ public function getOrdersByCustomer($customerId)
+{
+    return $this->where('customer_id', $customerId)
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+}
 
     public function getOrderWithDetails($orderId)
     {

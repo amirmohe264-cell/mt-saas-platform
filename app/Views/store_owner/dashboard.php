@@ -1,3 +1,11 @@
+<!-- app/Views/store_owner/dashboard.php -->
+<?php
+if (!session()->get('tenant_id')) {
+    header('Location: /login');
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -372,6 +380,8 @@
         .status-shipped { background: #d4edda; color: #155724; }
         .status-delivered { background: #d4edda; color: #155724; }
         .status-cancelled { background: #f8d7da; color: #721c24; }
+        .status-draft { background: #e9ecef; color: #6c757d; }
+        .status-published { background: #d4edda; color: #155724; }
 
         .btn-add-product {
             background: #4caf50;
@@ -478,7 +488,7 @@
         <!-- Toggle Button -->
         <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
             <i class="fas fa-bars"></i>
-            <span id="toggleText"></span>
+            <span id="toggleText">Collapse</span>
         </button>
 
         <div class="store-avatar">
@@ -486,26 +496,27 @@
         </div>
         <div class="store-name"><?= session()->get('store_name') ?? 'Store' ?></div>
         <div class="store-status"><span class="badge bg-success">Active</span></div>
-<!-- MANAGEMENT -->
-<div class="sidebar-category">Management</div>
-<ul class="sidebar-menu">
-    <li class="active" onclick="showSection('dashboard')" data-tooltip="Dashboard">
-        <i class="fas fa-tachometer-alt"></i>
-        <span class="menu-text">Dashboard</span>
-    </li>
-    <li onclick="showSection('products')" data-tooltip="Products">
-        <i class="fas fa-box"></i>
-        <span class="menu-text">Products</span>
-    </li>
-    <li onclick="location.href='/store/subcategories'" data-tooltip="Subcategories">
-        <i class="fas fa-tags"></i>
-        <span class="menu-text">Subcategories</span>
-    </li>
-    <li onclick="showSection('orders')" data-tooltip="Orders">
-        <i class="fas fa-shopping-bag"></i>
-        <span class="menu-text">Orders</span>
-    </li>
-</ul>
+
+        <!-- MANAGEMENT -->
+        <div class="sidebar-category">Management</div>
+        <ul class="sidebar-menu">
+            <li class="active" onclick="showSection('dashboard')" data-tooltip="Dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span class="menu-text">Dashboard</span>
+            </li>
+            <li onclick="showSection('products')" data-tooltip="Products">
+                <i class="fas fa-box"></i>
+                <span class="menu-text">Products</span>
+            </li>
+            <li onclick="location.href='/store/subcategories'" data-tooltip="Subcategories">
+                <i class="fas fa-tags"></i>
+                <span class="menu-text">Subcategories</span>
+            </li>
+            <li onclick="showSection('orders')" data-tooltip="Orders">
+                <i class="fas fa-shopping-bag"></i>
+                <span class="menu-text">Orders</span>
+            </li>
+        </ul>
 
         <!-- FINANCE & EARNINGS -->
         <div class="sidebar-category">Finance & Earnings</div>
@@ -606,13 +617,17 @@
                                 <div class="order-date"><?= date('M d, Y', strtotime($order['created_at'])) ?></div>
                             </div>
                             <div>
-                                <span class="status-badge status-<?= $order['order_status'] ?>"><?= ucfirst($order['order_status']) ?></span>
+                                <span class="status-badge status-<?= strtolower($order['order_status'] ?? 'pending') ?>">
+                                    <?= ucfirst($order['order_status'] ?? 'Pending') ?>
+                                </span>
                             </div>
                             <div>
                                 <span class="order-total">$<?= number_format($order['total_amount'], 2) ?></span>
                             </div>
                             <div>
-                                <a href="#" class="btn btn-sm btn-outline-success">View</a>
+                                <a href="/store/orders/<?= $order['id'] ?>" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -649,7 +664,7 @@
                                         <td>$<?= number_format($product['price'], 2) ?></td>
                                         <td><?= $product['quantity'] ?></td>
                                         <td>
-                                            <span class="status-badge status-<?= $product['status'] ?? 'draft' ?>">
+                                            <span class="status-badge status-<?= strtolower($product['status'] ?? 'draft') ?>">
                                                 <?= ucfirst($product['status'] ?? 'Draft') ?>
                                             </span>
                                         </td>
@@ -696,13 +711,17 @@
                                         <td><?= date('M d, Y', strtotime($order['created_at'])) ?></td>
                                         <td>$<?= number_format($order['total_amount'], 2) ?></td>
                                         <td>
-                                            <span class="status-badge status-<?= $order['order_status'] ?>">
-                                                <?= ucfirst($order['order_status']) ?>
+                                            <span class="status-badge status-<?= strtolower($order['order_status'] ?? 'pending') ?>">
+                                                <?= ucfirst($order['order_status'] ?? 'Pending') ?>
                                             </span>
                                         </td>
                                         <td>
-                                            <a href="#" class="btn btn-sm btn-outline-success">View</a>
-                                            <a href="#" class="btn btn-sm btn-outline-warning">Update</a>
+                                            <a href="/store/orders/<?= $order['id'] ?>" class="btn btn-sm btn-outline-success">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="/store/orders/update-status/<?= $order['id'] ?>" class="btn btn-sm btn-outline-warning">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -803,6 +822,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // ==========================================
+    // SHOW SECTION
+    // ==========================================
     function showSection(section) {
         // Hide all sections
         document.querySelectorAll('.sections').forEach(function(el) {
@@ -833,9 +855,14 @@
         else if (section === 'orders') index = 2;
         else if (section === 'reports') index = 3;
         else if (section === 'settings') index = 4;
-        menuItems[index].classList.add('active');
+        if (menuItems[index]) {
+            menuItems[index].classList.add('active');
+        }
     }
 
+    // ==========================================
+    // TOGGLE SIDEBAR
+    // ==========================================
     function toggleSidebar() {
         var wrapper = document.getElementById('sidebarWrapper');
         var body = document.getElementById('mainBody');

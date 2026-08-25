@@ -2,38 +2,61 @@
 
 namespace App\Controllers;
 
-use App\Models\CartModel;
 use App\Models\ProductModel;
+use App\Models\CartModel;
 
 class CartController extends BaseController
 {
-    protected $cartModel;
     protected $productModel;
+    protected $cartModel;
 
     public function __construct()
     {
-        $this->cartModel = new CartModel();
         $this->productModel = new ProductModel();
+        $this->cartModel = new CartModel();
     }
 
     public function index()
     {
-        $customerId = session()->get('user_id');
+        // Get customer ID
+        $customerId = session()->get('customer_id');
+        
+        if (!$customerId) {
+            $customerId = session()->get('user_id');
+        }
         
         if (!$customerId) {
             return redirect()->to('/login')->with('error', 'Please login to view your cart.');
         }
 
+        // Get cart items
         $cartItems = $this->cartModel->getCartByCustomer($customerId);
-        $cartTotal = $this->cartModel->getCartTotal($customerId);
-        $itemCount = $this->cartModel->getCartItemCount($customerId);
 
-        // Calculate subtotal, shipping, tax
-        $subtotal = $cartTotal;
-        $shipping = $subtotal > 50 ? 0 : 5.00;
+        // Calculate totals
+        $subtotal = 0;
+        $itemCount = 0;
+        
+        if (!empty($cartItems)) {
+            foreach ($cartItems as &$item) {
+                $item['subtotal'] = $item['price'] * $item['quantity'];
+                $subtotal += $item['subtotal'];
+                $itemCount += $item['quantity'];
+            }
+        }
+
+        $shipping = ($subtotal > 50) ? 0 : 5.00;
         $tax = $subtotal * 0.08;
         $grandTotal = $subtotal + $shipping + $tax;
 
+        // Update session cart count
+        session()->set('cart_count', $itemCount);
+
+        // Debug: Log what's being sent to view
+        log_message('debug', 'Cart Items count: ' . count($cartItems));
+        log_message('debug', 'Item Count: ' . $itemCount);
+        log_message('debug', 'Subtotal: ' . $subtotal);
+
+        // Pass data to view
         return view('public/cart', [
             'cartItems' => $cartItems,
             'subtotal' => $subtotal,
@@ -44,32 +67,26 @@ class CartController extends BaseController
         ]);
     }
 
-public function add()
-{
-    try {
-        $customerId = session()->get('user_id');
+    public function add()
+    {
+        $customerId = session()->get('customer_id');
+        
+        if (!$customerId) {
+            $customerId = session()->get('user_id');
+        }
         
         if (!$customerId) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Please login to add items to cart.'
+                'message' => 'Please login to add items to cart.',
+                'redirect' => '/login'
             ]);
         }
 
         $productId = $this->request->getPost('product_id');
-        $quantity = $this->request->getPost('quantity') ?? 1;
+        $quantity = (int) $this->request->getPost('quantity') ?: 1;
 
-        if (!$productId) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Product ID is required.'
-            ]);
-        }
-
-        // Check if product exists and has stock
-        $productModel = new \App\Models\ProductModel();
-        $product = $productModel->find($productId);
-        
+        $product = $this->productModel->find($productId);
         if (!$product) {
             return $this->response->setJSON([
                 'success' => false,
@@ -80,162 +97,190 @@ public function add()
         if ($product['quantity'] < $quantity) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Not enough stock available. Only ' . $product['quantity'] . ' left.'
+                'message' => 'Not enough stock. Available: ' . $product['quantity']
             ]);
         }
-
-        // Debug: Log the data
-        log_message('debug', 'Adding to cart - Customer: ' . $customerId . ', Product: ' . $productId . ', Quantity: ' . $quantity);
 
         $result = $this->cartModel->addOrUpdateItem($customerId, $productId, $quantity);
 
-        if ($result) {
-            $itemCount = $this->cartModel->getCartItemCount($customerId);
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'Product added to cart successfully!',
-                'cart_count' => $itemCount
-            ]);
-        } else {
-            // Get the error
-            $error = $this->cartModel->errors();
-            log_message('error', 'Cart insert failed: ' . print_r($error, true));
+        if (!$result) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Failed to add product to cart. Error: ' . print_r($error, true)
+                'message' => 'Failed to add item to cart.'
             ]);
         }
-    } catch (\Exception $e) {
-        log_message('error', 'Cart exception: ' . $e->getMessage());
+
+        $cartCount = $this->cartModel->getCartItemCount($customerId);
+        session()->set('cart_count', $cartCount);
+
         return $this->response->setJSON([
-            'success' => false,
-            'message' => 'Error: ' . $e->getMessage()
+            'success' => true,
+            'message' => '✅ Product added to cart!',
+            'cart_count' => $cartCount,
         ]);
     }
-}
 
     public function update()
     {
-        $customerId = session()->get('user_id');
+        $customerId = session()->get('customer_id');
+        
+        if (!$customerId) {
+            $customerId = session()->get('user_id');
+        }
         
         if (!$customerId) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Please login to update your cart.'
+                'message' => 'Please login.'
             ]);
         }
 
         $productId = $this->request->getPost('product_id');
-        $quantity = $this->request->getPost('quantity');
+        $quantity = (int) $this->request->getPost('quantity');
 
-        if (!$productId || $quantity === null) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Product ID and quantity are required.'
-            ]);
+        if ($quantity <= 0) {
+            return $this->remove($productId);
         }
 
         $result = $this->cartModel->addOrUpdateItem($customerId, $productId, $quantity);
 
-        if ($result) {
-            $cartTotal = $this->cartModel->getCartTotal($customerId);
-            $itemCount = $this->cartModel->getCartItemCount($customerId);
-            
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'Cart updated successfully!',
-                'cart_total' => $cartTotal,
-                'cart_count' => $itemCount
-            ]);
-        } else {
+        if (!$result) {
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'Failed to update cart.'
             ]);
         }
+
+        $cartCount = $this->cartModel->getCartItemCount($customerId);
+        session()->set('cart_count', $cartCount);
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Cart updated!',
+            'cart_count' => $cartCount,
+        ]);
     }
 
-    public function remove()
+    public function remove($productId = null)
     {
-        $customerId = session()->get('user_id');
+        if (!$productId) {
+            $productId = $this->request->getPost('product_id');
+        }
+
+        $customerId = session()->get('customer_id');
+        
+        if (!$customerId) {
+            $customerId = session()->get('user_id');
+        }
         
         if (!$customerId) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Please login to remove items from cart.'
-            ]);
-        }
-
-        $productId = $this->request->getPost('product_id');
-
-        if (!$productId) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Product ID is required.'
+                'message' => 'Please login.'
             ]);
         }
 
         $result = $this->cartModel->removeItem($customerId, $productId);
 
-        if ($result) {
-            $itemCount = $this->cartModel->getCartItemCount($customerId);
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'Item removed from cart!',
-                'cart_count' => $itemCount
-            ]);
-        } else {
+        if (!$result) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Failed to remove item from cart.'
+                'message' => 'Failed to remove item.'
             ]);
         }
-    }
-    public function getCartTotals()
-{
-    $customerId = session()->get('user_id');
-    
-    if (!$customerId) {
+
+        $cartCount = $this->cartModel->getCartItemCount($customerId);
+        session()->set('cart_count', $cartCount);
+
         return $this->response->setJSON([
-            'success' => false,
-            'message' => 'Please login.'
+            'success' => true,
+            'message' => 'Item removed!',
+            'cart_count' => $cartCount,
         ]);
     }
 
-    $cartItems = $this->cartModel->getCartByCustomer($customerId);
-    $subtotal = $this->cartModel->getCartTotal($customerId);
-    $itemCount = $this->cartModel->getCartItemCount($customerId);
-    
-    $shipping = $subtotal > 50 ? 0 : 5.00;
-    $tax = $subtotal * 0.08;
-    $grandTotal = $subtotal + $shipping + $tax;
-
-    return $this->response->setJSON([
-        'success' => true,
-        'subtotal' => $subtotal,
-        'shipping' => $shipping,
-        'tax' => $tax,
-        'grandTotal' => $grandTotal,
-        'itemCount' => $itemCount
-    ]);
-}
-
-    public function getCartCount()
+    public function count()
     {
-        $customerId = session()->get('user_id');
+        $customerId = session()->get('customer_id');
         
         if (!$customerId) {
-            return $this->response->setJSON([
-                'success' => true,
-                'count' => 0
-            ]);
+            $customerId = session()->get('user_id');
+        }
+        
+        $count = 0;
+
+        if ($customerId) {
+            $count = $this->cartModel->getCartItemCount($customerId);
         }
 
-        $count = $this->cartModel->getCartItemCount($customerId);
-        
         return $this->response->setJSON([
             'success' => true,
             'count' => $count
+        ]);
+    }
+
+    public function getCartTotals()
+    {
+        $customerId = session()->get('customer_id');
+        
+        if (!$customerId) {
+            $customerId = session()->get('user_id');
+        }
+        
+        if (!$customerId) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Please login.'
+            ]);
+        }
+
+        $cartItems = $this->cartModel->getCartByCustomer($customerId);
+        $subtotal = 0;
+        $itemCount = 0;
+
+        foreach ($cartItems as $item) {
+            $subtotal += $item['price'] * $item['quantity'];
+            $itemCount += $item['quantity'];
+        }
+
+        $shipping = ($subtotal > 50) ? 0 : 5.00;
+        $tax = $subtotal * 0.08;
+        $grandTotal = $subtotal + $shipping + $tax;
+
+        return $this->response->setJSON([
+            'success' => true,
+            'subtotal' => $subtotal,
+            'shipping' => $shipping,
+            'tax' => $tax,
+            'grandTotal' => $grandTotal,
+            'itemCount' => $itemCount,
+        ]);
+    }
+
+    public function clear()
+    {
+        $customerId = session()->get('customer_id');
+        
+        if (!$customerId) {
+            $customerId = session()->get('user_id');
+        }
+        
+        if ($customerId) {
+            $this->cartModel->where('customer_id', $customerId)->delete();
+        }
+
+        session()->set('cart_count', 0);
+
+        return redirect()->to('/cart')->with('success', 'Cart cleared!');
+    }
+
+    public function updateSession()
+    {
+        $count = $this->request->getPost('cart_count');
+        session()->set('cart_count', $count);
+        
+        return $this->response->setJSON([
+            'success' => true
         ]);
     }
 }
