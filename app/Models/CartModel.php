@@ -45,6 +45,17 @@ class CartModel extends Model
 
     public function addOrUpdateItem($customerId, $productId, $quantity)
     {
+        // 🔍 ተጠቃሚው በ customers ሰንጠረዥ ውስጥ መኖሩን አረጋግጥ
+        $db = \Config\Database::connect();
+        $userCheck = $db->query("SELECT id FROM customers WHERE id = ?", [$customerId])->getRow();
+        
+        if (!$userCheck) {
+            log_message('error', '❌ Customer ID ' . $customerId . ' does NOT exist in customers table!');
+            return false;
+        }
+        
+        log_message('debug', '✅ Customer ID ' . $customerId . ' exists. Adding to cart...');
+
         // Check if item already exists
         $existing = $this->where('customer_id', $customerId)
                          ->where('product_id', $productId)

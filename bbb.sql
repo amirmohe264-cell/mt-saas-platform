@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict wSnU6aC7yPQzvPZcDe7rFGYsx6sJyoazhSLff7RkzlSyHDtChu8AmLdMrpUM96N
+\restrict Ep17rhaY23nGpgBuVYhw6VWLgQMNhw3pyBjUidXqecuhzaaQASMcJDxtpK0pvX9
 
 -- Dumped from database version 16.14
 -- Dumped by pg_dump version 16.14
 
--- Started on 2026-08-18 10:44:09
+-- Started on 2026-08-19 20:49:53
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -933,6 +933,8 @@ ALTER TABLE ONLY public.wishlist ALTER COLUMN id SET DEFAULT nextval('public.wis
 
 COPY public.cart (id, customer_id, product_id, quantity, created_at, updated_at) FROM stdin;
 11	2	10	1	2026-08-15 09:14:32	2026-08-15 09:14:32
+12	1	11	1	2026-08-18 08:19:01	2026-08-18 08:19:01
+13	1	7	1	2026-08-18 08:20:38	2026-08-18 08:20:38
 \.
 
 
@@ -1048,6 +1050,19 @@ COPY public.products (id, tenant_id, category_id, subcategory_id, product_name, 
 9	13	2	\N	skechers	kmk'j'l	22.00	11.00	16	uploads/products/product_1786612864_1786612864_f9d30168f8b1b481d380.jpg	published	t	2026-08-13 09:21:04	2026-08-13 09:21:04
 10	13	2	\N	allstar	'km'm.m/	33.00	22.00	4	uploads/products/product_1786612908_1786612908_d7eefb8ce44a1e89fced.jpg	published	t	2026-08-13 09:21:48	2026-08-13 09:21:48
 11	13	2	\N	t shert	jn'ww'	33.00	22.00	3	uploads/products/product_1786612956_1786612956_8f0e812f9b17b3c03156.jpg	published	t	2026-08-13 09:22:36	2026-08-13 09:22:36
+12	13	8	8	elentra	yioghglhghl	777.00	86.92	3	uploads/products/product_1787141371_1787141371_0e0cfc211511427886ab.jpg	published	t	2026-08-19 12:09:31	2026-08-19 12:09:31
+13	13	8	8	Elentra	tfgkjkdy	455.00	566.00	2	uploads/products/product_1787142416_1787142416_483db090ba3a7f2017cb.jpg	published	t	2026-08-19 12:26:56	2026-08-19 12:26:56
+14	13	8	7	hylux	jnelfn'lqern'len'l	33.00	43.00	5	uploads/products/product_1787143057_1787143057_6543ff8478da6b65df71.jpg	published	t	2026-08-19 12:37:37	2026-08-19 12:37:37
+15	13	8	7	landcruser	efn;ktq	45.00	23.00	1	uploads/products/product_1787143111_1787143111_b434e02b82e5d2202b3f.jpg	published	t	2026-08-19 12:38:31	2026-08-19 12:38:31
+16	13	8	7	gemechis	jne'fjn	33.00	88.00	3	uploads/products/product_1787143181_1787143181_fed6dc205dc00bfce526.jpg	published	t	2026-08-19 12:39:41	2026-08-19 12:39:41
+17	13	1	6	samaung ultra	nbjf;jk;jk	344.00	230.87	2	uploads/products/product_1787144062_1787144062_334c17b18fd80d24e2de.jpg	published	t	2026-08-19 12:54:22	2026-08-19 12:54:22
+18	13	1	6	google pixel	fjn;jn;fgkwn	220.22	42.85	4	uploads/products/product_1787144115_1787144115_41ef808259913515cec3.jpg	published	t	2026-08-19 12:55:15	2026-08-19 12:55:15
+19	13	1	6	iphone	;qnwqnbw	23.00	43.83	4	uploads/products/product_1787144172_1787144172_750567e02407da373fba.jpg	published	t	2026-08-19 12:56:12	2026-08-19 12:56:12
+20	13	1	11	hilk	bwfnkwej	33.00	42.00	3	uploads/products/product_1787144241_1787144241_64bd27aed7a94cf55121.jpg	published	t	2026-08-19 12:57:21	2026-08-19 12:57:21
+21	13	1	11	erd	ndfqw	23.00	43.00	2	uploads/products/product_1787144297_1787144297_bee04f73dc5ecfd01822.jpg	published	t	2026-08-19 12:58:17	2026-08-19 12:58:17
+22	13	2	13	smart	mner;jqj	33.00	54.87	16	uploads/products/product_1787145972_1787145972_dc3b7deab62498e10224.jpg	draft	t	2026-08-19 13:26:12	2026-08-19 13:26:12
+23	13	2	3	cool	hwkb	12.07	23.08	3	uploads/products/product_1787149006_1787149006_25fc9ca365e82ab8544d.jpg	published	t	2026-08-19 14:16:46	2026-08-19 14:16:46
+24	13	2	3	rool	lleh;	42.91	53.93	3	uploads/products/product_1787149047_1787149047_d48483bd18f51cc3414f.jpg	published	t	2026-08-19 14:17:27	2026-08-19 14:17:27
 \.
 
 
@@ -1095,12 +1110,19 @@ COPY public.store_requests (id, store_name, owner_name, owner_email, owner_phone
 --
 
 COPY public.subcategories (id, category_id, tenant_id, subcategory_name, is_active, created_at, updated_at) FROM stdin;
-1	2	13	Tshert	t	2026-08-17 12:21:31	2026-08-17 12:21:42
-2	2	13	showe	t	2026-08-17 12:21:59	2026-08-17 12:21:59
-3	2	13	short	t	2026-08-17 12:22:19	2026-08-17 12:22:19
-4	2	13	jaket	t	2026-08-17 12:22:44	2026-08-17 12:22:44
-5	2	13	hudy	t	2026-08-17 12:23:02	2026-08-17 12:23:02
-6	1	13	cell phone	t	2026-08-17 12:23:25	2026-08-17 12:23:25
+6	1	13	cell phone	t	2026-08-17 12:23:25	2026-08-19 11:53:29
+5	2	13	hudy	t	2026-08-17 12:23:02	2026-08-19 11:54:17
+4	2	13	jaket	t	2026-08-17 12:22:44	2026-08-19 11:54:22
+3	2	13	short	t	2026-08-17 12:22:19	2026-08-19 11:54:30
+2	2	13	showe	t	2026-08-17 12:21:59	2026-08-19 11:54:36
+7	8	13	toyota	t	2026-08-19 11:36:00	2026-08-19 11:54:43
+1	2	13	Tshert	t	2026-08-17 12:21:31	2026-08-19 11:54:48
+8	8	13	hyunday	t	2026-08-19 11:55:11	2026-08-19 11:55:11
+9	8	13	nisane	t	2026-08-19 11:55:30	2026-08-19 11:55:30
+10	1	13	laptop	t	2026-08-19 12:40:28	2026-08-19 12:40:28
+11	1	13	headphone	t	2026-08-19 12:40:44	2026-08-19 12:40:44
+12	1	13	mouse	t	2026-08-19 12:41:08	2026-08-19 12:41:08
+13	2	13	Watch	t	2026-08-19 13:25:22	2026-08-19 13:25:22
 \.
 
 
@@ -1151,7 +1173,7 @@ COPY public.wishlist (id, customer_id, product_id, created_at) FROM stdin;
 -- Name: cart_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.cart_id_seq', 11, true);
+SELECT pg_catalog.setval('public.cart_id_seq', 17, true);
 
 
 --
@@ -1232,7 +1254,7 @@ SELECT pg_catalog.setval('public.product_images_id_seq', 1, false);
 -- Name: products_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.products_id_seq', 11, true);
+SELECT pg_catalog.setval('public.products_id_seq', 24, true);
 
 
 --
@@ -1268,7 +1290,7 @@ SELECT pg_catalog.setval('public.store_requests_id_seq', 7, true);
 -- Name: subcategories_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.subcategories_id_seq', 6, true);
+SELECT pg_catalog.setval('public.subcategories_id_seq', 13, true);
 
 
 --
@@ -1685,11 +1707,11 @@ ALTER TABLE ONLY public.wishlist
     ADD CONSTRAINT wishlist_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id) ON DELETE CASCADE;
 
 
--- Completed on 2026-08-18 10:44:10
+-- Completed on 2026-08-19 20:49:54
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict wSnU6aC7yPQzvPZcDe7rFGYsx6sJyoazhSLff7RkzlSyHDtChu8AmLdMrpUM96N
+\unrestrict Ep17rhaY23nGpgBuVYhw6VWLgQMNhw3pyBjUidXqecuhzaaQASMcJDxtpK0pvX9
 

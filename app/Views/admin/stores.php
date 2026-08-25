@@ -139,9 +139,7 @@
                                         <a href="/admin/store/suspend/<?= $tenant['id'] ?>" class="btn btn-sm btn-outline-warning" title="<?= $tenant['status'] === 'suspended' ? 'Activate' : 'Suspend' ?>" onclick="return confirm('Are you sure you want to toggle this store\'s status?')">
                                             <i class="fas <?= $tenant['status'] === 'suspended' ? 'fa-undo' : 'fa-ban' ?>"></i>
                                         </a>
-                                        <a href="/admin/store/reset-password/<?= $tenant['id'] ?>" class="btn btn-sm btn-outline-info" title="Reset Password" onclick="return confirm('Are you sure you want to reset the password for this store owner?')">
-                                            <i class="fas fa-key"></i>
-                                        </a>
+                                        
                                         <a href="/admin/store/delete/<?= $tenant['id'] ?>" class="btn btn-sm btn-outline-danger" title="Delete Store" onclick="return confirm('Are you sure you want to delete this store? This action cannot be undone!')">
                                             <i class="fas fa-trash"></i>
                                         </a>
