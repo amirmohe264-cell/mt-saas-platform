@@ -880,7 +880,7 @@ function toggleWishlist(button) {
         button.classList.remove('wishlist-active');
         showNotification('info', '💔 Wishlist', 'Removed from wishlist!');
     }
-}
+}  
 </script>
 
 </body>
