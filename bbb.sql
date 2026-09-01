@@ -2,7 +2,6 @@
 -- PostgreSQL database dump
 --
 
-\restrict Ep17rhaY23nGpgBuVYhw6VWLgQMNhw3pyBjUidXqecuhzaaQASMcJDxtpK0pvX9
 
 -- Dumped from database version 16.14
 -- Dumped by pg_dump version 16.14
@@ -1713,5 +1712,4 @@ ALTER TABLE ONLY public.wishlist
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Ep17rhaY23nGpgBuVYhw6VWLgQMNhw3pyBjUidXqecuhzaaQASMcJDxtpK0pvX9
 

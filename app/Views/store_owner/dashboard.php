@@ -552,7 +552,7 @@ if (!session()->get('tenant_id')) {
                 <i class="fas fa-tags"></i>
                 <span class="menu-text">Subcategories</span>
             </li>
-            <li onclick="showSection('orders')" data-tooltip="Orders">
+           <li onclick="location.href='/store/orders'" data-tooltip="Orders">
                 <i class="fas fa-shopping-bag"></i>
                 <span class="menu-text">Orders</span>
             </li>
@@ -785,21 +785,21 @@ if (!session()->get('tenant_id')) {
                     <div class="col-md-6 mb-3">
                         <div class="dashboard-card">
                             <i class="fas fa-calendar-day card-icon text-info"></i>
-                            <div class="card-number">$0.00</div>
+                          <div class="card-number">$<?= number_format($todaySales ?? 0, 2) ?></div>
                             <div class="card-label">Today's Sales</div>
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="dashboard-card">
                             <i class="fas fa-calendar-week card-icon text-success"></i>
-                            <div class="card-number">$0.00</div>
+                         <div class="card-number">$<?= number_format($weekSales ?? 0, 2) ?></div>
                             <div class="card-label">This Week</div>
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="dashboard-card">
                             <i class="fas fa-calendar-alt card-icon text-warning"></i>
-                            <div class="card-number">$<?= number_format($revenue ?? 0, 2) ?></div>
+                         <div class="card-number">$<?= number_format($monthSales ?? 0, 2) ?></div>
                             <div class="card-label">This Month</div>
                         </div>
                     </div>
@@ -925,9 +925,7 @@ if (!session()->get('tenant_id')) {
 <!-- ✅ JavaScript for Password Update -->
 <script>
     // ==========================================
-<<<<<<< HEAD
     // SHOW SECTION
-=======
     // 1. NOTIFICATION FUNCTION
     // ==========================================
     function showNotification(type, title, message) {
@@ -1068,70 +1066,117 @@ if (!session()->get('tenant_id')) {
     // 5. UPDATE PASSWORD
     // ==========================================
     function updatePassword() {
-        const currentPassword = document.getElementById('currentPassword').value;
-        const newPassword = document.getElementById('newPassword').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        
-        if (!currentPassword) {
-            showNotification('error', '❌ Error', 'Please enter your current password.');
-            document.getElementById('currentPassword').focus();
-            return;
-        }
-        
-        if (!newPassword || newPassword.length < 8) {
-            showNotification('error', '❌ Error', 'Password must be at least 8 characters.');
-            document.getElementById('newPassword').focus();
-            return;
-        }
-        
-        if (newPassword !== confirmPassword) {
-            showNotification('error', '❌ Error', 'New passwords do not match!');
-            document.getElementById('confirmPassword').focus();
-            return;
-        }
-        
-        const hasUppercase = /[A-Z]/.test(newPassword);
-        const hasLowercase = /[a-z]/.test(newPassword);
-        const hasNumber = /[0-9]/.test(newPassword);
-        const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
-        
-        if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
-            showNotification('warning', '⚠️ Weak Password', 'Please use a stronger password with uppercase, lowercase, number and special character.');
-            return;
-        }
-        
-        showNotification('success', '✅ Password Updated', 'Your password has been updated successfully!');
-        
-        document.getElementById('currentPassword').value = '';
-        document.getElementById('newPassword').value = '';
-        document.getElementById('confirmPassword').value = '';
-        document.getElementById('passwordStrength').className = 'password-strength';
-        document.getElementById('passwordStrength').style.width = '0%';
-        document.getElementById('passwordMatchMsg').textContent = '';
-        
-        document.querySelectorAll('.password-requirements span').forEach(el => {
-            el.className = 'req-unmet';
-            el.innerHTML = '<i class="fas fa-circle"></i> ' + el.textContent.replace(/[✓✗]/g, '').trim();
-        });
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    if (!currentPassword) {
+        showNotification('error', '❌ Error', 'Please enter your current password.');
+        document.getElementById('currentPassword').focus();
+        return;
+    }
+    
+    if (!newPassword || newPassword.length < 8) {
+        showNotification('error', '❌ Error', 'Password must be at least 8 characters.');
+        document.getElementById('newPassword').focus();
+        return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+        showNotification('error', '❌ Error', 'New passwords do not match!');
+        document.getElementById('confirmPassword').focus();
+        return;
+    }
+    
+    const hasUppercase = /[A-Z]/.test(newPassword);
+    const hasLowercase = /[a-z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+    
+    if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
+        showNotification('warning', '⚠️ Weak Password', 'Please use a stronger password with uppercase, lowercase, number and special character.');
+        return;
     }
 
+    const formData = new URLSearchParams();
+    formData.append('current_password', currentPassword);
+    formData.append('new_password', newPassword);
+
+    fetch('/store/settings/change-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData.toString()
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', '✅ Password Updated', data.message);
+
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('passwordStrength').className = 'password-strength';
+            document.getElementById('passwordStrength').style.width = '0%';
+            document.getElementById('passwordMatchMsg').textContent = '';
+
+            document.querySelectorAll('.password-requirements span').forEach(el => {
+                el.className = 'req-unmet';
+                el.innerHTML = '<i class="fas fa-circle"></i> ' + el.textContent.replace(/[✓✗]/g, '').trim();
+            });
+        } else {
+            showNotification('error', '❌ Error', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error updating password:', error);
+        showNotification('error', '❌ Error', 'Could not update password.');
+    });
+}
     // ==========================================
     // 6. SAVE STORE SETTINGS
     // ==========================================
-    function saveStoreSettings() {
-        const storeName = document.getElementById('storeName').value;
-        
-        if (!storeName) {
-            showNotification('error', '❌ Error', 'Please enter store name.');
-            return;
-        }
-        
-        showNotification('success', '✅ Store Settings Saved', 'Your store settings have been updated successfully!');
+function saveStoreSettings() {
+    const storeName = document.getElementById('storeName').value;
+
+    if (!storeName) {
+        showNotification('error', '❌ Error', 'Please enter store name.');
+        return;
     }
+
+    const formData = new URLSearchParams();
+    formData.append('store_name', storeName);
+    formData.append('store_description', document.getElementById('storeDescription').value);
+    formData.append('contact_email', document.getElementById('contactEmail').value);
+    formData.append('contact_phone', document.getElementById('contactPhone').value);
+    formData.append('store_address', document.getElementById('storeAddress').value);
+
+    fetch('/store/settings/update', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData.toString()
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', '✅ Store Settings Saved', data.message);
+        } else {
+            showNotification('error', '❌ Error', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error saving settings:', error);
+        showNotification('error', '❌ Error', 'Could not save settings.');
+    });
+}
 
     // ==========================================
     // 7. SIDEBAR FUNCTIONS
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
     // ==========================================
     function showSection(section) {
         document.querySelectorAll('.sections').forEach(function(el) {

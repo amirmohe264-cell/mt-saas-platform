@@ -11,7 +11,12 @@ class OrderModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
-    protected $allowedFields    = ['tenant_id', 'customer_id', 'order_number', 'total_amount', 'shipping_address', 'city', 'postal_code', 'phone', 'payment_method', 'payment_status', 'order_status', 'notes'];
+    protected $allowedFields = [
+    'tenant_id', 'customer_id', 'order_number', 'total_amount',
+    'shipping_address', 'city', 'postal_code', 'phone',
+    'payment_method', 'payment_status', 'order_status', 'notes',
+    'payment_reference', 'paid_at'
+];
     protected $useTimestamps    = true;
     protected $createdField     = 'created_at';
     protected $updatedField     = 'updated_at';

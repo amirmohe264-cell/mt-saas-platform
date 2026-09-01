@@ -27,7 +27,6 @@ class CustomerController extends BaseController
     // ============================================
 
   // In CustomerController.php - Add to dashboard method
-
 public function dashboard()
 {
     $customerId = session()->get('customer_id') ?? session()->get('user_id');
@@ -48,17 +47,23 @@ public function dashboard()
         
         $totalSpent = $this->orderModel->selectSum('total_amount')
                                       ->where('customer_id', $customerId)
-                                      ->where('order_status', 'completed')
+                                      ->where('order_status', 'delivered')
                                       ->first()['total_amount'] ?? 0;
         
+        // ✅ Fetch recent orders with items
         $recentOrders = $this->orderModel->where('customer_id', $customerId)
                                         ->orderBy('created_at', 'DESC')
                                         ->limit(5)
                                         ->findAll();
+        
+        // ✅ Get all orders for the orders section
+        $allOrders = $this->orderModel->where('customer_id', $customerId)
+                                     ->orderBy('created_at', 'DESC')
+                                     ->findAll();
 
-        // ✅ NEW: Get address count
+        // Get address count
         $addressModel = new \App\Models\AddressModel();
-        $addressCount = $addressModel->getAddressCount($customerId);
+        $addressCount = $addressModel->where('customer_id', $customerId)->countAllResults();
 
         if ($customer) {
             session()->set('first_name', $customer['first_name']);
@@ -67,15 +72,16 @@ public function dashboard()
             session()->set('phone', $customer['phone'] ?? '');
         }
 
+        // ✅ Pass orders to view
         return view('public/dashboard', [
             'customer' => $customer,
             'totalOrders' => $totalOrders,
             'cartCount' => $cartCount,
             'totalSpent' => $totalSpent,
             'recentOrders' => $recentOrders,
-            'allOrders' => $recentOrders,
+            'allOrders' => $allOrders,      // ✅ Pass all orders
             'addresses' => [],
-            'addressCount' => $addressCount,  // ✅ NEW
+            'addressCount' => $addressCount,
         ]);
     } catch (\Exception $e) {
         log_message('error', 'Dashboard error: ' . $e->getMessage());
@@ -91,6 +97,7 @@ public function dashboard()
         ]);
     }
 }
+
 
     // ============================================
     // CUSTOMER PROFILE

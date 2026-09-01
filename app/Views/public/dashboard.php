@@ -34,9 +34,6 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             overflow: hidden;
         }
 
-        /* ========================================== */
-        /* ✅ NOTIFICATION TOAST STYLES */
-        /* ========================================== */
         .notification-container {
             position: fixed;
             top: 90px;
@@ -57,31 +54,13 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             align-items: flex-start;
             gap: 12px;
         }
-        .notification-toast.error {
-            border-left-color: #dc3545;
-        }
-        .notification-toast.warning {
-            border-left-color: #ffc107;
-        }
-        .notification-toast.info {
-            border-left-color: #17a2b8;
-        }
-        .notification-toast .notif-icon {
-            font-size: 1.3rem;
-            margin-top: 2px;
-        }
-        .notification-toast .notif-content {
-            flex: 1;
-        }
-        .notification-toast .notif-title {
-            font-weight: 600;
-            color: #1a2e1a;
-            font-size: 0.9rem;
-        }
-        .notification-toast .notif-message {
-            color: #555;
-            font-size: 0.85rem;
-        }
+        .notification-toast.error { border-left-color: #dc3545; }
+        .notification-toast.warning { border-left-color: #ffc107; }
+        .notification-toast.info { border-left-color: #17a2b8; }
+        .notification-toast .notif-icon { font-size: 1.3rem; margin-top: 2px; }
+        .notification-toast .notif-content { flex: 1; }
+        .notification-toast .notif-title { font-weight: 600; color: #1a2e1a; font-size: 0.9rem; }
+        .notification-toast .notif-message { color: #555; font-size: 0.85rem; }
         .notification-toast .notif-close {
             background: none;
             border: none;
@@ -90,9 +69,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             font-size: 1rem;
             padding: 0 5px;
         }
-        .notification-toast .notif-close:hover {
-            color: #333;
-        }
+        .notification-toast .notif-close:hover { color: #333; }
         .notification-toast.removing {
             animation: slideOutRight 0.3s ease forwards;
         }
@@ -105,9 +82,6 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             to { transform: translateX(100px); opacity: 0; }
         }
 
-        /* ========================================== */
-        /* NAVBAR */
-        /* ========================================== */
         .navbar {
             background: #1a2e1a !important;
             padding: 12px 0;
@@ -124,18 +98,14 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             font-weight: bold;
             font-size: 1.4rem;
         }
-        .navbar-brand i {
-            color: #4caf50;
-        }
+        .navbar-brand i { color: #4caf50; }
         .navbar .nav-link {
             color: #d4d4d4 !important;
             font-weight: 500;
             transition: 0.3s;
             font-size: 0.95rem;
         }
-        .navbar .nav-link:hover {
-            color: #4caf50 !important;
-        }
+        .navbar .nav-link:hover { color: #4caf50 !important; }
         .icon-btn {
             color: #d4d4d4;
             font-size: 1.1rem;
@@ -148,16 +118,11 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             color: #4caf50;
             transform: scale(1.1);
         }
-        .navbar-toggler {
-            border-color: #4caf50;
-        }
+        .navbar-toggler { border-color: #4caf50; }
         .navbar-toggler-icon {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(76, 175, 80, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
         }
 
-        /* ========================================== */
-        /* FIXED SIDEBAR */
-        /* ========================================== */
         .sidebar-wrapper {
             position: fixed;
             top: 70px;
@@ -171,29 +136,15 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             z-index: 1000;
             transition: width 0.3s ease;
         }
-        .sidebar-wrapper::-webkit-scrollbar {
-            width: 4px;
-        }
-        .sidebar-wrapper::-webkit-scrollbar-thumb {
-            background: #4caf50;
-            border-radius: 4px;
-        }
-        .sidebar-wrapper::-webkit-scrollbar-track {
-            background: #e8f0e8;
-        }
+        .sidebar-wrapper::-webkit-scrollbar { width: 4px; }
+        .sidebar-wrapper::-webkit-scrollbar-thumb { background: #4caf50; border-radius: 4px; }
+        .sidebar-wrapper::-webkit-scrollbar-track { background: #e8f0e8; }
 
-        /* ========================================== */
-        /* SIDEBAR COLLAPSED */
-        /* ========================================== */
         .sidebar-wrapper.collapsed {
             width: 70px;
         }
-        .sidebar-wrapper.collapsed .user-name {
-            display: none;
-        }
-        .sidebar-wrapper.collapsed .user-email {
-            display: none;
-        }
+        .sidebar-wrapper.collapsed .user-name,
+        .sidebar-wrapper.collapsed .user-email,
         .sidebar-wrapper.collapsed .sidebar-category {
             display: none;
         }
@@ -352,9 +303,6 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             width: 100%;
         }
 
-        /* ========================================== */
-        /* PAGE HEADER */
-        /* ========================================== */
         .page-header {
             background: #f8f9fa;
             color: #1a2e1a;
@@ -387,9 +335,6 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             font-size: 0.9rem;
         }
 
-        /* ========================================== */
-        /* MAIN CONTENT - FULL HEIGHT NO SCROLL */
-        /* ========================================== */
         .main-content {
             padding: 15px 25px 15px 25px;
             height: calc(100vh - 140px);
@@ -398,9 +343,6 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             flex-direction: column;
         }
 
-        /* ========================================== */
-        /* DASHBOARD CARDS */
-        /* ========================================== */
         .dashboard-card {
             background: #fff;
             border-radius: 12px;
@@ -431,9 +373,6 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             padding: 3px 12px;
         }
 
-        /* ========================================== */
-        /* ORDERS - COMPACT */
-        /* ========================================== */
         .order-item {
             background: #fff;
             border-radius: 10px;
@@ -527,7 +466,6 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
         }
         .section-content::-webkit-scrollbar {
             width: 4px;
-<<<<<<< HEAD
         }
         .section-content::-webkit-scrollbar-thumb {
             background: #4caf50;
@@ -537,9 +475,6 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             background: #e8f0e8;
         }
 
-        /* ========================================== */
-        /* ADDRESS LIST STYLES - Clean list view */
-        /* ========================================== */
         .address-item {
             background: #fff;
             border: 1px solid #e8f0e8;
@@ -598,9 +533,6 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             font-size: 0.85rem;
         }
 
-        /* ========================================== */
-        /* ORDER CARD STYLES - For Orders Section */
-        /* ========================================== */
         .order-card {
             background: #fff;
             border-radius: 10px;
@@ -689,9 +621,6 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             color: #888;
         }
 
-        /* ========================================== */
-        /* WISHLIST STYLES */
-        /* ========================================== */
         .wishlist-item {
             background: #fff;
             border: 1px solid #e8f0e8;
@@ -786,15 +715,6 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             background: #f8d7da;
             color: #c82333;
             transform: scale(1.1);
-=======
-        }
-        .section-content::-webkit-scrollbar-thumb {
-            background: #4caf50;
-            border-radius: 4px;
-        }
-        .section-content::-webkit-scrollbar-track {
-            background: #e8f0e8;
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
         }
 
         @media (max-width: 992px) {
@@ -821,12 +741,8 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             .sidebar-wrapper.collapsed .sidebar-menu li i {
                 margin-right: 12px;
             }
-            .sidebar-wrapper.collapsed .user-name {
-                display: block;
-            }
-            .sidebar-wrapper.collapsed .user-email {
-                display: block;
-            }
+            .sidebar-wrapper.collapsed .user-name,
+            .sidebar-wrapper.collapsed .user-email,
             .sidebar-wrapper.collapsed .sidebar-category {
                 display: block;
             }
@@ -840,7 +756,6 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             }
             html, body {
                 overflow: auto;
-<<<<<<< HEAD
             }
             .address-item {
                 flex-direction: column;
@@ -869,22 +784,14 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                 margin-left: 0;
                 margin-top: 10px;
                 width: 100%;
-=======
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
             }
         }
     </style>
 </head>
 <body id="mainBody">
 
-<<<<<<< HEAD
-<!-- Notification Container -->
-=======
-<!-- ✅ Notification Container -->
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
 <div class="notification-container" id="notificationContainer"></div>
 
-<!-- Navbar -->
 <nav class="navbar navbar-expand-lg">
     <div class="container">
         <a class="navbar-brand" href="/"><i class="fas fa-store"></i> ShopEase</a>
@@ -906,7 +813,6 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
     </div>
 </nav>
 
-<!-- Fixed Sidebar -->
 <div class="sidebar-wrapper" id="sidebarWrapper">
     <div class="sidebar-card">
         <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
@@ -969,7 +875,6 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
     </div>
 </div>
 
-<!-- Page Header -->
 <section class="page-header">
     <div class="container-fluid px-4">
         <div class="d-flex justify-content-between align-items-center">
@@ -988,18 +893,16 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
     </div>
 </section>
 
-<!-- Main Content -->
 <section class="main-content">
     <div class="container-fluid px-4 h-100">
-        <!-- Dashboard Section -->
         <div id="dashboardSection" class="sections active h-100">
             <div class="row mb-3" style="height: 30%;">
                 <div class="col-md-3 mb-2">
                     <div class="dashboard-card" style="border-left: 4px solid #ffc107;">
                         <i class="fas fa-clock card-icon text-warning"></i>
-                        <div class="card-number">2</div>
+                        <div class="card-number" id="pendingOrdersCount">0</div>
                         <div class="card-label">Pending Orders</div>
-                        <button class="btn btn-sm btn-outline-warning mt-1" onclick="showNotification('warning', '⏳ Pending Orders', 'You have 2 pending orders.')">
+                        <button class="btn btn-sm btn-outline-warning mt-1" onclick="showSection('orders')">
                             View
                         </button>
                     </div>
@@ -1007,9 +910,9 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                 <div class="col-md-3 mb-2">
                     <div class="dashboard-card" style="border-left: 4px solid #17a2b8;">
                         <i class="fas fa-spinner card-icon text-info"></i>
-                        <div class="card-number">1</div>
+                        <div class="card-number" id="processingOrdersCount">0</div>
                         <div class="card-label">Processing Orders</div>
-                        <button class="btn btn-sm btn-outline-info mt-1" onclick="showNotification('info', '⏳ Processing', 'Order #ORD-2026-08-03-003 is processing.')">
+                        <button class="btn btn-sm btn-outline-info mt-1" onclick="showSection('orders')">
                             View
                         </button>
                     </div>
@@ -1017,22 +920,9 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                 <div class="col-md-3 mb-2">
                     <div class="dashboard-card" style="border-left: 4px solid #28a745;">
                         <i class="fas fa-check-circle card-icon text-success"></i>
-<<<<<<< HEAD
-=======
-                        <div class="card-number">8</div>
+                        <div class="card-number" id="deliveredOrdersCount">0</div>
                         <div class="card-label">Delivered Orders</div>
-                        <button class="btn btn-sm btn-outline-success mt-1" onclick="showNotification('success', '✅ Delivered', '8 orders delivered successfully!')">
-                            View
-                        </button>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-2">
-                    <div class="dashboard-card" style="border-left: 4px solid #dc3545;">
-                        <i class="fas fa-heart card-icon text-danger"></i>
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
-                        <div class="card-number">8</div>
-                        <div class="card-label">Delivered Orders</div>
-                        <button class="btn btn-sm btn-outline-success mt-1" onclick="showNotification('success', '✅ Delivered', '8 orders delivered successfully!')">
+                        <button class="btn btn-sm btn-outline-success mt-1" onclick="showSection('orders')">
                             View
                         </button>
                     </div>
@@ -1042,83 +932,24 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                         <i class="fas fa-heart card-icon text-danger"></i>
                         <div class="card-number" id="wishlistCardCount">0</div>
                         <div class="card-label">Wishlist Items</div>
-<<<<<<< HEAD
                         <button class="btn btn-sm btn-outline-danger mt-1" onclick="showSection('wishlist')">
-=======
-                        <button class="btn btn-sm btn-outline-danger mt-1" onclick="showNotification('info', '❤️ Wishlist', '8 items in your wishlist.')">
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                             View
                         </button>
                     </div>
                 </div>
             </div>
 
-<<<<<<< HEAD
-            <!-- Recent Orders -->
-=======
-            <!-- Recent Orders - Takes remaining space -->
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
             <div class="recent-orders-section" style="height: 65%;">
                 <h5 class="fw-bold mb-2" style="font-size: 1.1rem;"><i class="fas fa-clock me-2 text-success"></i>Recent Orders</h5>
-                <div class="orders-list">
-                    <div class="order-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <div class="order-number">#ORD-2026-08-07-001</div>
-                                <div class="order-date">August 7, 2026</div>
-                            </div>
-                            <div><span class="status-badge status-pending">Pending</span></div>
-                            <div><span class="order-total">$317.11</span></div>
-                            <div>
-                                <button class="btn btn-sm btn-outline-warning" onclick="showNotification('warning', '⏳ Pending', 'Order #ORD-2026-08-07-001 is pending.')">
-                                    <i class="fas fa-clock me-1"></i>View
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="order-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <div class="order-number">#ORD-2026-08-05-002</div>
-                                <div class="order-date">August 5, 2026</div>
-                            </div>
-                            <div><span class="status-badge status-delivered">Delivered</span></div>
-                            <div><span class="order-total">$129.99</span></div>
-                            <div>
-                                <button class="btn btn-sm btn-outline-success" onclick="showNotification('success', '✅ Delivered', 'Order #ORD-2026-08-05-002 delivered!')">
-                                    <i class="fas fa-check-circle me-1"></i>View
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="order-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <div class="order-number">#ORD-2026-08-03-003</div>
-                                <div class="order-date">August 3, 2026</div>
-                            </div>
-                            <div><span class="status-badge status-processing">Processing</span></div>
-                            <div><span class="order-total">$199.00</span></div>
-                            <div>
-                                <button class="btn btn-sm btn-outline-info" onclick="showNotification('info', '⏳ Processing', 'Order #ORD-2026-08-03-003 is processing.')">
-                                    <i class="fas fa-spinner me-1"></i>View
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="orders-list" id="recentOrdersList"></div>
             </div>
         </div>
 
-        <!-- Profile Section -->
         <div id="profileSection" class="sections">
             <div class="section-content">
                 <div class="bg-white rounded-3 p-4 border">
                     <h5 class="fw-bold"><i class="fas fa-user-cog me-2 text-success"></i>My Profile</h5>
                     <hr>
-<<<<<<< HEAD
                     <form id="profileForm" onsubmit="return updateProfile(event)">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -1128,22 +959,10 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                             <div class="col-md-6 mb-3">
                                 <label>Last Name</label>
                                 <input type="text" class="form-control" id="lastName" value="Doe" required>
-=======
-                    <form id="profileForm">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label>First Name</label>
-                                <input type="text" class="form-control" value="John">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Last Name</label>
-                                <input type="text" class="form-control" value="Doe">
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                             </div>
                         </div>
                         <div class="mb-3">
                             <label>Email Address</label>
-<<<<<<< HEAD
                             <input type="email" class="form-control" id="email" value="john@example.com" required>
                         </div>
                         <div class="mb-3">
@@ -1151,15 +970,6 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                             <input type="tel" class="form-control" id="phone" value="+1 234 567 890" required>
                         </div>
                         <button type="submit" class="btn-add-product">
-=======
-                            <input type="email" class="form-control" value="john@example.com">
-                        </div>
-                        <div class="mb-3">
-                            <label>Phone Number</label>
-                            <input type="tel" class="form-control" value="+1 234 567 890">
-                        </div>
-                        <button type="button" class="btn-add-product" onclick="updateProfile()">
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                             <i class="fas fa-save me-2"></i>Update Profile
                         </button>
                     </form>
@@ -1167,11 +977,9 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             </div>
         </div>
 
-        <!-- Orders Section -->
         <div id="ordersSection" class="sections">
             <div class="section-content">
                 <div class="bg-white rounded-3 p-4 border">
-<<<<<<< HEAD
                     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                         <h5 class="fw-bold"><i class="fas fa-shopping-bag me-2 text-success"></i>My Orders</h5>
                         <div class="d-flex gap-2 flex-wrap">
@@ -1190,108 +998,38 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                         </div>
                     </div>
                     <hr>
-                    <div id="orderListContainer">
-                        <!-- Orders will be rendered here -->
-                    </div>
+                    <div id="orderListContainer"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Wishlist Section -->
         <div id="wishlistSection" class="sections">
             <div class="section-content">
                 <div class="bg-white rounded-3 p-4 border">
                     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                         <h5 class="fw-bold"><i class="fas fa-heart me-2 text-danger"></i>My Wishlist</h5>
-                        <div>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="addSampleWishlistItem()">
-                                <i class="fas fa-plus me-1"></i>Add Sample
-                            </button>
-                        </div>
                     </div>
                     <hr>
-                    <div id="wishlistContainer">
-                        <!-- Wishlist items will be rendered here -->
-=======
-                    <h5 class="fw-bold"><i class="fas fa-shopping-bag me-2 text-success"></i>My Orders</h5>
-                    <hr>
-                    <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Order #</th>
-                                    <th>Date</th>
-                                    <th>Total</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>#ORD-2026-08-07-001</td>
-                                    <td>Aug 7, 2026</td>
-                                    <td>$317.11</td>
-                                    <td><span class="status-badge status-pending">Pending</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-warning" onclick="showNotification('warning', '⏳ Pending', 'Order is pending.')">
-                                            <i class="fas fa-clock"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>#ORD-2026-08-05-002</td>
-                                    <td>Aug 5, 2026</td>
-                                    <td>$129.99</td>
-                                    <td><span class="status-badge status-delivered">Delivered</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-success" onclick="showNotification('success', '✅ Delivered', 'Order delivered successfully!')">
-                                            <i class="fas fa-check-circle"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>#ORD-2026-08-03-003</td>
-                                    <td>Aug 3, 2026</td>
-                                    <td>$199.00</td>
-                                    <td><span class="status-badge status-processing">Processing</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-info" onclick="showNotification('info', '⏳ Processing', 'Order is being processed.')">
-                                            <i class="fas fa-spinner"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
-                    </div>
+                    <div id="wishlistContainer"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Addresses Section -->
         <div id="addressesSection" class="sections">
             <div class="section-content">
                 <div class="bg-white rounded-3 p-4 border">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="fw-bold"><i class="fas fa-address-book me-2 text-success"></i>Saved Addresses</h5>
-<<<<<<< HEAD
                         <button class="btn-add-product" onclick="showSection('addAddress')">
-=======
-                        <button class="btn-add-product" onclick="showNotification('success', '📍 Address', 'Add address form will open.')">
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                             <i class="fas fa-plus me-2"></i>Add Address
                         </button>
                     </div>
                     <hr>
-<<<<<<< HEAD
-                    <div id="addressList">
-                        <!-- Addresses will be rendered here -->
-                    </div>
+                    <div id="addressList"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Add Address Section -->
         <div id="addAddressSection" class="sections">
             <div class="section-content">
                 <div class="bg-white rounded-3 p-4 border">
@@ -1361,33 +1099,15 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                             </button>
                         </div>
                     </form>
-=======
-                    <div class="p-3 border rounded-3 mb-3">
-                        <h6>Home Address</h6>
-                        <p class="mb-1">123 Main Street, New York, NY 10001</p>
-                        <p class="mb-1">Phone: +1 234 567 890</p>
-                        <button class="btn btn-sm btn-outline-success" onclick="showNotification('success', '✏️ Edit', 'Edit address form.')"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="showNotification('error', '🗑️ Remove', 'Remove this address?')"><i class="fas fa-trash"></i></button>
-                    </div>
-                    <div class="p-3 border rounded-3">
-                        <h6>Work Address</h6>
-                        <p class="mb-1">456 Business Ave, New York, NY 10002</p>
-                        <p class="mb-1">Phone: +1 987 654 321</p>
-                        <button class="btn btn-sm btn-outline-success" onclick="showNotification('success', '✏️ Edit', 'Edit address form.')"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="showNotification('error', '🗑️ Remove', 'Remove this address?')"><i class="fas fa-trash"></i></button>
-                    </div>
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                 </div>
             </div>
         </div>
 
-        <!-- Settings Section -->
         <div id="settingsSection" class="sections">
             <div class="section-content">
                 <div class="bg-white rounded-3 p-4 border">
                     <h5 class="fw-bold"><i class="fas fa-cog me-2 text-success"></i>Account Settings</h5>
                     <hr>
-<<<<<<< HEAD
                     <form id="settingsForm" onsubmit="return changePassword(event)">
                         <div class="mb-3">
                             <label>Current Password <span class="text-danger">*</span></label>
@@ -1402,54 +1122,25 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                             <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password" required>
                         </div>
                         <button type="submit" class="btn-add-product">
-=======
-                    <form id="settingsForm">
-                        <div class="mb-3">
-                            <label>Current Password</label>
-                            <input type="password" class="form-control" placeholder="Enter current password">
-                        </div>
-                        <div class="mb-3">
-                            <label>New Password</label>
-                            <input type="password" class="form-control" placeholder="Enter new password">
-                        </div>
-                        <div class="mb-3">
-                            <label>Confirm New Password</label>
-                            <input type="password" class="form-control" placeholder="Confirm new password">
-                        </div>
-                        <button type="button" class="btn-add-product" onclick="changePassword()">
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                             <i class="fas fa-save me-2"></i>Change Password
                         </button>
                     </form>
                     <hr>
-                    
                     <h6><i class="fas fa-bell me-2 text-warning"></i>Notification Preferences</h6>
                     <div class="form-check">
-<<<<<<< HEAD
                         <input class="form-check-input" type="checkbox" id="emailNotif" checked>
-=======
-                        <input class="form-check-input" type="checkbox" id="emailNotif" checked onchange="savePreference('emailNotif', this.checked)">
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                         <label class="form-check-label" for="emailNotif">
                             <i class="fas fa-envelope me-1 text-primary"></i> Order Updates via Email
                         </label>
                     </div>
                     <div class="form-check">
-<<<<<<< HEAD
                         <input class="form-check-input" type="checkbox" id="promoNotif">
-=======
-                        <input class="form-check-input" type="checkbox" id="promoNotif" onchange="savePreference('promoNotif', this.checked)">
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                         <label class="form-check-label" for="promoNotif">
                             <i class="fas fa-tag me-1 text-success"></i> Promotional Emails
                         </label>
                     </div>
                     <div class="form-check">
-<<<<<<< HEAD
                         <input class="form-check-input" type="checkbox" id="smsNotif" checked>
-=======
-                        <input class="form-check-input" type="checkbox" id="smsNotif" checked onchange="savePreference('smsNotif', this.checked)">
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                         <label class="form-check-label" for="smsNotif">
                             <i class="fas fa-sms me-1 text-info"></i> Order Updates via SMS
                         </label>
@@ -1466,9 +1157,6 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-// ==========================================
-// 1. FLASH MESSAGES
-// ==========================================
 document.addEventListener('DOMContentLoaded', function() {
     <?php if (session()->getFlashdata('success')): ?>
         showNotification('success', '✅ Success', '<?= session()->getFlashdata('success') ?>');
@@ -1482,18 +1170,17 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php if (session()->getFlashdata('info')): ?>
         showNotification('info', 'ℹ️ Info', '<?= session()->getFlashdata('info') ?>');
     <?php endif; ?>
-<<<<<<< HEAD
     
     loadAddresses();
     loadOrders();
     loadWishlist();
-=======
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
+  const hash = window.location.hash.replace('#', '');
+    const validSections = ['dashboard', 'profile', 'orders', 'wishlist', 'addresses', 'addAddress', 'settings'];
+    if (hash && validSections.includes(hash)) {
+        showSection(hash);
+    }  
 });
 
-// ==========================================
-// 2. NOTIFICATION
-// ==========================================
 function showNotification(type, title, message) {
     const container = document.getElementById('notificationContainer');
     if (!container) return;
@@ -1518,14 +1205,10 @@ function showNotification(type, title, message) {
         if (toast.parentNode) {
             toast.classList.add('removing');
             setTimeout(() => { if (toast.parentNode) toast.remove(); }, 300);
-<<<<<<< HEAD
         }
     }, 5000);
 }
 
-// ==========================================
-// 3. SIDEBAR NAVIGATION
-// ==========================================
 function showSection(section) {
     document.querySelectorAll('.sections').forEach(el => el.classList.remove('active'));
     const map = { 
@@ -1583,9 +1266,6 @@ function toggleSidebar() {
     txt.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
 }
 
-// ==========================================
-// 4. PROFILE MANAGEMENT
-// ==========================================
 function updateProfile(event) {
     event.preventDefault();
     const firstName = document.getElementById('firstName').value;
@@ -1602,7 +1282,7 @@ function updateProfile(event) {
 }
 
 // ==========================================
-// 5. ADDRESS MANAGEMENT
+// ADDRESS MANAGEMENT
 // ==========================================
 let addresses = [];
 let addressIdCounter = 1;
@@ -1624,30 +1304,8 @@ function loadAddresses() {
 
 function setDefaultAddresses() {
     addresses = [
-        {
-            id: 1,
-            type: 'Home',
-            street: '123 Main Street',
-            apartment: '',
-            city: 'New York',
-            state: 'NY',
-            zipCode: '10001',
-            country: 'United States',
-            phone: '+1 234 567 890',
-            isDefault: true
-        },
-        {
-            id: 2,
-            type: 'Work',
-            street: '456 Business Ave',
-            apartment: 'Suite 200',
-            city: 'New York',
-            state: 'NY',
-            zipCode: '10002',
-            country: 'United States',
-            phone: '+1 987 654 321',
-            isDefault: false
-        }
+        { id: 1, type: 'Home', street: '123 Main Street', apartment: '', city: 'New York', state: 'NY', zipCode: '10001', country: 'United States', phone: '+1 234 567 890', isDefault: true },
+        { id: 2, type: 'Work', street: '456 Business Ave', apartment: 'Suite 200', city: 'New York', state: 'NY', zipCode: '10002', country: 'United States', phone: '+1 987 654 321', isDefault: false }
     ];
     addressIdCounter = 3;
     saveAddressesToStorage();
@@ -1775,9 +1433,6 @@ function setDefaultAddress(id) {
     showNotification('success', '✅ Default Set', 'Default address updated successfully!');
 }
 
-// ==========================================
-// 6. PASSWORD MANAGEMENT
-// ==========================================
 function changePassword(event) {
     event.preventDefault();
     const current = document.getElementById('currentPassword').value;
@@ -1800,9 +1455,6 @@ function changePassword(event) {
     return false;
 }
 
-// ==========================================
-// 7. PREFERENCES
-// ==========================================
 function savePreferences() {
     const email = document.getElementById('emailNotif').checked;
     const promo = document.getElementById('promoNotif').checked;
@@ -1815,151 +1467,113 @@ function savePreferences() {
 }
 
 // ==========================================
-// 8. ORDER MANAGEMENT
+// ORDER MANAGEMENT - FETCH REAL ORDERS
 // ==========================================
 let ordersData = [];
-let orderIdCounter = 1;
-
-function generateOrderNumber() {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const random = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
-    return `ORD-${year}-${month}-${day}-${random}`;
-}
-
-function getRandomStatus() {
-    const statuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
-    const weights = [15, 10, 15, 10, 40, 10];
-    const total = weights.reduce((a, b) => a + b, 0);
-    let random = Math.random() * total;
-    for (let i = 0; i < weights.length; i++) {
-        random -= weights[i];
-        if (random <= 0) return statuses[i];
-    }
-    return statuses[0];
-}
-
-function getStatusLabel(status) {
-    const labels = {
-        'pending': 'Pending',
-        'confirmed': 'Confirmed',
-        'processing': 'Processing',
-        'shipped': 'Shipped',
-        'delivered': 'Delivered',
-        'cancelled': 'Cancelled'
-    };
-    return labels[status] || status;
-}
-
-function getStatusIcon(status) {
-    const icons = {
-        'pending': 'fa-clock',
-        'confirmed': 'fa-check-circle',
-        'processing': 'fa-spinner',
-        'shipped': 'fa-truck',
-        'delivered': 'fa-check-double',
-        'cancelled': 'fa-times-circle'
-    };
-    return icons[status] || 'fa-circle';
-}
-
-function generateSampleOrders() {
-    ordersData = [];
-    const now = new Date();
-    const numOrders = 8 + Math.floor(Math.random() * 8);
-    
-    const sampleItems = [
-        { name: 'Wireless Headphones', price: 79.99 },
-        { name: 'Smart Watch', price: 199.99 },
-        { name: 'Laptop Backpack', price: 49.99 },
-        { name: 'USB-C Cable', price: 19.99 },
-        { name: 'Bluetooth Speaker', price: 89.99 },
-        { name: 'Phone Case', price: 24.99 },
-        { name: 'Wireless Mouse', price: 39.99 },
-        { name: 'Keyboard', price: 59.99 },
-        { name: 'Monitor Stand', price: 34.99 },
-        { name: 'Desk Lamp', price: 29.99 }
-    ];
-    
-    for (let i = 0; i < numOrders; i++) {
-        const date = new Date(now);
-        date.setDate(date.getDate() - Math.floor(Math.random() * 90));
-        
-        const numItems = 1 + Math.floor(Math.random() * 4);
-        const items = [];
-        let total = 0;
-        
-        for (let j = 0; j < numItems; j++) {
-            const product = sampleItems[Math.floor(Math.random() * sampleItems.length)];
-            const quantity = 1 + Math.floor(Math.random() * 2);
-            const subtotal = product.price * quantity;
-            items.push({
-                name: product.name,
-                quantity: quantity,
-                price: product.price,
-                subtotal: subtotal
-            });
-            total += subtotal;
-        }
-        
-        const shipping = total > 100 ? 0 : 5.99;
-        total += shipping;
-        total = Math.round(total * 100) / 100;
-        
-        const status = getRandomStatus();
-        
-        ordersData.push({
-            id: orderIdCounter++,
-            order_number: generateOrderNumber(),
-            date: date.toISOString().split('T')[0],
-            date_formatted: date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-            items: items,
-            subtotal: total - shipping,
-            shipping: shipping,
-            total: total,
-            status: status,
-            status_label: getStatusLabel(status),
-            status_icon: getStatusIcon(status)
-        });
-    }
-    
-    ordersData.sort((a, b) => new Date(b.date) - new Date(a.date));
-    saveOrdersToStorage();
-}
 
 function loadOrders() {
-    const saved = localStorage.getItem('orders_data');
-    if (saved) {
-        try {
-            const parsed = JSON.parse(saved);
-            ordersData = parsed.orders || [];
-            orderIdCounter = parsed.counter || (ordersData.length > 0 ? Math.max(...ordersData.map(o => o.id)) + 1 : 1);
-        } catch(e) {
-            generateSampleOrders();
+    fetch('/get-orders', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
         }
-    } else {
-        generateSampleOrders();
-    }
-    renderOrderList();
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            ordersData = data.orders || [];
+            updateDashboardStats(ordersData);
+            renderRecentOrders(ordersData);
+            renderOrderList();
+        } else {
+            ordersData = [];
+            updateDashboardStats([]);
+            renderRecentOrders([]);
+            renderOrderList();
+        }
+    })
+    .catch(error => {
+        console.error('Error loading orders:', error);
+        ordersData = [];
+        updateDashboardStats([]);
+        renderRecentOrders([]);
+        renderOrderList();
+    });
 }
 
-function saveOrdersToStorage() {
-    localStorage.setItem('orders_data', JSON.stringify({
-        orders: ordersData,
-        counter: orderIdCounter
-    }));
+function updateDashboardStats(orders) {
+    const pending = orders.filter(o => o.order_status === 'pending' || o.order_status === 'confirmed').length;
+    const processing = orders.filter(o => o.order_status === 'processing' || o.order_status === 'shipped').length;
+    const delivered = orders.filter(o => o.order_status === 'delivered').length;
+    
+    document.getElementById('pendingOrdersCount').textContent = pending;
+    document.getElementById('processingOrdersCount').textContent = processing;
+    document.getElementById('deliveredOrdersCount').textContent = delivered;
+}
+
+function renderRecentOrders(orders) {
+    const container = document.getElementById('recentOrdersList');
+    const recent = orders.slice(0, 5);
+    
+    if (!container) return;
+    
+    if (recent.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No orders yet. Start shopping!</p>
+                <a href="/products" class="btn btn-success btn-sm">Browse Products</a>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    recent.forEach(order => {
+        const status = order.order_status || 'pending';
+        const statusClass = 'status-' + status;
+        const statusLabel = order.status_label || ucfirst(status);
+        const orderNumber = order.order_number || '#' + order.id;
+        const total = order.total_amount || order.total || 0;
+        const date = order.date_formatted || new Date(order.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        
+        html += `
+            <div class="order-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="order-number">#${orderNumber}</div>
+                        <div class="order-date">${date}</div>
+                    </div>
+                    <div>
+                        <span class="status-badge ${statusClass}">
+                            ${statusLabel}
+                        </span>
+                    </div>
+                    <div><span class="order-total">$${parseFloat(total).toFixed(2)}</span></div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-success" onclick="viewOrderDetail(${order.id})">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
 }
 
 function renderOrderList() {
     const container = document.getElementById('orderListContainer');
+    if (!container) return;
+    
     const statusFilter = document.getElementById('orderStatusFilter').value;
     const searchTerm = document.getElementById('orderSearchInput').value.toLowerCase().trim();
     
     let filtered = ordersData.filter(order => {
-        if (statusFilter !== 'all' && order.status !== statusFilter) return false;
-        if (searchTerm && !order.order_number.toLowerCase().includes(searchTerm)) return false;
+        const orderStatus = order.order_status || 'pending';
+        const orderNumber = order.order_number || '#' + order.id;
+        if (statusFilter !== 'all' && orderStatus !== statusFilter) return false;
+        if (searchTerm && !orderNumber.toLowerCase().includes(searchTerm)) return false;
         return true;
     });
     
@@ -1977,14 +1591,26 @@ function renderOrderList() {
     let html = `<div class="mb-2 text-muted small"><strong>${filtered.length}</strong> orders found</div>`;
     
     filtered.forEach(order => {
-        const statusClass = 'status-' + order.status;
+        const status = order.order_status || 'pending';
+        const statusClass = 'status-' + status;
+        const statusLabel = order.status_label || ucfirst(status);
+        const statusIcon = order.status_icon || getStatusIcon(status);
+        const orderNumber = order.order_number || '#' + order.id;
+        const total = order.total_amount || order.total || 0;
+        const subtotal = order.subtotal || (total - (order.shipping || 0));
+        const shipping = order.shipping || 0;
+        const date = order.date_formatted || new Date(order.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
         
         let itemsHtml = '';
         if (order.items && order.items.length > 0) {
             order.items.forEach(item => {
+                const itemName = item.product_name || item.name || 'Product';
+                const itemPrice = item.price || 0;
+                const itemQty = item.quantity || 1;
+                const itemSubtotal = itemPrice * itemQty;
                 itemsHtml += `
                     <span class="order-item-tag">
-                        ${item.quantity}× ${item.name} $${item.subtotal.toFixed(2)}
+                        ${itemQty}× ${itemName} $${itemSubtotal.toFixed(2)}
                     </span>
                 `;
             });
@@ -1994,12 +1620,12 @@ function renderOrderList() {
             <div class="order-card">
                 <div class="order-header">
                     <div>
-                        <span class="order-number"><i class="fas fa-hashtag me-1 text-muted" style="font-size:0.7rem;"></i>${order.order_number}</span>
-                        <span class="order-date ms-2"><i class="far fa-calendar-alt me-1"></i>${order.date_formatted}</span>
+                        <span class="order-number"><i class="fas fa-hashtag me-1 text-muted" style="font-size:0.7rem;"></i>${orderNumber}</span>
+                        <span class="order-date ms-2"><i class="far fa-calendar-alt me-1"></i>${date}</span>
                     </div>
                     <div>
                         <span class="status-badge ${statusClass}">
-                            <i class="fas ${order.status_icon} me-1"></i>${order.status_label}
+                            <i class="fas ${statusIcon} me-1"></i>${statusLabel}
                         </span>
                     </div>
                 </div>
@@ -2010,23 +1636,31 @@ function renderOrderList() {
                 
                 <div class="order-footer">
                     <div class="order-summary">
-                        Items: <strong>${order.items ? order.items.reduce((sum, item) => sum + item.quantity, 0) : 0}</strong>
+                        Items: <strong>${order.items ? order.items.reduce((sum, item) => sum + (item.quantity || 1), 0) : 0}</strong>
                         <span class="mx-2">|</span>
-                        Subtotal: <strong>$${order.subtotal ? order.subtotal.toFixed(2) : '0.00'}</strong>
-                        ${order.shipping > 0 ? `<span class="mx-2">|</span> Shipping: <strong>$${order.shipping.toFixed(2)}</strong>` : ''}
+                        Subtotal: <strong>$${parseFloat(subtotal).toFixed(2)}</strong>
+                        ${shipping > 0 ? `<span class="mx-2">|</span> Shipping: <strong>$${parseFloat(shipping).toFixed(2)}</strong>` : ''}
                     </div>
                     <div class="d-flex align-items-center gap-3">
-                        <span class="order-total">$${order.total.toFixed(2)}</span>
-                        <div class="order-actions">
-                            <button class="btn btn-sm btn-outline-success" onclick="viewOrderDetail(${order.id})">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            ${order.status === 'pending' ? `
-                                <button class="btn btn-sm btn-outline-danger" onclick="cancelOrderItem(${order.id})">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            ` : ''}
-                        </div>
+                        <span class="order-total">$${parseFloat(total).toFixed(2)}</span>
+                       <div class="order-actions">
+    <button class="btn btn-sm btn-outline-success" onclick="viewOrderDetail(${order.id})">
+        <i class="fas fa-eye"></i>
+    </button>
+    ${status === 'pending' || status === 'confirmed' ? `
+        <button class="btn btn-sm btn-outline-danger" onclick="cancelOrderItem(${order.id})">
+            <i class="fas fa-times"></i>
+        </button>
+    ` : ''}
+    ${status === 'delivered' && !order.delivery_confirmed ? `
+        <button class="btn btn-sm btn-success" onclick="confirmDelivery(${order.id})">
+            <i class="fas fa-check-circle"></i> Confirm Receipt
+        </button>
+    ` : ''}
+    ${status === 'delivered' && order.delivery_confirmed ? `
+        <span class="badge bg-success"><i class="fas fa-check-circle"></i> Confirmed</span>
+    ` : ''}
+</div>
                     </div>
                 </div>
             </div>
@@ -2043,141 +1677,183 @@ function resetOrderFilters() {
 }
 
 function viewOrderDetail(id) {
-    const order = ordersData.find(o => o.id === id);
-    if (!order) {
-        showNotification('error', '❌ Error', 'Order not found!');
-        return;
-    }
-    
-    let itemsHtml = '';
-    if (order.items && order.items.length > 0) {
-        order.items.forEach(item => {
-            itemsHtml += `
+    fetch('/get-order-detail/' + id, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            showNotification('error', '❌ Error', data.message || 'Order not found!');
+            return;
+        }
+        
+        const order = data.order;
+        const status = order.order_status || 'pending';
+        const statusClass = 'status-' + status;
+        const statusLabel = order.status_label || ucfirst(status);
+        const orderNumber = order.order_number || '#' + order.id;
+        const total = order.total_amount || order.total || 0;
+        const subtotal = order.subtotal || (total - (order.shipping || 0));
+        const shipping = order.shipping || 0;
+        const date = order.date_formatted || new Date(order.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        
+        let itemsHtml = '';
+        if (order.items && order.items.length > 0) {
+            order.items.forEach(item => {
+                const itemName = item.product_name || item.name || 'Product';
+                const itemPrice = item.price || 0;
+                const itemQty = item.quantity || 1;
+                const itemSubtotal = itemPrice * itemQty;
+                itemsHtml += `
+                    <div class="d-flex justify-content-between border-bottom py-1">
+                        <span>${itemQty} × ${itemName}</span>
+                        <span class="fw-bold">$${itemSubtotal.toFixed(2)}</span>
+                    </div>
+                `;
+            });
+        }
+        
+        showNotification('info', `📦 Order ${orderNumber}`, `
+            <div style="font-size:0.85rem;margin-top:5px;">
                 <div class="d-flex justify-content-between border-bottom py-1">
-                    <span>${item.quantity} × ${item.name}</span>
-                    <span class="fw-bold">$${item.subtotal.toFixed(2)}</span>
+                    <span>Status</span>
+                    <span><span class="status-badge ${statusClass}">${statusLabel}</span></span>
                 </div>
-            `;
-        });
-    }
-    
-    showNotification('info', `📦 Order ${order.order_number}`, `
-        <div style="font-size:0.85rem;margin-top:5px;">
-            <div class="d-flex justify-content-between border-bottom py-1">
-                <span>Status</span>
-                <span><span class="status-badge status-${order.status}">${order.status_label}</span></span>
+                <div class="d-flex justify-content-between border-bottom py-1">
+                    <span>Date</span>
+                    <span>${date}</span>
+                </div>
+                <div class="border-bottom py-1">
+                    <strong>Items:</strong>
+                    ${itemsHtml || '<div class="text-muted small">No items</div>'}
+                </div>
+                <div class="d-flex justify-content-between border-bottom py-1">
+                    <span>Subtotal</span>
+                    <span>$${parseFloat(subtotal).toFixed(2)}</span>
+                </div>
+                <div class="d-flex justify-content-between border-bottom py-1">
+                    <span>Shipping</span>
+                    <span>${shipping > 0 ? '$' + parseFloat(shipping).toFixed(2) : 'FREE'}</span>
+                </div>
+                <div class="d-flex justify-content-between py-1" style="font-size:1.1rem;">
+                    <span class="fw-bold">Total</span>
+                    <span class="fw-bold text-success">$${parseFloat(total).toFixed(2)}</span>
+                </div>
             </div>
-            <div class="d-flex justify-content-between border-bottom py-1">
-                <span>Date</span>
-                <span>${order.date_formatted}</span>
-            </div>
-            <div class="border-bottom py-1">
-                <strong>Items:</strong>
-                ${itemsHtml || '<div class="text-muted small">No items</div>'}
-            </div>
-            <div class="d-flex justify-content-between border-bottom py-1">
-                <span>Subtotal</span>
-                <span>$${order.subtotal ? order.subtotal.toFixed(2) : '0.00'}</span>
-            </div>
-            <div class="d-flex justify-content-between border-bottom py-1">
-                <span>Shipping</span>
-                <span>${order.shipping > 0 ? '$' + order.shipping.toFixed(2) : 'FREE'}</span>
-            </div>
-            <div class="d-flex justify-content-between py-1" style="font-size:1.1rem;">
-                <span class="fw-bold">Total</span>
-                <span class="fw-bold text-success">$${order.total.toFixed(2)}</span>
-            </div>
-        </div>
-    `);
+        `);
+    })
+    .catch(error => {
+        console.error('Error fetching order details:', error);
+        showNotification('error', '❌ Error', 'Could not load order details.');
+    });
 }
 
 function cancelOrderItem(id) {
     if (!confirm('Are you sure you want to cancel this order?')) return;
     
-    const order = ordersData.find(o => o.id === id);
-    if (!order) {
-        showNotification('error', '❌ Error', 'Order not found!');
-        return;
-    }
-    
-    order.status = 'cancelled';
-    order.status_label = 'Cancelled';
-    order.status_icon = 'fa-times-circle';
-    
-    saveOrdersToStorage();
-    renderOrderList();
-    showNotification('warning', '❌ Order Cancelled', `Order ${order.order_number} has been cancelled.`);
+    fetch('/cancel-order/' + id, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('warning', '❌ Order Cancelled', data.message || 'Order cancelled successfully.');
+            loadOrders();
+        } else {
+            showNotification('error', '❌ Error', data.message || 'Could not cancel order.');
+        }
+    })
+    .catch(error => {
+        console.error('Error cancelling order:', error);
+        showNotification('error', '❌ Error', 'Could not cancel order.');
+    });
+}
+function confirmDelivery(orderId) {
+    if (!confirm('Confirm that you have received this order? This lets us release payment to the seller.')) return;
+
+    fetch('/orders/confirm-delivery/' + orderId, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', '✅ Delivery Confirmed', data.message);
+            loadOrders();
+        } else {
+            showNotification('error', '❌ Error', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error confirming delivery:', error);
+        showNotification('error', '❌ Error', 'Could not confirm delivery.');
+    });
+}
+function getStatusIcon(status) {
+    const icons = {
+        'pending': 'fa-clock',
+        'confirmed': 'fa-check-circle',
+        'processing': 'fa-spinner',
+        'shipped': 'fa-truck',
+        'delivered': 'fa-check-double',
+        'cancelled': 'fa-times-circle'
+    };
+    return icons[status] || 'fa-circle';
+}
+
+function ucfirst(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 // ==========================================
-// 9. WISHLIST MANAGEMENT
+// WISHLIST MANAGEMENT - FETCH REAL DATA
 // ==========================================
 let wishlistItems = [];
-let wishlistIdCounter = 1;
-
-function generateSampleWishlist() {
-    wishlistItems = [];
-    const sampleProducts = [
-        { name: 'Wireless Headphones', price: 79.99, icon: '🎧', category: 'Electronics' },
-        { name: 'Smart Watch', price: 199.99, icon: '⌚', category: 'Wearables' },
-        { name: 'Laptop Backpack', price: 49.99, icon: '🎒', category: 'Accessories' },
-        { name: 'Bluetooth Speaker', price: 89.99, icon: '🔊', category: 'Electronics' },
-        { name: 'Phone Case', price: 24.99, icon: '📱', category: 'Accessories' },
-        { name: 'Wireless Mouse', price: 39.99, icon: '🖱️', category: 'Electronics' },
-        { name: 'Keyboard', price: 59.99, icon: '⌨️', category: 'Electronics' },
-        { name: 'Desk Lamp', price: 29.99, icon: '💡', category: 'Home' }
-    ];
-    
-    const numItems = 3 + Math.floor(Math.random() * 4);
-    const shuffled = sampleProducts.sort(() => 0.5 - Math.random());
-    
-    for (let i = 0; i < Math.min(numItems, shuffled.length); i++) {
-        const product = shuffled[i];
-        const date = new Date();
-        date.setDate(date.getDate() - Math.floor(Math.random() * 30));
-        
-        wishlistItems.push({
-            id: wishlistIdCounter++,
-            name: product.name,
-            price: product.price,
-            icon: product.icon,
-            category: product.category,
-            added_date: date.toISOString().split('T')[0],
-            added_formatted: date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-        });
-    }
-    
-    saveWishlistToStorage();
-}
 
 function loadWishlist() {
-    const saved = localStorage.getItem('wishlist_data');
-    if (saved) {
-        try {
-            const parsed = JSON.parse(saved);
-            wishlistItems = parsed.items || [];
-            wishlistIdCounter = parsed.counter || (wishlistItems.length > 0 ? Math.max(...wishlistItems.map(w => w.id)) + 1 : 1);
-        } catch(e) {
-            generateSampleWishlist();
+    fetch('/get-wishlist', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
         }
-    } else {
-        generateSampleWishlist();
-    }
-    
-    updateWishlistBadge();
-    updateWishlistCardCount();
-    renderWishlist();
-}
-
-function saveWishlistToStorage() {
-    localStorage.setItem('wishlist_data', JSON.stringify({
-        items: wishlistItems,
-        counter: wishlistIdCounter
-    }));
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            wishlistItems = data.items || [];
+            updateWishlistBadge();
+            updateWishlistCardCount();
+            renderWishlist();
+        } else {
+            wishlistItems = [];
+            updateWishlistBadge();
+            updateWishlistCardCount();
+            renderWishlist();
+        }
+    })
+    .catch(error => {
+        console.error('Error loading wishlist:', error);
+        wishlistItems = [];
+        updateWishlistBadge();
+        updateWishlistCardCount();
+        renderWishlist();
+    });
 }
 
 function renderWishlist() {
     const container = document.getElementById('wishlistContainer');
+    if (!container) return;
     
     if (wishlistItems.length === 0) {
         container.innerHTML = `
@@ -2197,24 +1873,24 @@ function renderWishlist() {
         html += `
             <div class="wishlist-item">
                 <div class="d-flex align-items-center">
-                    <div class="product-icon">${item.icon}</div>
+                    <div class="product-icon">${item.icon || '📦'}</div>
                     <div class="product-info">
                         <div class="product-name">${item.name}</div>
                         <div class="product-details">
-                            <span class="product-price">$${item.price.toFixed(2)}</span>
+                            <span class="product-price">$${parseFloat(item.price).toFixed(2)}</span>
                             <span class="mx-2">|</span>
-                            <span class="text-muted">${item.category}</span>
+                            <span class="text-muted">${item.category || 'General'}</span>
                             <span class="mx-2">|</span>
-                            <span class="added-date"><i class="far fa-calendar-alt me-1"></i>Added ${item.added_formatted}</span>
+                            <span class="added-date"><i class="far fa-calendar-alt me-1"></i>Added ${item.added_formatted || new Date(item.added_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                         </div>
                     </div>
                 </div>
                 <div class="product-actions">
-                    <button class="btn-add-to-cart" onclick="addToCartFromWishlist(${item.id})">
+                    <button class="btn btn-sm btn-success" onclick="addToCartFromWishlist(${item.id})">
                         <i class="fas fa-shopping-cart me-1"></i>Add to Cart
                     </button>
-                    <button class="btn-remove-wishlist" onclick="removeFromWishlist(${item.id})" title="Remove from Wishlist">
-                        <i class="fas fa-times-circle"></i>
+                    <button class="btn btn-sm btn-outline-danger" onclick="removeFromWishlist(${item.id})">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
@@ -2224,42 +1900,66 @@ function renderWishlist() {
     container.innerHTML = html;
 }
 
-function addToCartFromWishlist(id) {
-    const item = wishlistItems.find(w => w.id === id);
+function addToCartFromWishlist(wishlistId) {
+    const item = wishlistItems.find(w => w.id == wishlistId);
     if (!item) {
         showNotification('error', '❌ Error', 'Item not found!');
         return;
     }
     
-    let cart = JSON.parse(localStorage.getItem('cart_items') || '[]');
-    const existing = cart.find(c => c.name === item.name);
-    if (existing) {
-        existing.quantity = (existing.quantity || 1) + 1;
-    } else {
-        cart.push({
-            name: item.name,
-            price: item.price,
-            icon: item.icon,
+    fetch('/add-to-cart', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            product_id: item.product_id,
             quantity: 1
-        });
-    }
-    
-    localStorage.setItem('cart_items', JSON.stringify(cart));
-    showNotification('success', '✅ Added to Cart', `${item.name} has been added to your cart!`);
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', '✅ Added to Cart', `${item.name} has been added to your cart!`);
+            updateCartBadge();
+        } else {
+            showNotification('error', '❌ Error', data.message || 'Could not add to cart.');
+        }
+    })
+    .catch(error => {
+        console.error('Error adding to cart:', error);
+        showNotification('error', '❌ Error', 'Could not add to cart.');
+    });
 }
 
-function removeFromWishlist(id) {
+function removeFromWishlist(wishlistId) {
     if (!confirm('Remove this item from your wishlist?')) return;
     
-    const item = wishlistItems.find(w => w.id === id);
-    wishlistItems = wishlistItems.filter(w => w.id !== id);
-    
-    saveWishlistToStorage();
-    renderWishlist();
-    updateWishlistBadge();
-    updateWishlistCardCount();
-    
-    showNotification('warning', '🗑️ Removed', `${item ? item.name : 'Item'} removed from wishlist.`);
+    fetch('/remove-from-wishlist/' + wishlistId, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const item = wishlistItems.find(w => w.id == wishlistId);
+            wishlistItems = wishlistItems.filter(w => w.id != wishlistId);
+            renderWishlist();
+            updateWishlistBadge();
+            updateWishlistCardCount();
+            showNotification('warning', '🗑️ Removed', `${item ? item.name : 'Item'} removed from wishlist.`);
+        } else {
+            showNotification('error', '❌ Error', data.message || 'Could not remove item.');
+        }
+    })
+    .catch(error => {
+        console.error('Error removing from wishlist:', error);
+        showNotification('error', '❌ Error', 'Could not remove item.');
+    });
 }
 
 function updateWishlistBadge() {
@@ -2277,45 +1977,24 @@ function updateWishlistCardCount() {
     }
 }
 
-function addSampleWishlistItem() {
-    const sampleProducts = [
-        { name: 'Wireless Headphones', price: 79.99, icon: '🎧', category: 'Electronics' },
-        { name: 'Smart Watch', price: 199.99, icon: '⌚', category: 'Wearables' },
-        { name: 'Laptop Backpack', price: 49.99, icon: '🎒', category: 'Accessories' },
-        { name: 'Bluetooth Speaker', price: 89.99, icon: '🔊', category: 'Electronics' },
-        { name: 'Phone Case', price: 24.99, icon: '📱', category: 'Accessories' },
-        { name: 'Wireless Mouse', price: 39.99, icon: '🖱️', category: 'Electronics' },
-        { name: 'Keyboard', price: 59.99, icon: '⌨️', category: 'Electronics' },
-        { name: 'Desk Lamp', price: 29.99, icon: '💡', category: 'Home' }
-    ];
-    
-    const existingNames = wishlistItems.map(w => w.name);
-    const available = sampleProducts.filter(p => !existingNames.includes(p.name));
-    
-    if (available.length === 0) {
-        showNotification('info', 'ℹ️', 'All items already in your wishlist!');
-        return;
-    }
-    
-    const product = available[Math.floor(Math.random() * available.length)];
-    const date = new Date();
-    
-    const newItem = {
-        id: wishlistIdCounter++,
-        name: product.name,
-        price: product.price,
-        icon: product.icon,
-        category: product.category,
-        added_date: date.toISOString().split('T')[0],
-        added_formatted: date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-    };
-    
-    wishlistItems.push(newItem);
-    saveWishlistToStorage();
-    renderWishlist();
-    updateWishlistBadge();
-    updateWishlistCardCount();
-    showNotification('success', '❤️ Added to Wishlist', `${newItem.name} has been added to your wishlist!`);
+function updateCartBadge() {
+    fetch('/cart-count', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const badge = document.getElementById('cartBadge');
+            if (badge) {
+                badge.textContent = data.count || 0;
+                badge.style.display = data.count > 0 ? 'inline-block' : 'none';
+            }
+        }
+    })
+    .catch(error => console.error('Error updating cart badge:', error));
 }
 
 // Load saved data
@@ -2341,45 +2020,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch(e) {}
     }
 });
-=======
-        }
-    }, 5000);
-}
-
-// ==========================================
-// 3. SIDEBAR
-// ==========================================
-function showSection(section) {
-    document.querySelectorAll('.sections').forEach(el => el.classList.remove('active'));
-    const map = { 'dashboard': 'dashboardSection', 'profile': 'profileSection', 'orders': 'ordersSection', 'addresses': 'addressesSection', 'settings': 'settingsSection' };
-    const el = document.getElementById(map[section]);
-    if (el) el.classList.add('active');
-    
-    document.querySelectorAll('.sidebar-menu li').forEach(item => item.classList.remove('active'));
-    const items = document.querySelectorAll('.sidebar-menu li');
-    const idx = ['dashboard', 'profile', 'orders', 'addresses', 'settings'].indexOf(section);
-    if (items[idx]) items[idx].classList.add('active');
-}
-
-function toggleSidebar() {
-    const wrapper = document.getElementById('sidebarWrapper');
-    const body = document.getElementById('mainBody');
-    const txt = document.getElementById('toggleText');
-    wrapper.classList.toggle('collapsed');
-    body.classList.toggle('sidebar-collapsed');
-    txt.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
-}
-
-function updateProfile() { showNotification('success', '✅ Profile Updated', 'Profile updated successfully!'); }
-function changePassword() { showNotification('success', '✅ Password Changed', 'Password changed successfully!'); }
-function savePreference(id, checked) { console.log(id + ':', checked); }
-function savePreferences() {
-    const e = document.getElementById('emailNotif').checked;
-    const p = document.getElementById('promoNotif').checked;
-    const s = document.getElementById('smsNotif').checked;
-    showNotification('success', '✅ Preferences Saved', 'Email: ' + (e ? '✅' : '❌') + ' | Promo: ' + (p ? '✅' : '❌') + ' | SMS: ' + (s ? '✅' : '❌'));
-}
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
 </script>
 
 </body>

@@ -17,11 +17,8 @@ if (!session()->get('customer_id')) {
     <style>
         body { padding-top: 80px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; }
         
-<<<<<<< HEAD
         /* Notification Toast Styles */
-=======
         /* ✅ Notification Toast Styles */
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
         .notification-container {
             position: fixed;
             top: 90px;
@@ -101,11 +98,8 @@ if (!session()->get('customer_id')) {
 </head>
 <body>
 
-<<<<<<< HEAD
 <!-- Notification Container -->
-=======
 <!-- ✅ Notification Container -->
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
 <div class="notification-container" id="notificationContainer"></div>
 
 <!-- Navbar -->
@@ -118,10 +112,7 @@ if (!session()->get('customer_id')) {
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-<<<<<<< HEAD
-=======
                
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                 <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
                 <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
             </ul>
@@ -140,8 +131,8 @@ if (!session()->get('customer_id')) {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
-                            <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
-                            <li><a class="dropdown-item" href="/orders"><i class="fas fa-box me-2"></i>Orders</a></li>
+                      <li><a class="dropdown-item" href="/dashboard#profile"><i class="fas fa-user me-2"></i>Profile</a></li>
+                          <li><a class="dropdown-item" href="/dashboard#orders"><i class="fas fa-box me-2"></i>Orders</a></li>
                             <li><a class="dropdown-item" href="/cart"><i class="fas fa-shopping-cart me-2"></i>Cart</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
@@ -229,11 +220,8 @@ if (!session()->get('customer_id')) {
                                             </td>
                                             <td class="product-price">$<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
                                             <td>
-<<<<<<< HEAD
                                                 <button class="btn-remove" onclick="removeFromCart(<?= $item['product_id'] ?>, '<?= addslashes($item['product_name']) ?>')"><i class="fas fa-trash-alt"></i></button>
-=======
                                                 <button class="btn-remove" onclick="removeFromCart(<?= $item['product_id'] ?>, '<?= $item['product_name'] ?>')"><i class="fas fa-trash-alt"></i></button>
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -328,11 +316,8 @@ if (!session()->get('customer_id')) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 // ==========================================
-<<<<<<< HEAD
 // SHOW FLASH MESSAGES
-=======
 // 1. SHOW FLASH MESSAGES
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
 // ==========================================
 document.addEventListener('DOMContentLoaded', function() {
     <?php if (session()->getFlashdata('success')): ?>
@@ -345,11 +330,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ==========================================
-<<<<<<< HEAD
 // NOTIFICATION FUNCTION
-=======
 // 2. NOTIFICATION FUNCTION
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
 // ==========================================
 function showNotification(type, title, message) {
     const container = document.getElementById('notificationContainer');
@@ -384,11 +366,8 @@ function showNotification(type, title, message) {
 }
 
 // ==========================================
-<<<<<<< HEAD
 // NAVBAR SCROLL
-=======
 // 3. CART FUNCTIONS
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
 // ==========================================
 window.addEventListener('scroll', function() {
     var navbar = document.querySelector('.navbar');
@@ -399,12 +378,9 @@ window.addEventListener('scroll', function() {
     }
 });
 
-<<<<<<< HEAD
 // ==========================================
 // CART FUNCTIONS
 // ==========================================
-=======
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
 function updateCart(input) {
     var productId = input.dataset.productId;
     var quantity = parseInt(input.value);

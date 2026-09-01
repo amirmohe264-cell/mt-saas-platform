@@ -101,6 +101,9 @@ class ProductController extends BaseController
         if (empty($images)) {
             $images[] = 'https://via.placeholder.com/400x400?text=No+Image';
         }
+        $reviewModel = new \App\Models\ReviewModel();
+$ratingData = $reviewModel->getAverageRating($product['id']);
+$reviews = $reviewModel->getReviewsByProduct($product['id']);
 
         $productData = [
             'id' => $product['id'],
@@ -118,8 +121,9 @@ class ProductController extends BaseController
             'badges' => $this->getBadges($product),
             'in_stock' => $product['quantity'] > 0,
             'quantity' => $product['quantity'] ?? 0,
-            'rating' => 4.5,
-            'reviews' => 0,
+            'rating' => $ratingData['average'],
+'reviews' => $ratingData['total'],
+'reviewsList' => $reviews,
         ];
 
         return view('public/product_details', ['product' => $productData]);

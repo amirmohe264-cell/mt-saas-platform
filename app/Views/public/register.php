@@ -302,43 +302,7 @@
     </div>
 </section>
 
-<!-- Footer -->
-<footer class="footer">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <h5><i class="fas fa-store text-success"></i> ShopEase</h5>
-                <p class="text-muted">Your one-stop shop for everything you need. Quality products, unbeatable prices.</p>
-            </div>
-            <div class="col-md-2 mb-4">
-                <h5>Quick Links</h5>
-                <ul class="list-unstyled">
-                    <li><a href="/about">About Us</a></li>
-                    <li><a href="/contact">Contact</a></li>
-                    <li><a href="/privacy">Privacy Policy</a></li>
-                </ul>
-            </div>
-            <div class="col-md-3 mb-4">
-                <h5>Customer Service</h5>
-                <ul class="list-unstyled">
-                    <li><a href="/help">Help Center</a></li>
-                    <li><a href="/returns">Returns</a></li>
-                    <li><a href="/shipping">Shipping Info</a></li>
-                </ul>
-            </div>
-            <div class="col-md-3 mb-4">
-                <h5>Newsletter</h5>
-                <p class="text-muted">Get the latest deals & updates</p>
-                <div class="input-group">
-                    <input type="email" class="form-control" placeholder="Your email" style="background:#2a402a;border:none;color:#fff;">
-                    <button class="btn btn-success" style="background:#4caf50;border:none;">Subscribe</button>
-                </div>
-            </div>
-        </div>
-        <hr class="border-top">
-        <p class="text-center text-muted small">&copy; 2026 ShopEase. All rights reserved.</p>
-    </div>
-</footer>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

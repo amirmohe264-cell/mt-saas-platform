@@ -171,16 +171,12 @@ $routes->get('api/subcategories/category/(:num)', 'SubcategoryController::getByC
 $routes->get('api/subcategories/tenant', 'SubcategoryController::getByTenant');
 
 // ==========================================
-// ROUTE SETTINGS
-// ==========================================
-$routes->setTranslateURIDashes(true);
-$routes->setAutoRoute(false);
-// ==========================================
-// STORE OWNER ORDERS ROUTES (Add these)
+// STORE OWNER ORDERS ROUTES
 // ==========================================
 $routes->get('store/orders', 'OrderController::storeOrders');
 $routes->get('store/orders/(:num)', 'OrderController::storeOrderDetails/$1');
 $routes->post('store/orders/update-status/(:num)', 'OrderController::updateOrderStatus/$1');
+
 // ==========================================
 // ADDRESS ROUTES
 // ==========================================
@@ -194,3 +190,55 @@ $routes->group('', ['filter' => 'customer'], function($routes) {
     $routes->get('addresses/set-default/(:num)', 'AddressController::setDefault/$1');
     $routes->get('addresses/get-addresses', 'AddressController::getAddresses');
 });
+
+// ==========================================
+// 🆕 CUSTOMER DASHBOARD - ORDER & WISHLIST API ROUTES
+// ==========================================
+// Order routes - Fetch real orders from database
+$routes->get('get-orders', 'PublicController::getOrders');
+$routes->get('get-order-detail/(:num)', 'PublicController::getOrderDetail/$1');
+$routes->post('cancel-order/(:num)', 'PublicController::cancelOrder/$1');
+
+// Wishlist routes - Fetch real wishlist from database
+$routes->get('get-wishlist', 'PublicController::getWishlist');
+$routes->post('remove-from-wishlist/(:num)', 'PublicController::removeFromWishlist/$1');
+
+// Cart routes
+$routes->get('cart-count', 'PublicController::getCartCount');
+$routes->post('add-to-cart', 'PublicController::addToCart');
+
+// ==========================================
+// WISHLIST ROUTES
+// ==========================================
+$routes->post('wishlist/add', 'WishlistController::add');
+$routes->get('wishlist/check/(:num)', 'WishlistController::check/$1');
+$routes->get('wishlist/count', 'WishlistController::count');
+$routes->get('wishlist', 'WishlistController::index');
+$routes->post('wishlist/remove/(:num)', 'WishlistController::remove/$1');
+// ==========================================
+// ROUTE SETTINGS
+// ==========================================
+$routes->setTranslateURIDashes(true);
+$routes->setAutoRoute(false);
+// ==========================================
+// CUSTOMER DASHBOARD - API ROUTES
+// ==========================================
+$routes->get('get-orders', 'PublicController::getOrders');
+$routes->get('get-order-detail/(:num)', 'PublicController::getOrderDetail/$1');
+$routes->post('cancel-order/(:num)', 'PublicController::cancelOrder/$1');
+$routes->get('get-wishlist', 'PublicController::getWishlist');
+$routes->post('remove-from-wishlist/(:num)', 'PublicController::removeFromWishlist/$1');
+$routes->get('cart-count', 'PublicController::getCartCount');
+$routes->post('add-to-cart', 'PublicController::addToCart');
+$routes->get('wishlist/check/(:num)', 'WishlistController::check/$1');
+$routes->post('store/orders/mark-delivered/(:num)', 'OrderController::markDeliveredByStore/$1');
+$routes->get('orders', 'OrderController::index');
+$routes->get('orders/(:num)', 'OrderController::show/$1');
+
+$routes->get('reviews/check/(:num)', 'ReviewController::check/$1');
+$routes->post('reviews/submit', 'ReviewController::submit');
+$routes->post('orders/confirm-delivery/(:num)', 'PublicController::confirmDelivery/$1');
+$routes->get('admin/escrow-queue', 'AdminController::escrowQueue');
+$routes->post('admin/escrow-release/(:num)', 'AdminController::releasePayment/$1');
+$routes->post('store/settings/update', 'Home::updateStoreSettings');
+$routes->post('store/settings/change-password', 'Home::changeStoreOwnerPassword');

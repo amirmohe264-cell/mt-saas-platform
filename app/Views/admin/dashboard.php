@@ -505,6 +505,7 @@
         <div class="admin-role"><span class="badge bg-success">Super Admin</span></div>
 
         <!-- MANAGEMENT -->
+    
         <div class="sidebar-category">Management</div>
         <ul class="sidebar-menu">
             <li class="active" onclick="showSection('dashboard')" data-tooltip="Dashboard">
@@ -528,6 +529,21 @@
                 <span class="menu-text">Users</span>
             </li>
         </ul>
+             <div class="sidebar-category">Finance</div>
+<ul class="sidebar-menu">
+    <li onclick="showSection('payments')" data-tooltip="Payments">
+        <i class="fas fa-credit-card"></i>
+        <span class="menu-text">Payments</span>
+    </li>
+    <li onclick="location.href='/admin/escrow-queue'" data-tooltip="Escrow Releases">
+    <i class="fas fa-hand-holding-usd"></i>
+    <span class="menu-text">Escrow Releases</span>
+</li>
+    <li onclick="showSection('analytics')" data-tooltip="Analytics">
+        <i class="fas fa-chart-bar"></i>
+        <span class="menu-text">Analytics</span>
+    </li>
+</ul>
 
         <!-- ORDERS & PRODUCTS -->
         <div class="sidebar-category">Orders & Products</div>
@@ -542,18 +558,7 @@
             </li>
         </ul>
 
-        <!-- FINANCE -->
-        <div class="sidebar-category">Finance</div>
-        <ul class="sidebar-menu">
-            <li onclick="showSection('payments')" data-tooltip="Payments">
-                <i class="fas fa-credit-card"></i>
-                <span class="menu-text">Payments</span>
-            </li>
-            <li onclick="showSection('analytics')" data-tooltip="Analytics">
-                <i class="fas fa-chart-bar"></i>
-                <span class="menu-text">Analytics</span>
-            </li>
-        </ul>
+    
 
         <!-- SETTINGS -->
         <div class="sidebar-category">Settings</div>

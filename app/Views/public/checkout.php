@@ -1,11 +1,3 @@
-<!-- app/Views/public/checkout.php -->
-<?php
-if (!session()->get('customer_id') && !session()->get('user_id')) {
-    header('Location: /login');
-    exit();
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,280 +7,829 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-<<<<<<< HEAD
-        body { padding-top: 80px; background: #f8f9fa; }
-        .checkout-card { background: #fff; border-radius: 12px; padding: 30px; border: 1px solid #e8f0e8; }
-        .btn-place-order { background: #4caf50; color: #fff; border: none; border-radius: 30px; padding: 12px 40px; font-weight: 600; width: 100%; }
-        .btn-place-order:hover { background: #388e3c; color: #fff; }
-        .summary-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
-        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: #1a2e1a !important; padding: 15px 0; }
-        .navbar-brand { color: #fff !important; font-weight: bold; font-size: 1.5rem; }
-        .navbar-brand i { color: #4caf50; }
-        .navbar .nav-link { color: #d4d4d4 !important; font-weight: 500; }
-        .navbar .nav-link:hover { color: #4caf50 !important; }
-        .icon-btn { color: #d4d4d4; font-size: 1.2rem; margin: 0 8px; transition: 0.3s; background: none; border: none; position: relative; text-decoration: none; }
-        .icon-btn:hover { color: #4caf50; transform: scale(1.1); }
-        .cart-badge { background: #dc3545; color: #fff; border-radius: 50%; padding: 2px 8px; font-size: 0.7rem; position: absolute; top: -8px; right: -8px; font-weight: 600; min-width: 18px; text-align: center; }
-        .footer { background: #1a2e1a; color: #d4d4d4; padding: 40px 0 20px; margin-top: 40px; }
-        .footer h5 { color: #fff; }
-        .footer a { color: #aaa; text-decoration: none; }
-        .footer a:hover { color: #4caf50; }
-=======
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; }
-        
-        /* ✅ Notification Toast Styles */
-        .notification-container {
-            position: fixed;
-            top: 90px;
-            right: 20px;
-            z-index: 9999;
-            max-width: 380px;
-            width: 100%;
+        /* ============ RESET & BASE ============ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .notification-toast {
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            padding-top: 80px;
+            color: #1a2e1a;
+        }
+
+        /* ============ NAVBAR ============ */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: #1a2e1a !important;
+            padding: 15px 0;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+        }
+        .navbar-brand {
+            color: #fff !important;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .navbar-brand i {
+            color: #4caf50;
+        }
+        .navbar .nav-link {
+            color: #d4d4d4 !important;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        .navbar .nav-link:hover {
+            color: #4caf50 !important;
+        }
+        .navbar .nav-link.active {
+            color: #4caf50 !important;
+        }
+
+        /* ============ PAGE HEADER ============ */
+        .page-header {
+            background: #1a2e1a;
+            color: #fff;
+            padding: 40px 0 30px;
+            margin-bottom: 30px;
+        }
+        .page-header h2 {
+            font-weight: 700;
+            margin: 0;
+        }
+        .page-header .breadcrumb {
+            background: none;
+            padding: 0;
+            margin: 5px 0 0 0;
+        }
+        .page-header .breadcrumb a {
+            color: #4caf50;
+            text-decoration: none;
+        }
+        .page-header .breadcrumb .active {
+            color: #aaa;
+        }
+        .page-header .breadcrumb-item+.breadcrumb-item::before {
+            color: #666;
+        }
+
+        /* ============ CHECKOUT CONTAINER ============ */
+        .checkout-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* ============ PROGRESS STEPS ============ */
+        .checkout-steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 40px;
+            background: #fff;
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #999;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .step-item .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #999;
+            font-weight: 700;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+        .step-item.active .step-number {
+            background: #4caf50;
+            color: #fff;
+        }
+        .step-item.completed .step-number {
+            background: #4caf50;
+            color: #fff;
+        }
+        .step-item.active {
+            color: #1a2e1a;
+        }
+        .step-item.completed {
+            color: #4caf50;
+        }
+        .step-line {
+            width: 60px;
+            height: 2px;
+            background: #e0e0e0;
+            margin: 0 10px;
+        }
+        .step-line.completed {
+            background: #4caf50;
+        }
+
+        /* ============ CARD STYLES ============ */
+        .checkout-card {
             background: #fff;
             border-radius: 12px;
-            padding: 15px 20px;
-            margin-bottom: 10px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
-            border-left: 4px solid #4caf50;
-            animation: slideInRight 0.4s ease;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
+            padding: 30px;
+            border: 1px solid #e8f0e8;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
         }
-        .notification-toast.error { border-left-color: #dc3545; }
-        .notification-toast.warning { border-left-color: #ffc107; }
-        .notification-toast.info { border-left-color: #17a2b8; }
-        .notification-toast .notif-icon { font-size: 1.3rem; margin-top: 2px; }
-        .notification-toast .notif-content { flex: 1; }
-        .notification-toast .notif-title { font-weight: 600; color: #1a2e1a; font-size: 0.9rem; }
-        .notification-toast .notif-message { color: #555; font-size: 0.85rem; }
-        .notification-toast .notif-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1rem; padding: 0 5px; }
-        .notification-toast .notif-close:hover { color: #333; }
-        .notification-toast.removing { animation: slideOutRight 0.3s ease forwards; }
-        @keyframes slideInRight { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100px); opacity: 0; } }
-        
-        .navbar { background: #1a2e1a !important; padding: 15px 0; }
-        .navbar-brand { color: #fff !important; font-weight: bold; font-size: 1.5rem; }
-        .navbar-brand i { color: #4caf50; }
-        .navbar .nav-link { color: #d4d4d4 !important; font-weight: 500; transition: 0.3s; }
-        .navbar .nav-link:hover { color: #4caf50 !important; }
-        .navbar .nav-link.active { color: #4caf50 !important; }
-        .search-box { background: #2a402a; border-radius: 30px; padding: 5px 15px; border: none; color: #fff; }
-        .search-box::placeholder { color: #aaa; }
-        .search-box:focus { outline: none; background: #2a402a; }
-        .icon-btn { color: #d4d4d4; font-size: 1.2rem; margin: 0 10px; transition: 0.3s; background: none; border: none; }
-        .icon-btn:hover { color: #4caf50; }
-        .page-header { background: #1a2e1a; color: #fff; padding: 40px 0 30px; }
-        .page-header h2 { font-weight: 700; }
-        .page-header .breadcrumb { background: none; padding: 0; margin: 0; }
-        .page-header .breadcrumb a { color: #4caf50; text-decoration: none; }
-        .page-header .breadcrumb .active { color: #aaa; }
-        .checkout-form label { font-weight: 600; color: #1a2e1a; }
-        .checkout-form .form-control { border-radius: 8px; border: 2px solid #e8f0e8; padding: 10px 15px; }
-        .checkout-form .form-control:focus { border-color: #4caf50; box-shadow: none; }
-        .order-summary { background: #fff; border-radius: 12px; padding: 25px; border: 1px solid #e8f0e8; }
-        .order-summary h5 { color: #1a2e1a; font-weight: 700; }
-        .order-item { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-        .order-item img { width: 60px; height: 60px; object-fit: contain; border-radius: 8px; background: #fff; padding: 5px; border: 1px solid #e8f0e8; }
-        .order-item .item-details { flex: 1; }
-        .order-item .item-name { font-weight: 600; color: #1a2e1a; }
-        .order-item .item-price { color: #1a2e1a; font-weight: 700; }
-        .order-item .item-qty { color: #888; font-size: 0.9rem; }
-        .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
-        .summary-row.total { border-bottom: none; font-weight: 700; font-size: 1.2rem; color: #1a2e1a; }
-        .payment-method { padding: 12px 15px; border: 2px solid #e8f0e8; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-bottom: 10px; }
-        .payment-method:hover { border-color: #4caf50; }
-        .payment-method.active { border-color: #4caf50; background: #f0f8f0; }
-        .payment-method input[type="radio"] { margin-right: 10px; }
-        .btn-place-order { background: #4caf50; color: #fff; border: none; border-radius: 30px; padding: 14px 40px; font-weight: 700; font-size: 1.1rem; width: 100%; transition: 0.3s; text-decoration: none; display: inline-block; text-align: center; }
-        .btn-place-order:hover { background: #388e3c; color: #fff; }
-        .footer { background: #1a2e1a; color: #d4d4d4; padding: 40px 0 20px; margin-top: 40px; }
-        .footer h5 { color: #fff; font-weight: 600; }
-        .footer a { color: #aaa; text-decoration: none; transition: 0.3s; }
-        .footer a:hover { color: #4caf50; }
-        @media (max-width: 768px) { .order-item img { width: 50px; height: 50px; } }
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
+        .checkout-card .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a2e1a;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f2f5;
+        }
+        .checkout-card .card-title i {
+            color: #4caf50;
+            margin-right: 10px;
+        }
+
+        /* ============ FORM STYLES ============ */
+        .form-label {
+            font-weight: 600;
+            color: #1a2e1a;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .form-label .required {
+            color: #dc3545;
+            margin-left: 2px;
+        }
+        .form-control {
+            border-radius: 8px;
+            border: 2px solid #e8f0e8;
+            padding: 10px 15px;
+            transition: 0.3s;
+            font-size: 0.95rem;
+        }
+        .form-control:focus {
+            border-color: #4caf50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+        .form-control:disabled {
+            background: #f8f9fa;
+            cursor: not-allowed;
+        }
+        .form-text {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .form-text i {
+            margin-right: 4px;
+        }
+
+        /* ============ ORDER SUMMARY ============ */
+        .order-summary {
+            background: #f8faf8;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .order-summary .summary-title {
+            font-weight: 700;
+            color: #1a2e1a;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8f0e8;
+        }
+        .order-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e8f0e8;
+        }
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        .order-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e8f0e8;
+        }
+        .order-item .item-info {
+            flex: 1;
+        }
+        .order-item .item-name {
+            font-weight: 600;
+            color: #1a2e1a;
+            font-size: 0.95rem;
+        }
+        .order-item .item-meta {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .order-item .item-price {
+            font-weight: 700;
+            color: #1a2e1a;
+            font-size: 1rem;
+        }
+
+        /* ============ PRICE BREAKDOWN ============ */
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 0.95rem;
+            color: #1a2e1a;
+        }
+        .price-row.total {
+            font-weight: 700;
+            font-size: 1.2rem;
+            border-top: 2px solid #e8f0e8;
+            padding-top: 15px;
+            margin-top: 10px;
+            color: #1a2e1a;
+        }
+        .price-row .label {
+            color: #6c757d;
+        }
+        .price-row.total .label {
+            color: #1a2e1a;
+        }
+
+        /* ============ PAYMENT METHODS ============ */
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .payment-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border: 2px solid #e8f0e8;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #fff;
+        }
+        .payment-option:hover {
+            border-color: #4caf50;
+            background: #f8faf8;
+        }
+        .payment-option.selected {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+        .payment-option input[type="radio"] {
+            accent-color: #4caf50;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .payment-option .payment-icon {
+            font-size: 1.5rem;
+            color: #4caf50;
+            width: 30px;
+            text-align: center;
+        }
+        .payment-option .payment-name {
+            font-weight: 600;
+            color: #1a2e1a;
+        }
+        .payment-option .payment-desc {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        /* ============ BUTTONS ============ */
+        .btn-place-order {
+            background: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 14px 40px;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: 0.3s;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-place-order:hover {
+            background: #388e3c;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.3);
+        }
+        .btn-place-order:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-back {
+            background: #6c757d;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-back:hover {
+            background: #5a6268;
+            color: #fff;
+        }
+
+        /* ============ ALERT MESSAGES ============ */
+        .alert {
+            border-radius: 8px;
+            border: none;
+            padding: 15px 20px;
+        }
+        .alert-danger {
+            background: #fde8e8;
+            color: #721c24;
+        }
+        .alert-success {
+            background: #e8f5e9;
+            color: #155724;
+        }
+        .alert-info {
+            background: #e3f2fd;
+            color: #0c5460;
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 70px;
+            }
+            .checkout-steps {
+                flex-wrap: wrap;
+                padding: 15px;
+                gap: 10px;
+            }
+            .step-item {
+                font-size: 0.8rem;
+            }
+            .step-line {
+                width: 30px;
+            }
+            .checkout-card {
+                padding: 20px;
+            }
+            .page-header {
+                padding: 25px 0 20px;
+            }
+            .page-header h2 {
+                font-size: 1.3rem;
+            }
+            .btn-place-order {
+                padding: 12px 25px;
+                font-size: 0.9rem;
+            }
+            .order-item img {
+                width: 50px;
+                height: 50px;
+            }
+            .payment-option {
+                padding: 10px 12px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .checkout-card {
+                padding: 15px;
+            }
+            .step-item .step-number {
+                width: 26px;
+                height: 26px;
+                font-size: 0.7rem;
+            }
+            .step-item .step-text {
+                display: none;
+            }
+            .step-line {
+                width: 20px;
+            }
+            .row.gap-3 {
+                gap: 15px !important;
+            }
+        }
+
+        /* ============ UTILITY ============ */
+        .text-muted-2 {
+            color: #6c757d;
+        }
+        .text-success-2 {
+            color: #4caf50;
+        }
+        .gap-3 {
+            gap: 1rem;
+        }
+        .mt-20 {
+            margin-top: 20px;
+        }
+        .mb-20 {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
 
-<!-- ✅ Notification Container -->
-<div class="notification-container" id="notificationContainer"></div>
-
-<!-- Navbar -->
+<!-- ============ NAVBAR ============ -->
 <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container">
-        <a class="navbar-brand" href="/"><i class="fas fa-store"></i> ShopEase</a>
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-store"></i> ShopEase
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
-                <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/cart">
+                        <i class="fas fa-shopping-cart"></i> Cart
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
             </ul>
-            <div class="d-flex align-items-center">
-                <a href="/cart" class="icon-btn">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-badge"><?= session()->get('cart_count') ?? 0 ?></span>
-                </a>
-                <a href="/logout" class="icon-btn"><i class="fas fa-sign-out-alt"></i></a>
-            </div>
         </div>
     </div>
 </nav>
 
-<!-- Checkout Section -->
-<section class="py-4">
+<!-- ============ PAGE HEADER ============ -->
+<section class="page-header">
     <div class="container">
-        <h2 class="mb-4"><i class="fas fa-credit-card me-2 text-success"></i>Checkout</h2>
-
-        <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-        <?php endif; ?>
-
-        <div class="row">
-<<<<<<< HEAD
-            <!-- Shipping Information -->
-            <div class="col-lg-7">
-                <div class="checkout-card">
-                    <h5><i class="fas fa-truck me-2 text-success"></i>Shipping Information</h5>
-                    <hr>
-                    <form action="/checkout/process" method="post" id="checkoutForm">
-                        <?= csrf_field() ?>
-=======
-            <!-- Billing Details -->
-            <div class="col-lg-8">
-                <div class="bg-white rounded-3 p-4 border">
-                    <h5 class="fw-bold mb-3"><i class="fas fa-user me-2 text-success"></i>Billing Details</h5>
-                    <form class="checkout-form" id="checkoutForm">
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label>First Name <span class="text-danger">*</span></label>
-                                <input type="text" name="first_name" class="form-control" value="<?= $customer['first_name'] ?? '' ?>" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Last Name <span class="text-danger">*</span></label>
-                                <input type="text" name="last_name" class="form-control" value="<?= $customer['last_name'] ?? '' ?>" required>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label>Email Address</label>
-                            <input type="email" name="email" class="form-control" value="<?= $customer['email'] ?? '' ?>" readonly>
-                            <small class="text-muted">Email cannot be changed</small>
-                        </div>
-                        <div class="mb-3">
-                            <label>Phone Number <span class="text-danger">*</span></label>
-                            <input type="tel" name="phone" class="form-control" value="<?= $customer['phone'] ?? '' ?>" required>
-                        </div>
-                        <div class="mb-3">
-                            <label>Delivery Address <span class="text-danger">*</span></label>
-                            <textarea name="address" class="form-control" rows="3" placeholder="Enter your full address" required></textarea>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label>City <span class="text-danger">*</span></label>
-                                <input type="text" name="city" class="form-control" placeholder="Enter city" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label>Postal Code</label>
-                                <input type="text" name="postal_code" class="form-control" placeholder="Enter postal code">
-                            </div>
-                        </div>
-                    </form>
-                </div>
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2><i class="fas fa-shopping-bag me-2"></i>Checkout</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item"><a href="/cart">Cart</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+                    </ol>
+                </nav>
             </div>
-
-            <!-- Order Summary -->
-            <div class="col-lg-5">
-                <div class="checkout-card">
-                    <h5><i class="fas fa-receipt me-2 text-success"></i>Order Summary</h5>
-                    <hr>
-                    
-                    <?php foreach ($cartItems as $item): ?>
-                        <div class="summary-item">
-                            <span><?= $item['product_name'] ?> × <?= $item['quantity'] ?></span>
-                            <span>$<?= number_format($item['subtotal'], 2) ?></span>
-                        </div>
-                    <?php endforeach; ?>
-                    
-                    <div class="summary-item">
-                        <span>Subtotal</span>
-                        <span>$<?= number_format($subtotal, 2) ?></span>
-                    </div>
-                    <div class="summary-item">
-                        <span>Shipping</span>
-                        <span><?= $shipping > 0 ? '$'.number_format($shipping, 2) : 'Free' ?></span>
-                    </div>
-                    <div class="summary-item">
-                        <span>Tax (8%)</span>
-                        <span>$<?= number_format($tax, 2) ?></span>
-                    </div>
-                    <div class="summary-item" style="border-bottom: none; font-weight: 700; font-size: 1.2rem;">
-                        <span>Total</span>
-                        <span>$<?= number_format($grandTotal, 2) ?></span>
-                    </div>
-
-<<<<<<< HEAD
-                    <hr>
-                    <h6><i class="fas fa-credit-card me-2"></i>Payment Method</h6>
-                    <div class="mb-3">
-                        <select name="payment_method" form="checkoutForm" class="form-control" required>
-                            <option value="">Select Payment Method</option>
-                            <option value="telebirr">Telebirr</option>
-                            <option value="chapa">Chapa</option>
-                            <option value="bank">Bank Transfer</option>
-                            <option value="cod">Cash on Delivery</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" form="checkoutForm" class="btn-place-order">
-                        <i class="fas fa-lock me-2"></i>Place Order
-=======
-                    <!-- ✅ Place Order Button with Notification -->
-                    <button class="btn-place-order mt-3" onclick="placeOrder()">
-                        <i class="fas fa-check-circle me-2"></i>Place Order
->>>>>>> 20cba65f97203a505b07d9170aad5b91ffef4412
-                    </button>
-                    <div class="text-center mt-3">
-                        <small class="text-muted"><i class="fas fa-lock me-1"></i>Secure checkout</small>
-                    </div>
-                </div>
+            <div class="col-md-4 text-md-end">
+                <span class="badge bg-success fs-6 px-3 py-2">
+                    <i class="fas fa-lock me-1"></i> Secure Checkout
+                </span>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Footer -->
-<footer class="footer">
-    <div class="container-fluid px-5">
+<!-- ============ CHECKOUT CONTENT ============ -->
+<section class="py-4">
+    <div class="container">
+        
+        <!-- Alert Messages -->
+        <?php if (session()->getFlashdata('error')): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <?= session()->getFlashdata('error') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (session()->getFlashdata('success')): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <?= session()->getFlashdata('success') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+
+        <!-- ============ CHECKOUT STEPS ============ -->
+        <div class="checkout-steps">
+            <div class="step-item completed">
+                <span class="step-number"><i class="fas fa-check"></i></span>
+                <span class="step-text">Cart</span>
+            </div>
+            <div class="step-line completed"></div>
+            <div class="step-item active">
+                <span class="step-number">2</span>
+                <span class="step-text">Checkout</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item">
+                <span class="step-number">3</span>
+                <span class="step-text">Confirmation</span>
+            </div>
+        </div>
+
+        <!-- ============ CHECKOUT FORM ============ -->
+        <form action="/checkout/process" method="post" id="checkoutForm">
+            <?= csrf_field() ?>
+            
+            <div class="row g-4">
+                <!-- ============ LEFT COLUMN - BILLING DETAILS ============ -->
+                <div class="col-lg-8">
+                    
+                    <!-- Shipping Information -->
+                    <div class="checkout-card">
+                        <h5 class="card-title">
+                            <i class="fas fa-truck"></i> Shipping Information
+                        </h5>
+                        
+                        <div class="row g-3">
+                            <!-- First Name -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    First Name <span class="required">*</span>
+                                </label>
+                                <input type="text" 
+                                       name="first_name" 
+                                       class="form-control <?= session('errors.first_name') ? 'is-invalid' : '' ?>" 
+                                       placeholder="Enter first name" 
+                                       value="<?= old('first_name', $user['first_name'] ?? '') ?>" 
+                                       required>
+                                <?php if (session('errors.first_name')): ?>
+                                    <div class="invalid-feedback"><?= session('errors.first_name') ?></div>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <!-- Last Name -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Last Name <span class="required">*</span>
+                                </label>
+                                <input type="text" 
+                                       name="last_name" 
+                                       class="form-control <?= session('errors.last_name') ? 'is-invalid' : '' ?>" 
+                                       placeholder="Enter last name" 
+                                       value="<?= old('last_name', $user['last_name'] ?? '') ?>" 
+                                       required>
+                                <?php if (session('errors.last_name')): ?>
+                                    <div class="invalid-feedback"><?= session('errors.last_name') ?></div>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <!-- Email -->
+                            <div class="col-md-6">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" 
+                                       name="email" 
+                                       class="form-control" 
+                                       value="<?= old('email', $user['email'] ?? '') ?>" 
+                                       readonly 
+                                       disabled>
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle"></i> Email cannot be changed
+                                </small>
+                            </div>
+                            
+                            <!-- Phone -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    Phone Number <span class="required">*</span>
+                                </label>
+                                <input type="tel" 
+                                       name="phone" 
+                                       class="form-control <?= session('errors.phone') ? 'is-invalid' : '' ?>" 
+                                       placeholder="Enter phone number" 
+                                       value="<?= old('phone', $user['phone'] ?? '') ?>" 
+                                       required>
+                                <?php if (session('errors.phone')): ?>
+                                    <div class="invalid-feedback"><?= session('errors.phone') ?></div>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <!-- Delivery Address -->
+                            <div class="col-12">
+                                <label class="form-label">
+                                    Delivery Address <span class="required">*</span>
+                                </label>
+                                <textarea name="address" 
+                                          class="form-control <?= session('errors.address') ? 'is-invalid' : '' ?>" 
+                                          rows="3" 
+                                          placeholder="Enter your full delivery address" 
+                                          required><?= old('address', $user['address'] ?? '') ?></textarea>
+                                <?php if (session('errors.address')): ?>
+                                    <div class="invalid-feedback"><?= session('errors.address') ?></div>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <!-- City -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    City <span class="required">*</span>
+                                </label>
+                                <input type="text" 
+                                       name="city" 
+                                       class="form-control <?= session('errors.city') ? 'is-invalid' : '' ?>" 
+                                       placeholder="Enter city" 
+                                       value="<?= old('city', $user['city'] ?? '') ?>" 
+                                       required>
+                                <?php if (session('errors.city')): ?>
+                                    <div class="invalid-feedback"><?= session('errors.city') ?></div>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <!-- Postal Code -->
+                            <div class="col-md-6">
+                                <label class="form-label">Postal Code</label>
+                                <input type="text" 
+                                       name="postal_code" 
+                                       class="form-control <?= session('errors.postal_code') ? 'is-invalid' : '' ?>" 
+                                       placeholder="Enter postal code" 
+                                       value="<?= old('postal_code', $user['postal_code'] ?? '') ?>">
+                                <?php if (session('errors.postal_code')): ?>
+                                    <div class="invalid-feedback"><?= session('errors.postal_code') ?></div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="checkout-card">
+                        <h5 class="card-title">
+                            <i class="fas fa-credit-card"></i> Payment Method
+                        </h5>
+                        
+                        <div class="payment-methods">
+                            <!-- Chapa -->
+                            <label class="payment-option <?= old('payment_method', 'chapa') == 'chapa' ? 'selected' : '' ?>">
+                                <input type="radio" 
+                                       name="payment_method" 
+                                       value="chapa" 
+                                       <?= old('payment_method', 'chapa') == 'chapa' ? 'checked' : '' ?>>
+                                <span class="payment-icon">
+                                    <i class="fas fa-university"></i>
+                                </span>
+                                <div>
+                                    <div class="payment-name">Chapa</div>
+                                    <div class="payment-desc">Pay with Chapa (Credit/Debit Card, Bank Transfer)</div>
+                                </div>
+                            </label>
+                            
+                            <!-- Telebirr -->
+                            <label class="payment-option <?= old('payment_method') == 'telebirr' ? 'selected' : '' ?>">
+                                <input type="radio" 
+                                       name="payment_method" 
+                                       value="telebirr" 
+                                       <?= old('payment_method') == 'telebirr' ? 'checked' : '' ?>>
+                                <span class="payment-icon">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </span>
+                                <div>
+                                    <div class="payment-name">Telebirr</div>
+                                    <div class="payment-desc">Pay with Telebirr mobile money</div>
+                                </div>
+                            </label>
+                            
+                            <!-- Cash on Delivery -->
+                            <label class="payment-option <?= old('payment_method') == 'cod' ? 'selected' : '' ?>">
+                                <input type="radio" 
+                                       name="payment_method" 
+                                       value="cod" 
+                                       <?= old('payment_method') == 'cod' ? 'checked' : '' ?>>
+                                <span class="payment-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </span>
+                                <div>
+                                    <div class="payment-name">Cash on Delivery</div>
+                                    <div class="payment-desc">Pay when you receive your order</div>
+                                </div>
+                            </label>
+                        </div>
+                        <?php if (session('errors.payment_method')): ?>
+                            <div class="text-danger mt-2 small"><?= session('errors.payment_method') ?></div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="/cart" class="btn-back">
+                            <i class="fas fa-arrow-left"></i> Back to Cart
+                        </a>
+                        <button type="submit" class="btn-place-order" id="placeOrderBtn">
+                            <i class="fas fa-lock"></i> Place Order
+                            <span class="spinner-border spinner-border-sm d-none" id="orderSpinner"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ============ RIGHT COLUMN - ORDER SUMMARY ============ -->
+                <div class="col-lg-4">
+                    <div class="checkout-card">
+                        <h5 class="card-title">
+                            <i class="fas fa-receipt"></i> Order Summary
+                        </h5>
+
+                        <!-- Order Items -->
+                        <div class="order-summary">
+                            <?php if (!empty($cartItems)): ?>
+                                <?php foreach ($cartItems as $item): ?>
+                                    <div class="order-item">
+                                        <img src="<?= $item['image'] ?? 'https://via.placeholder.com/60x60?text=Product' ?>" 
+                                             alt="<?= $item['name'] ?? 'Product' ?>">
+                                        <div class="item-info">
+                                            <div class="item-name"><?= $item['name'] ?? 'Product' ?></div>
+                                            <div class="item-meta">Qty: <?= $item['quantity'] ?? 1 ?></div>
+                                        </div>
+                                        <div class="item-price">
+                                            $<?= number_format(($item['price'] ?? 0) * ($item['quantity'] ?? 1), 2) ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <div class="text-center text-muted py-3">
+                                    <i class="fas fa-shopping-cart fa-2x mb-2 d-block"></i>
+                                    Your cart is empty
+                                </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Price Breakdown -->
+                        <div class="price-breakdown">
+                            <div class="price-row">
+                                <span class="label">Subtotal</span>
+                                <span>$<?= number_format($subtotal ?? 0, 2) ?></span>
+                            </div>
+                            <div class="price-row">
+                                <span class="label">Shipping</span>
+                                <span>$<?= number_format($shipping ?? 5.00, 2) ?></span>
+                            </div>
+                            <div class="price-row">
+                                <span class="label">Tax (8%)</span>
+                                <span>$<?= number_format($tax ?? 0, 2) ?></span>
+                            </div>
+                            <div class="price-row total">
+                                <span class="label">Total</span>
+                                <span>$<?= number_format($total ?? 0, 2) ?></span>
+                            </div>
+                        </div>
+
+                        <!-- Secure Checkout Note -->
+                        <div class="mt-3 pt-3 border-top text-center">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt text-success me-1"></i>
+                                Your payment information is secure
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer mt-5" style="background: #1a2e1a; color: #d4d4d4; padding: 40px 0 20px;">
+    <div class="container">
         <div class="row">
             <div class="col-md-4 mb-4">
                 <h5><i class="fas fa-store text-success"></i> ShopEase</h5>
-                <p class="text-muted">Your one-stop shop for everything you need.</p>
+                <p class="text-muted">Multi-Tenant SaaS E-Commerce Platform.</p>
             </div>
             <div class="col-md-2 mb-4">
                 <h5>Quick Links</h5>
                 <ul class="list-unstyled">
-                    <li><a href="/about">About Us</a></li>
-                    <li><a href="/contact">Contact</a></li>
-                    <li><a href="/privacy">Privacy Policy</a></li>
-                    <li><a href="/terms">Terms</a></li>
+                    <li><a href="/about" style="color:#aaa;text-decoration:none;">About Us</a></li>
+                    <li><a href="/contact" style="color:#aaa;text-decoration:none;">Contact</a></li>
+                    <li><a href="/privacy" style="color:#aaa;text-decoration:none;">Privacy Policy</a></li>
                 </ul>
             </div>
             <div class="col-md-3 mb-4">
                 <h5>Customer Service</h5>
                 <ul class="list-unstyled">
-                    <li><a href="/help">Help Center</a></li>
-                    <li><a href="/returns">Returns</a></li>
-                    <li><a href="/shipping">Shipping Info</a></li>
-                    <li><a href="/track">Track Order</a></li>
+                    <li><a href="/help" style="color:#aaa;text-decoration:none;">Help Center</a></li>
+                    <li><a href="/returns" style="color:#aaa;text-decoration:none;">Returns</a></li>
+                    <li><a href="/shipping" style="color:#aaa;text-decoration:none;">Shipping Info</a></li>
                 </ul>
             </div>
             <div class="col-md-3 mb-4">
@@ -305,117 +846,66 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
     </div>
 </footer>
 
+<!-- ============ SCRIPTS ============ -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- ✅ Checkout Script -->
 <script>
-// ==========================================
-// 1. SHOW FLASH MESSAGES
-// ==========================================
-document.addEventListener('DOMContentLoaded', function() {
-    <?php if (session()->getFlashdata('success')): ?>
-        showNotification('success', '✅ Success', '<?= session()->getFlashdata('success') ?>');
-    <?php endif; ?>
-    
-    <?php if (session()->getFlashdata('error')): ?>
-        showNotification('error', '❌ Error', '<?= session()->getFlashdata('error') ?>');
-    <?php endif; ?>
-});
+    document.addEventListener('DOMContentLoaded', function() {
+        // =============================================
+        // PAYMENT METHOD SELECTION
+        // =============================================
+        const paymentOptions = document.querySelectorAll('.payment-option');
+        paymentOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove selected class from all
+                paymentOptions.forEach(opt => opt.classList.remove('selected'));
+                // Add selected class to clicked
+                this.classList.add('selected');
+                // Check the radio button
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = true;
+                }
+            });
+        });
 
-// ==========================================
-// 2. NOTIFICATION FUNCTION
-// ==========================================
-function showNotification(type, title, message) {
-    const container = document.getElementById('notificationContainer');
-    if (!container) return;
-    
-    const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
-    const icon = icons[type] || 'ℹ️';
-    
-    const toast = document.createElement('div');
-    toast.className = 'notification-toast ' + (type === 'error' ? 'error' : type === 'warning' ? 'warning' : type === 'info' ? 'info' : '');
-    toast.innerHTML = `
-        <div class="notif-icon">${icon}</div>
-        <div class="notif-content">
-            <div class="notif-title">${title}</div>
-            <div class="notif-message">${message}</div>
-        </div>
-        <button class="notif-close" onclick="this.closest('.notification-toast').remove()">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
-    
-    container.appendChild(toast);
-    
-    setTimeout(() => {
-        if (toast.parentNode) {
-            toast.classList.add('removing');
-            setTimeout(() => {
-                if (toast.parentNode) toast.remove();
-            }, 300);
-        }
-    }, 5000);
-}
+        // =============================================
+        // FORM SUBMISSION
+        // =============================================
+        const form = document.getElementById('checkoutForm');
+        const submitBtn = document.getElementById('placeOrderBtn');
+        const spinner = document.getElementById('orderSpinner');
 
-// ==========================================
-// 3. PLACE ORDER FUNCTION
-// ==========================================
-function placeOrder() {
-    // Get form data
-    const form = document.getElementById('checkoutForm');
-    const inputs = form.querySelectorAll('input[required]');
-    let isValid = true;
-    
-    // Validate required fields
-    inputs.forEach(input => {
-        if (!input.value.trim()) {
-            input.classList.add('invalid');
-            isValid = false;
-        } else {
-            input.classList.remove('invalid');
-        }
+        form.addEventListener('submit', function(e) {
+            // Validate payment method
+            const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+            if (!paymentMethod) {
+                e.preventDefault();
+                alert('Please select a payment method.');
+                return;
+            }
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Processing...';
+            spinner.classList.remove('d-none');
+        });
+
+        // =============================================
+        // NAVBAR SCROLL EFFECT
+        // =============================================
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.padding = '8px 0';
+                navbar.style.background = 'rgba(26, 46, 26, 0.88) !important';
+                navbar.style.backdropFilter = 'blur(12px)';
+            } else {
+                navbar.style.padding = '15px 0';
+                navbar.style.background = '#1a2e1a !important';
+                navbar.style.backdropFilter = 'none';
+            }
+        });
     });
-    
-    if (!isValid) {
-        showNotification('error', '❌ Error', 'Please fill in all required fields.');
-        return;
-    }
-    
-    // Show loading state
-    const btn = document.querySelector('.btn-place-order');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
-    btn.disabled = true;
-    
-    // Simulate API call
-    setTimeout(() => {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-        
-        // ✅ Show order confirmation notification
-        showNotification(
-            'success',
-            '✅ Order Placed!',
-            'Your order has been placed successfully! Order #ORD-' + new Date().getTime()
-        );
-        
-        // Redirect to confirmation page after 2 seconds
-        setTimeout(() => {
-            window.location.href = '/order-confirmation';
-        }, 2000);
-    }, 2000);
-}
-
-// ==========================================
-// 4. PAYMENT METHOD SELECTION
-// ==========================================
-document.querySelectorAll('.payment-method').forEach(method => {
-    method.addEventListener('click', function() {
-        document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('active'));
-        this.classList.add('active');
-        this.querySelector('input[type="radio"]').checked = true;
-    });
-});
 </script>
 </body>
 </html>

@@ -8,6 +8,7 @@ use App\Models\OrderModel;
 use App\Models\OrderItemModel;
 use App\Models\PaymentModel;
 use App\Models\DeliveryTrackingModel;
+use App\Models\CustomerModel;
 
 class CheckoutController extends BaseController
 {
@@ -17,6 +18,7 @@ class CheckoutController extends BaseController
     protected $orderItemModel;
     protected $paymentModel;
     protected $deliveryTrackingModel;
+    protected $customerModel;
 
     public function __construct()
     {
@@ -28,6 +30,7 @@ class CheckoutController extends BaseController
         $this->orderItemModel = new OrderItemModel();
         $this->paymentModel = new PaymentModel();
         $this->deliveryTrackingModel = new DeliveryTrackingModel();
+        $this->customerModel = new CustomerModel();
     }
 
     // ============================================
@@ -42,12 +45,17 @@ class CheckoutController extends BaseController
             return redirect()->to('/login')->with('error', 'Please login to checkout.');
         }
 
+        // Get cart items
         $cartItems = $this->cartModel->getCartByCustomer($customerId);
 
         if (empty($cartItems)) {
             return redirect()->to('/cart')->with('error', 'Your cart is empty.');
         }
 
+        // Get customer data from database
+        $customer = $this->customerModel->find($customerId);
+        
+        // Calculate totals
         $subtotal = 0;
         $itemCount = 0;
         foreach ($cartItems as &$item) {
@@ -56,15 +64,20 @@ class CheckoutController extends BaseController
             $itemCount += $item['quantity'];
         }
 
+        // Calculate shipping, tax, total
         $shipping = ($subtotal > 50) ? 0 : 5.00;
         $tax = $subtotal * 0.08;
-        $grandTotal = $subtotal + $shipping + $tax;
+        $total = $subtotal + $shipping + $tax;
 
+        // Prepare customer data for the form
         $customerData = [
-            'first_name' => session()->get('first_name') ?? '',
-            'last_name' => session()->get('last_name') ?? '',
-            'email' => session()->get('email') ?? '',
-            'phone' => session()->get('phone') ?? '',
+            'first_name' => $customer['first_name'] ?? session()->get('first_name') ?? '',
+            'last_name' => $customer['last_name'] ?? session()->get('last_name') ?? '',
+            'email' => $customer['email'] ?? session()->get('email') ?? '',
+            'phone' => $customer['phone'] ?? session()->get('phone') ?? '',
+            'address' => $customer['address'] ?? '',
+            'city' => $customer['city'] ?? '',
+            'postal_code' => $customer['postal_code'] ?? '',
         ];
 
         return view('public/checkout', [
@@ -72,9 +85,10 @@ class CheckoutController extends BaseController
             'subtotal' => $subtotal,
             'shipping' => $shipping,
             'tax' => $tax,
-            'grandTotal' => $grandTotal,
+            'total' => $total,
             'itemCount' => $itemCount,
-            'customer' => $customerData,
+            'user' => $customerData,  // For the form fields
+            'customer' => $customerData,  // Alias for compatibility
         ]);
     }
 
@@ -107,43 +121,68 @@ class CheckoutController extends BaseController
         $paymentMethod = $this->request->getPost('payment_method');
 
         // Validate
-        if (empty($firstName) || empty($lastName) || empty($address) || empty($city)) {
-            return redirect()->back()->with('error', 'Please fill in all required fields (First Name, Last Name, Address, City).');
-        }
+        $validation = \Config\Services::validation();
+        $validation->setRules([
+            'first_name' => 'required|min_length[2]',
+            'last_name' => 'required|min_length[2]',
+            'address' => 'required|min_length[5]',
+            'city' => 'required|min_length[2]',
+            'payment_method' => 'required',
+        ]);
 
-        if (empty($paymentMethod)) {
-            return redirect()->back()->with('error', 'Please select a payment method.');
+        if (!$validation->withRequest($this->request)->run()) {
+            return redirect()->back()
+                ->with('errors', $validation->getErrors())
+                ->withInput();
         }
 
         // Calculate totals
-        $totalAmount = 0;
+        $subtotal = 0;
+        $orderItems = [];
         foreach ($cartItems as $item) {
-            $totalAmount += $item['price'] * $item['quantity'];
+            $itemTotal = $item['price'] * $item['quantity'];
+            $subtotal += $itemTotal;
+            $orderItems[] = [
+                'product_id' => $item['product_id'],
+                'product_name' => $item['product_name'],
+                'product_image' => $item['product_image'] ?? null,
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+                'subtotal' => $itemTotal
+            ];
         }
 
-        $shipping = ($totalAmount > 50) ? 0 : 5.00;
-        $tax = $totalAmount * 0.08;
-        $grandTotal = $totalAmount + $shipping + $tax;
+        $shippingCost = ($subtotal > 50) ? 0 : 5.00;
+        $tax = $subtotal * 0.08;
+        $grandTotal = $subtotal + $shippingCost + $tax;
 
+        // Get tenant_id from first product
         $firstItem = $this->productModel->find($cartItems[0]['product_id']);
         $tenantId = $firstItem['tenant_id'] ?? 1;
 
         // Generate order number
-        $orderNumber = 'ORD-' . date('Y-m-d') . '-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
+        $orderNumber = 'ORD-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
 
-        // ✅ Match your actual OrderModel columns
+        // Insert order into database
         $orderData = [
             'tenant_id' => $tenantId,
             'customer_id' => $customerId,
             'order_number' => $orderNumber,
+            'customer_name' => $firstName . ' ' . $lastName,
+            'customer_email' => $email,
+            'phone' => $phone,
             'total_amount' => $grandTotal,
+            'subtotal' => $subtotal,
+            'tax_amount' => $tax,
+            'shipping_cost' => $shippingCost,
+            'discount_amount' => 0,
             'shipping_address' => $address,
             'city' => $city,
-            'postal_code' => $postalCode ?: null,
-            'phone' => $phone,
+            'postal_code' => $postalCode,
             'payment_method' => $paymentMethod,
             'payment_status' => 'pending',
             'order_status' => 'pending',
+            'shipping_method' => 'standard',
             'notes' => null,
         ];
 
@@ -155,49 +194,32 @@ class CheckoutController extends BaseController
             return redirect()->back()->with('error', 'Failed to create order. Please try again.');
         }
 
-        // ✅ FIX: Create order items with 'total'
-        foreach ($cartItems as $item) {
-    $this->orderItemModel->insert([
-        'order_id'   => $orderId,
-        'product_id' => $item['product_id'],
-        'quantity'   => $item['quantity'],
-        'price'      => $item['price'],
-        'total'      => $item['price'] * $item['quantity'],  // ✅ ADD THIS
-    ]);
+        // Create order items
+        foreach ($orderItems as $item) {
+            $this->orderItemModel->insert([
+                'order_id' => $orderId,
+                'product_id' => $item['product_id'],
+                'product_name' => $item['product_name'],
+               
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+                'total' => $item['subtotal']
+            ]);
 
-    // Reduce product stock
-    $product = $this->productModel->find($item['product_id']);
-    if ($product) {
-        $newQuantity = $product['quantity'] - $item['quantity'];
-        $this->productModel->update($item['product_id'], ['quantity' => $newQuantity]);
-    }
-}
+            // Reduce product stock
+            $product = $this->productModel->find($item['product_id']);
+            if ($product) {
+                $newQuantity = $product['quantity'] - $item['quantity'];
+                $this->productModel->update($item['product_id'], ['quantity' => $newQuantity]);
+            }
+        }
 
-        // Clear the cart
+        // Clear cart
         $this->cartModel->where('customer_id', $customerId)->delete();
         session()->set('cart_count', 0);
 
-        // ✅ Send order confirmation email
-        $customer = $this->getCustomerInfo($customerId);
-        if ($customer && !empty($customer['email'])) {
-            $orderData['order_number'] = $orderNumber;
-            $orderData['total_amount'] = $grandTotal;
-            $orderData['order_status'] = 'pending';
-            sendOrderConfirmation($customer['email'], $orderData);
-        }
-
         // Process payment based on method
         return $this->processPayment($orderId, $paymentMethod, $grandTotal);
-    }
-
-    // ============================================
-    // GET CUSTOMER INFO
-    // ============================================
-
-    private function getCustomerInfo($customerId)
-    {
-        $customerModel = new \App\Models\CustomerModel();
-        return $customerModel->find($customerId);
     }
 
     // ============================================
@@ -207,6 +229,10 @@ class CheckoutController extends BaseController
     private function processPayment($orderId, $paymentMethod, $amount)
     {
         $order = $this->orderModel->find($orderId);
+
+        if (!$order) {
+            return redirect()->to('/cart')->with('error', 'Order not found.');
+        }
 
         // Calculate fees
         $platformFee = $amount * 0.10;
@@ -229,11 +255,7 @@ class CheckoutController extends BaseController
             'paid_at' => date('Y-m-d H:i:s'),
         ];
 
-        $paymentId = $this->paymentModel->insert($paymentData);
-        
-        if ($paymentId) {
-            $this->orderModel->update($orderId, ['payment_id' => $paymentId]);
-        }
+       $paymentId = $this->paymentModel->insert($paymentData);
 
         // Create delivery tracking
         $this->deliveryTrackingModel->insert([
@@ -246,17 +268,26 @@ class CheckoutController extends BaseController
         // Notify store owner
         $this->notifyStoreOwner($order['tenant_id'], $orderId);
 
-        switch ($paymentMethod) {
-            case 'telebirr':
-                return $this->telebirrPayment($order, $amount);
-            case 'chapa':
-                return $this->chapaPayment($order, $amount);
-            case 'bank':
-                return $this->bankPayment($order);
-            case 'cod':
-                return $this->codPayment($order);
-            default:
-                return redirect()->to('/checkout')->with('error', 'Invalid payment method.');
+        // Redirect based on payment method
+        if ($paymentMethod === 'cod') {
+            // Cash on Delivery
+            $this->orderModel->update($orderId, [
+                'payment_status' => 'cod',
+                'order_status' => 'confirmed',
+            ]);
+            
+            return redirect()->to('/order-confirmation/' . $orderId)
+                            ->with('success', '✅ Order placed successfully! Pay on delivery.');
+        } elseif ($paymentMethod === 'telebirr') {
+            // Telebirr payment
+            return $this->telebirrPayment($order, $amount);
+        } elseif ($paymentMethod === 'chapa') {
+            // Chapa payment
+            return $this->chapaPayment($order, $amount);
+        } else {
+            // Default - redirect to confirmation
+            return redirect()->to('/order-confirmation/' . $orderId)
+                            ->with('success', '✅ Order placed successfully!');
         }
     }
 
@@ -309,9 +340,9 @@ class CheckoutController extends BaseController
         $postData = [
             'amount' => $amount,
             'currency' => 'ETB',
-            'email' => session()->get('email'),
-            'first_name' => session()->get('first_name'),
-            'last_name' => session()->get('last_name'),
+            'email' => $order['customer_email'] ?? session()->get('email'),
+            'first_name' => $order['customer_name'] ?? session()->get('first_name'),
+            'last_name' => '',
             'tx_ref' => $txRef,
             'callback_url' => base_url('payment/chapa/callback'),
             'return_url' => base_url('payment/chapa/success'),
@@ -349,46 +380,6 @@ class CheckoutController extends BaseController
             'amount' => $amount,
             'redirectUrl' => base_url('payment/chapa/success'),
         ]);
-    }
-
-    // ============================================
-    // 3. BANK TRANSFER
-    // ============================================
-
-    private function bankPayment($order)
-    {
-        $bankDetails = [
-            'bank_name' => 'Commercial Bank of Ethiopia',
-            'account_name' => 'ShopEase Platform',
-            'account_number' => '1000 1234 5678',
-            'branch' => 'Addis Ababa',
-            'reference' => 'ORDER-' . $order['order_number'],
-        ];
-
-        $this->orderModel->update($order['id'], [
-            'payment_status' => 'pending',
-        ]);
-
-        return view('public/payment/bank', [
-            'order' => $order,
-            'bankDetails' => $bankDetails,
-            'amount' => $order['total_amount'],
-        ]);
-    }
-
-    // ============================================
-    // 4. CASH ON DELIVERY
-    // ============================================
-
-    private function codPayment($order)
-    {
-        $this->orderModel->update($order['id'], [
-            'payment_status' => 'cod',
-            'order_status' => 'confirmed',
-        ]);
-
-        return redirect()->to('/order-confirmation/' . $order['id'])
-                        ->with('success', '✅ Order placed successfully! Pay on delivery.');
     }
 
     // ============================================
@@ -475,7 +466,7 @@ class CheckoutController extends BaseController
             }
         }
         
-        return redirect()->to('/orders')->with('error', 'Payment verification failed. Please contact support.');
+       return redirect()->to('/dashboard#orders')->with('error', 'Payment verification failed. Please contact support.');
     }
 
     // ============================================
@@ -495,7 +486,7 @@ class CheckoutController extends BaseController
                                   ->first();
 
         if (!$order) {
-            return redirect()->to('/orders')->with('error', 'Order not found.');
+            return redirect()->to('/dashboard#orders')->with('error', 'Order not found.');
         }
 
         if ($order['payment_status'] === 'paid') {
@@ -528,12 +519,10 @@ class CheckoutController extends BaseController
                                   ->first();
 
         if (!$order) {
-            return redirect()->to('/orders')->with('error', 'Order not found.');
+            return redirect()->to('/dashboard#orders')->with('error', 'Order not found.');
         }
 
-        $orderItems = $this->orderItemModel->where('order_id', $orderId)
-                                          ->join('products', 'products.id = order_items.product_id')
-                                          ->findAll();
+        $orderItems = $this->orderItemModel->where('order_id', $orderId)->findAll();
 
         return view('public/order_confirmation', [
             'order' => $order,
@@ -547,6 +536,6 @@ class CheckoutController extends BaseController
 
     private function notifyStoreOwner($tenantId, $orderId)
     {
-        log_message('info', "🔔 New order #{$orderId} for tenant #{$tenantId}. Payment confirmed.");
+        log_message('info', "🔔 New order #{$orderId} for tenant #{$tenantId}.");
     }
 }

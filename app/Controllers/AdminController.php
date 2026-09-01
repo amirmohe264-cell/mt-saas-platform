@@ -6,12 +6,63 @@ use App\Models\StoreRequestModel;
 use App\Models\TenantModel;
 use App\Models\SystemUserModel;
 use App\Models\CustomerModel;
+use App\Models\PaymentModel;
+use App\Models\OrderModel;
+use App\Models\DeliveryTrackingModel;
 
 class AdminController extends BaseController
 {
     protected $storeRequestModel;
     protected $tenantModel;
     protected $systemUserModel;
+    protected $paymentModel;
+    protected $orderModel;
+    protected $deliveryTrackingModel;
+    // ==========================================
+// ESCROW / PAYMENT RELEASE
+// ==========================================
+
+public function escrowQueue()
+{
+    $db = \Config\Database::connect();
+
+    $releasable = $db->table('delivery_tracking dt')
+        ->select('dt.id as tracking_id, dt.confirmed_at, o.id as order_id, o.order_number, o.total_amount, o.created_at as order_date, p.id as payment_id, p.amount, p.platform_fee, p.store_owner_amount, p.status as payment_status, p.escrow_held, t.store_name, c.first_name, c.last_name')
+        ->join('orders o', 'o.id = dt.order_id')
+        ->join('payments p', 'p.order_id = o.id')
+        ->join('tenants t', 't.id = o.tenant_id')
+        ->join('customers c', 'c.id = o.customer_id')
+        ->where('dt.confirmed_by_customer', true)
+        ->where('p.escrow_held', true)
+        ->orderBy('dt.confirmed_at', 'ASC')
+        ->get()
+        ->getResultArray();
+
+    return view('admin/escrow_queue', ['releasable' => $releasable]);
+}
+
+public function releasePayment($paymentId)
+{
+    $paymentModel = new PaymentModel();
+    $payment = $paymentModel->find($paymentId);
+
+    if (!$payment) {
+        return redirect()->to('/admin/escrow-queue')->with('error', 'Payment not found.');
+    }
+
+    if (!$payment['escrow_held']) {
+        return redirect()->to('/admin/escrow-queue')->with('error', 'This payment has already been released.');
+    }
+
+    $paymentModel->update($paymentId, [
+        'status' => 'released',
+        'escrow_held' => false,
+        'escrow_released_at' => date('Y-m-d H:i:s'),
+        'released_at' => date('Y-m-d H:i:s'),
+    ]);
+
+    return redirect()->to('/admin/escrow-queue')->with('success', 'Payment released to store owner successfully!');
+}
 
     public function __construct()
     {
@@ -24,6 +75,9 @@ class AdminController extends BaseController
         $this->storeRequestModel = new StoreRequestModel();
         $this->tenantModel = new TenantModel();
         $this->systemUserModel = new SystemUserModel();
+        $this->paymentModel = new PaymentModel();
+        $this->orderModel = new OrderModel();
+        $this->deliveryTrackingModel = new DeliveryTrackingModel();
     }
 
     // ==========================================

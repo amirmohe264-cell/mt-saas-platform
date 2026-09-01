@@ -8,12 +8,13 @@ class OrderItemModel extends Model
 {
     protected $table = 'order_items';
     protected $primaryKey = 'id';
-    protected $allowedFields = [
-        'order_id',
-        'product_id',
-        'quantity',
-        'price',
-        'total',          // ✅ ADD THIS
-    ];
+ protected $allowedFields = [
+    'order_id',
+    'product_id',
+    'product_name',   // ← add this
+    'quantity',
+    'price',
+    'total',
+];
     protected $useTimestamps = false;
 }

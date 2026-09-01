@@ -884,6 +884,63 @@
             }, 500);
         }, 4000);
     }
+    // ============================================
+// ADD TO WISHLIST - SAVES TO DATABASE
+// ============================================
+function addToWishlist(productId) {
+    if (!productId) {
+        showToast('❌ Product ID not found.', 'error');
+        return;
+    }
+
+    fetch('/wishlist/add', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            product_id: productId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('❤️ ' + data.message, 'success');
+            updateWishlistBadge();
+        } else {
+            if (data.message === 'Item already in your wishlist') {
+                showToast('ℹ️ Already in wishlist', 'info');
+            } else {
+                showToast('❌ ' + data.message, 'error');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('❌ Could not add to wishlist.', 'error');
+    });
+}
+
+function updateWishlistBadge() {
+    fetch('/wishlist/count', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            var badge = document.getElementById('wishlistBadge');
+            if (badge) {
+                badge.textContent = data.count;
+                badge.style.display = data.count > 0 ? 'inline' : 'none';
+            }
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
 
     // ============================================
     // INITIALIZE
