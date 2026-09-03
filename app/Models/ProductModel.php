@@ -47,19 +47,24 @@ class ProductModel extends Model
     }
 
     // ✅ FIXED: Use true instead of 1
-    public function searchProducts($keyword)
-    {
-        if (empty($keyword)) {
-            return $this->getPublishedProducts();
-        }
-        
-        return $this->like('product_name', $keyword)
-                    ->orLike('product_description', $keyword)
-                    ->where('status', 'published')
-                    ->where('is_active', true)
-                    ->orderBy('created_at', 'DESC')
-                    ->findAll();
+ // Search published and active products
+public function searchProducts($keyword)
+{
+    if (empty(trim($keyword))) {
+        return $this->getPublishedProducts();
     }
+
+    $keyword = trim($keyword);
+
+    return $this->groupStart()
+                    ->like('product_name', $keyword)
+                    ->orLike('product_description', $keyword)
+                ->groupEnd()
+                ->where('status', 'published')
+                ->where('is_active', true)
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+}
 
     // ✅ NEW: Get best selling products (Fixes Dashboard 500 error)
     public function getBestSellingProducts($tenantId, $limit = 5)

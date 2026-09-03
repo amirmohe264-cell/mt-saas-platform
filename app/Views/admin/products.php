@@ -1,4 +1,4 @@
-<!-- app/Views/admin/stores.php -->
+<!-- app/Views/admin/products.php -->
 <?php
 // Check if user is logged in as admin
 $isLoggedIn = session()->get('is_logged_in') || session()->get('user_id');
@@ -8,6 +8,14 @@ if (!$isLoggedIn || !$isAdmin) {
     header('Location: /login');
     exit();
 }
+
+// Helper function for image URL
+function resolveAdminImageUrl($path) {
+    if (empty($path)) return 'https://via.placeholder.com/45?text=No+Img';
+    if (preg_match('#^https?://#i', $path)) return $path;
+    if (strpos($path, '/') === 0) return $path;
+    return '/' . ltrim($path, './');
+}
 ?>
 
 <!DOCTYPE html>
@@ -15,7 +23,7 @@ if (!$isLoggedIn || !$isAdmin) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Stores - ShopEase</title>
+    <title>All Products - ShopEase Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -124,25 +132,19 @@ if (!$isLoggedIn || !$isAdmin) {
 
         .main-content { padding: 20px 30px; }
 
-        .table-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e8f0e8; }
-        .btn-add {
-            background: #4caf50;
-            color: #fff;
-            border: none;
-            border-radius: 30px;
-            padding: 10px 25px;
-            font-weight: 600;
-            transition: 0.3s;
-            text-decoration: none;
-            display: inline-block;
+        .table-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e8f0e8;
         }
-        .btn-add:hover { background: #388e3c; color: #fff; }
-        .btn-edit { background: #ffc107; color: #000; border: none; border-radius: 30px; padding: 5px 15px; font-weight: 600; transition: 0.3s; text-decoration: none; display: inline-block; font-size: 0.8rem; }
-        .btn-edit:hover { background: #e0a800; color: #000; }
-        .btn-delete { background: #dc3545; color: #fff; border: none; border-radius: 30px; padding: 5px 15px; font-weight: 600; transition: 0.3s; text-decoration: none; display: inline-block; font-size: 0.8rem; }
-        .btn-delete:hover { background: #c82333; color: #fff; }
-        .btn-toggle { background: #17a2b8; color: #fff; border: none; border-radius: 30px; padding: 5px 15px; font-weight: 600; transition: 0.3s; text-decoration: none; display: inline-block; font-size: 0.8rem; }
-        .btn-toggle:hover { background: #138496; color: #fff; }
+        .product-image-small {
+            width: 45px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e8f0e8;
+        }
 
         .status-badge {
             padding: 4px 12px;
@@ -151,12 +153,9 @@ if (!$isLoggedIn || !$isAdmin) {
             font-weight: 600;
             display: inline-block;
         }
-        .status-active { background: #d4edda; color: #155724; }
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-suspended { background: #f8d7da; color: #721c24; }
-        .status-disabled { background: #e2e3e5; color: #383d41; }
-
-        .action-btns .btn { margin: 2px; }
+        .status-published { background: #d4edda; color: #155724; }
+        .status-draft { background: #fff3cd; color: #856404; }
+        .status-archived { background: #f8d7da; color: #721c24; }
 
         .filter-section {
             display: flex;
@@ -166,7 +165,7 @@ if (!$isLoggedIn || !$isAdmin) {
             gap: 10px;
             margin-bottom: 15px;
         }
-        .filter-section .store-count {
+        .filter-section .product-count {
             color: #6c757d;
             font-size: 0.9rem;
         }
@@ -227,12 +226,9 @@ if (!$isLoggedIn || !$isAdmin) {
 </nav>
 
 <!-- Sidebar -->
-<div class="sidebar-wrapper" id="sidebarWrapper">
-    <div class="sidebar-card">
-        <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-            <span id="toggleText">Collapse</span>
-        </button>
+<button class="toggle-sidebar-btn" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
+    <i class="fas fa-bars"></i>
+</button>
 
         <div class="admin-avatar"><i class="fas fa-user-shield"></i></div>
         <div class="admin-name"><?= session()->get('full_name') ?? 'Super Admin' ?></div>
@@ -245,7 +241,7 @@ if (!$isLoggedIn || !$isAdmin) {
                 <i class="fas fa-tachometer-alt"></i>
                 <span class="menu-text">Dashboard</span>
             </li>
-            <li class="active" onclick="location.href='/admin/stores'" data-tooltip="Stores">
+            <li onclick="location.href='/admin/stores'" data-tooltip="Stores">
                 <i class="fas fa-store"></i>
                 <span class="menu-text">Stores</span>
             </li>
@@ -287,7 +283,7 @@ if (!$isLoggedIn || !$isAdmin) {
                 <i class="fas fa-shopping-bag"></i>
                 <span class="menu-text">Orders</span>
             </li>
-            <li onclick="location.href='/admin/products'" data-tooltip="Products">
+            <li class="active" onclick="location.href='/admin/products'" data-tooltip="Products">
                 <i class="fas fa-box"></i>
                 <span class="menu-text">Products</span>
             </li>
@@ -315,17 +311,17 @@ if (!$isLoggedIn || !$isAdmin) {
     <div class="container-fluid px-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
-                <h2><i class="fas fa-store me-2 text-success"></i>Manage Stores</h2>
+                <h2><i class="fas fa-box me-2 text-success"></i>All Products</h2>
                 <nav class="breadcrumb">
                     <a href="/">Home</a>
                     <span class="mx-2">/</span>
                     <a href="/admin/dashboard">Dashboard</a>
                     <span class="mx-2">/</span>
-                    <span class="text-muted">Stores</span>
+                    <span class="text-muted">Products</span>
                 </nav>
             </div>
             <div>
-                <a href="/admin/store/create" class="btn-add"><i class="fas fa-plus me-2"></i>Add Store</a>
+                <span class="text-muted">Total Products: <?= count($products ?? []) ?></span>
             </div>
         </div>
     </div>
@@ -336,14 +332,8 @@ if (!$isLoggedIn || !$isAdmin) {
     <div class="container-fluid px-4">
 
         <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success alert-dismissible fade show" id="successAlert">
+            <div class="alert alert-success alert-dismissible fade show">
                 <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
-                <?php if (strpos(session()->getFlashdata('success'), 'Password:') !== false): ?>
-                    <br>
-                    <button class="btn btn-sm btn-outline-success mt-2" onclick="copyPassword()">
-                        <i class="fas fa-copy me-1"></i>Copy Password
-                    </button>
-                <?php endif; ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
@@ -355,43 +345,32 @@ if (!$isLoggedIn || !$isAdmin) {
             </div>
         <?php endif; ?>
 
-        <?php if (session()->getFlashdata('warning')): ?>
-            <div class="alert alert-warning alert-dismissible fade show">
-                <i class="fas fa-exclamation-triangle me-2"></i><?= session()->getFlashdata('warning') ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <?php endif; ?>
-
         <div class="table-card">
-            <!-- Filter Section - FIXED with null coalescing -->
+            <!-- Filter Section -->
             <div class="filter-section">
-                <div class="store-count">
-                    <i class="fas fa-store me-1"></i>
-                    <?= count($tenants ?? []) ?> stores found
-                    <?php if (!empty($statusFilter ?? '')): ?>
-                        <span class="text-muted">(filtered by: <strong><?= ucfirst($statusFilter ?? '') ?></strong>)</span>
+                <div class="product-count">
+                    <i class="fas fa-box me-1"></i>
+                    <?= count($products ?? []) ?> products found
+                    <?php if (!empty($statusFilter)): ?>
+                        <span class="text-muted">(filtered by: <strong><?= ucfirst($statusFilter) ?></strong>)</span>
                     <?php endif; ?>
                 </div>
                 <div class="filter-actions">
-                    <a href="/admin/stores" class="btn-filter <?= empty($statusFilter ?? '') ? 'active' : '' ?>">
+                    <a href="/admin/products" class="btn-filter <?= empty($statusFilter) ? 'active' : '' ?>">
                         <i class="fas fa-list me-1"></i>All
-                        <span class="badge bg-secondary text-white"><?= $totalStores ?? 0 ?></span>
+                        <span class="badge bg-secondary text-white"><?= $totalProducts ?? 0 ?></span>
                     </a>
-                    <a href="/admin/stores?status=active" class="btn-filter <?= ($statusFilter ?? '') === 'active' ? 'active' : '' ?>">
-                        <i class="fas fa-check-circle me-1"></i>Active
-                        <span class="badge bg-success text-white"><?= $statusCounts['active'] ?? 0 ?></span>
+                    <a href="/admin/products?status=published" class="btn-filter <?= $statusFilter === 'published' ? 'active' : '' ?>">
+                        <i class="fas fa-check-circle me-1"></i>Published
+                        <span class="badge bg-success text-white"><?= $statusCounts['published'] ?? 0 ?></span>
                     </a>
-                    <a href="/admin/stores?status=pending" class="btn-filter <?= ($statusFilter ?? '') === 'pending' ? 'active' : '' ?>">
-                        <i class="fas fa-clock me-1"></i>Pending
-                        <span class="badge bg-warning text-dark"><?= $statusCounts['pending'] ?? 0 ?></span>
+                    <a href="/admin/products?status=draft" class="btn-filter <?= $statusFilter === 'draft' ? 'active' : '' ?>">
+                        <i class="fas fa-pen me-1"></i>Draft
+                        <span class="badge bg-warning text-dark"><?= $statusCounts['draft'] ?? 0 ?></span>
                     </a>
-                    <a href="/admin/stores?status=suspended" class="btn-filter <?= ($statusFilter ?? '') === 'suspended' ? 'active' : '' ?>">
-                        <i class="fas fa-ban me-1"></i>Suspended
-                        <span class="badge bg-danger text-white"><?= $statusCounts['suspended'] ?? 0 ?></span>
-                    </a>
-                    <a href="/admin/stores?status=disabled" class="btn-filter <?= ($statusFilter ?? '') === 'disabled' ? 'active' : '' ?>">
-                        <i class="fas fa-times-circle me-1"></i>Disabled
-                        <span class="badge bg-secondary text-white"><?= $statusCounts['disabled'] ?? 0 ?></span>
+                    <a href="/admin/products?status=archived" class="btn-filter <?= $statusFilter === 'archived' ? 'active' : '' ?>">
+                        <i class="fas fa-archive me-1"></i>Archived
+                        <span class="badge bg-danger text-white"><?= $statusCounts['archived'] ?? 0 ?></span>
                     </a>
                 </div>
             </div>
@@ -400,65 +379,63 @@ if (!$isLoggedIn || !$isAdmin) {
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Store Name</th>
-                            <th>Owner</th>
-                            <th>Email</th>
-                            <th>Phone</th>
+                            <th>Image</th>
+                            <th>Product</th>
+                            <th>Store</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (isset($tenants) && !empty($tenants)): ?>
-                            <?php $count = 1; ?>
-                            <?php foreach ($tenants as $tenant): ?>
+                        <?php if (!empty($products)): ?>
+                            <?php foreach ($products as $product): ?>
                                 <tr>
-                                    <td><?= $count++ ?></td>
                                     <td>
-                                        <strong><?= esc($tenant['store_name']) ?></strong>
-                                        <?php if (!empty($tenant['store_description'])): ?>
+                                        <img src="<?= resolveAdminImageUrl($product['product_image'] ?? '') ?>" 
+                                             class="product-image-small" 
+                                             alt="<?= esc($product['product_name']) ?>">
+                                    </td>
+                                    <td>
+                                        <strong><?= esc($product['product_name']) ?></strong>
+                                        <?php if (!empty($product['product_description'])): ?>
                                             <br>
-                                            <small class="text-muted"><?= esc(substr($tenant['store_description'], 0, 40)) ?>...</small>
+                                            <small class="text-muted"><?= esc(substr($product['product_description'], 0, 50)) ?>...</small>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?= esc($tenant['owner_name'] ?? 'No owner') ?></td>
-                                    <td><?= esc($tenant['owner_email'] ?? 'No email') ?></td>
-                                    <td><?= esc($tenant['contact_phone'] ?? 'N/A') ?></td>
+                                    <td><?= esc($product['store_name'] ?? 'N/A') ?></td>
+                                    <td><?= esc($product['category_name'] ?? 'N/A') ?></td>
+                                    <td><strong>$<?= number_format($product['price'], 2) ?></strong></td>
                                     <td>
-                                        <span class="status-badge 
-                                            <?= ($tenant['status'] ?? 'pending') === 'active' ? 'status-active' : '' ?>
-                                            <?= ($tenant['status'] ?? 'pending') === 'pending' ? 'status-pending' : '' ?>
-                                            <?= ($tenant['status'] ?? 'pending') === 'suspended' ? 'status-suspended' : '' ?>
-                                            <?= ($tenant['status'] ?? 'pending') === 'disabled' ? 'status-disabled' : '' ?>">
-                                            <?= ucfirst($tenant['status'] ?? 'Pending') ?>
+                                        <?php if (($product['quantity'] ?? 0) > 10): ?>
+                                            <span class="badge bg-success"><?= $product['quantity'] ?> in stock</span>
+                                        <?php elseif (($product['quantity'] ?? 0) > 0): ?>
+                                            <span class="badge bg-warning text-dark"><?= $product['quantity'] ?> in stock</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-danger">Out of stock</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-<?= strtolower($product['status'] ?? 'draft') ?>">
+                                            <?= ucfirst($product['status'] ?? 'Draft') ?>
                                         </span>
                                     </td>
-                                    <td class="action-btns">
-                                        <a href="/admin/store/edit/<?= $tenant['id'] ?>" class="btn-edit" title="Edit Store">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </a>
-                                        <a href="/admin/store/suspend/<?= $tenant['id'] ?>" 
-                                           class="btn-toggle" 
-                                           title="<?= ($tenant['status'] ?? '') === 'suspended' ? 'Activate' : 'Suspend' ?>" 
-                                           onclick="return confirm('Are you sure you want to <?= ($tenant['status'] ?? '') === 'suspended' ? 'activate' : 'suspend' ?> this store?')">
-                                            <i class="fas <?= ($tenant['status'] ?? '') === 'suspended' ? 'fa-undo' : 'fa-ban' ?>"></i> 
-                                            <?= ($tenant['status'] ?? '') === 'suspended' ? 'Activate' : 'Suspend' ?>
-                                        </a>
-                                        <a href="/admin/store/delete/<?= $tenant['id'] ?>" 
-                                           class="btn-delete" 
-                                           title="Delete Store" 
-                                           onclick="return confirm('Are you sure you want to delete this store? This action cannot be undone! All products and data will be lost.')">
-                                            <i class="fas fa-trash"></i> Delete
+                                    <td>
+                                        <a href="/admin/products/delete/<?= $product['id'] ?>" 
+                                           class="btn btn-sm btn-outline-danger" 
+                                           onclick="return confirm('Delete this product from the platform? This cannot be undone.')">
+                                            <i class="fas fa-trash"></i>
                                         </a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="7" class="text-center py-4">
-                                    <i class="fas fa-store fa-3x text-muted mb-3 d-block"></i>
-                                    <p class="text-muted">No stores found. Click "Add Store" to create your first store.</p>
+                                <td colspan="8" class="text-center py-4">
+                                    <i class="fas fa-box-open fa-3x text-muted mb-3 d-block"></i>
+                                    <p class="text-muted">No products found.</p>
                                 </td>
                             </tr>
                         <?php endif; ?>
@@ -478,25 +455,6 @@ if (!$isLoggedIn || !$isAdmin) {
         wrapper.classList.toggle('collapsed');
         body.classList.toggle('sidebar-collapsed');
         toggleText.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
-    }
-
-    function copyPassword() {
-        var alertText = document.getElementById('successAlert').innerText;
-        var match = alertText.match(/Password:\s*([a-zA-Z0-9!@#$%^&*()]+)/);
-        if (match) {
-            var password = match[1];
-            navigator.clipboard.writeText(password).then(function() {
-                alert('✅ Password copied: ' + password);
-            }, function() {
-                var textarea = document.createElement('textarea');
-                textarea.value = password;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                alert('✅ Password copied: ' + password);
-            });
-        }
     }
 </script>
 </body>

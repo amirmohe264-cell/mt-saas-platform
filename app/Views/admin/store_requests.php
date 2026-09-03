@@ -1,3 +1,15 @@
+<!-- app/Views/admin/store_requests.php -->
+<?php
+// Check if user is logged in as admin
+$isLoggedIn = session()->get('is_logged_in') || session()->get('user_id');
+$isAdmin = session()->get('is_admin') || session()->get('role') === 'admin' || session()->get('role') === 'super_admin';
+
+if (!$isLoggedIn || !$isAdmin) {
+    header('Location: /login');
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,105 +19,420 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { padding-top: 80px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; }
-        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: #1a2e1a !important; padding: 15px 0; transition: all 0.3s ease; box-shadow: 0 2px 20px rgba(0,0,0,0.3); }
-        .navbar-scrolled { background: rgba(26, 46, 26, 0.88) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 30px rgba(0,0,0,0.5); padding: 8px 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            padding-left: 280px;
+            padding-top: 80px;
+            transition: padding-left 0.3s ease;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: #1a2e1a !important;
+            padding: 15px 0;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1050;
+        }
         .navbar-brand { color: #fff !important; font-weight: bold; font-size: 1.5rem; }
         .navbar-brand i { color: #4caf50; }
-        .navbar .nav-link { color: #d4d4d4 !important; font-weight: 500; transition: 0.3s; }
-        .navbar .nav-link:hover { color: #4caf50 !important; }
-        .icon-btn { color: #d4d4d4; font-size: 1.2rem; margin: 0 8px; transition: 0.3s; background: none; border: none; }
-        .icon-btn:hover { color: #4caf50; transform: scale(1.1); }
-        .page-header { background: #1a2e1a; color: #fff; padding: 40px 0 30px; }
-        .page-header h2 { font-weight: 700; }
+        .icon-btn { color: #d4d4d4; font-size: 1.2rem; margin: 0 8px; background: none; border: none; text-decoration: none; }
+        .icon-btn:hover { color: #4caf50; }
+
+        .sidebar-wrapper {
+            position: fixed;
+            top: 80px; left: 0;
+            width: 280px;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            background: #fff;
+            border-right: 1px solid #e8f0e8;
+            padding: 20px 15px;
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+        .sidebar-wrapper::-webkit-scrollbar { width: 4px; }
+        .sidebar-wrapper::-webkit-scrollbar-thumb { background: #4caf50; border-radius: 4px; }
+        .sidebar-wrapper::-webkit-scrollbar-track { background: #e8f0e8; }
+
+        .sidebar-wrapper.collapsed { width: 70px; }
+        .sidebar-wrapper.collapsed .admin-name,
+        .sidebar-wrapper.collapsed .admin-role,
+        .sidebar-wrapper.collapsed .sidebar-category { display: none; }
+        .sidebar-wrapper.collapsed .sidebar-menu li { padding: 10px; justify-content: center; }
+        .sidebar-wrapper.collapsed .sidebar-menu li .menu-text { display: none; }
+        .sidebar-wrapper.collapsed .sidebar-menu li i { margin-right: 0; font-size: 1.2rem; }
+        .sidebar-wrapper.collapsed .sidebar-menu li { position: relative; }
+        .sidebar-wrapper.collapsed .sidebar-menu li:hover::after {
+            content: attr(data-tooltip);
+            position: absolute; left: 100%; top: 50%; transform: translateY(-50%);
+            background: #1a2e1a; color: #fff; padding: 5px 12px; border-radius: 6px;
+            font-size: 0.8rem; white-space: nowrap; z-index: 999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2); margin-left: 8px;
+        }
+        .sidebar-wrapper.collapsed .admin-avatar { width: 45px; height: 45px; font-size: 1.2rem; }
+
+        body.sidebar-collapsed { padding-left: 70px; }
+
+        .sidebar-card .admin-avatar {
+            width: 70px; height: 70px; border-radius: 50%;
+            background: #4caf50; color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; margin: 0 auto 10px;
+            transition: all 0.3s ease;
+        }
+        .sidebar-card .admin-name { text-align: center; font-weight: 700; color: #1a2e1a; font-size: 1rem; }
+        .sidebar-card .admin-role { text-align: center; font-size: 0.8rem; }
+
+        .toggle-sidebar-btn {
+            background: #4caf50; color: #fff; border: none; border-radius: 8px;
+            padding: 8px 12px; font-size: 1rem; cursor: pointer; width: 100%;
+            margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .toggle-sidebar-btn:hover { background: #388e3c; }
+
+        .sidebar-category {
+            font-size: 0.65rem; font-weight: 700; color: #aaa;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            padding: 15px 10px 5px; border-top: 1px solid #f0f0f0; margin-top: 5px;
+        }
+        .sidebar-category:first-child { border-top: none; margin-top: 0; padding-top: 5px; }
+
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
+        .sidebar-menu li {
+            padding: 10px 12px; border-radius: 8px; cursor: pointer;
+            color: #555; font-size: 0.9rem; display: flex; align-items: center;
+            transition: all 0.3s ease;
+        }
+        .sidebar-menu li:hover { background: #f0f8f0; color: #4caf50; }
+        .sidebar-menu li.active { background: #f0f8f0; color: #4caf50; font-weight: 600; }
+        .sidebar-menu li i { margin-right: 12px; width: 20px; text-align: center; font-size: 1rem; }
+        .sidebar-menu li .menu-text { flex: 1; }
+        .sidebar-menu li a { color: inherit; text-decoration: none; display: flex; align-items: center; width: 100%; }
+
+        .page-header {
+            background: #f8f9fa; color: #1a2e1a; padding: 20px 0;
+            border-bottom: 1px solid #e8f0e8;
+        }
+        .page-header h2 { font-weight: 700; color: #1a2e1a; }
         .page-header .breadcrumb { background: none; padding: 0; margin: 0; }
         .page-header .breadcrumb a { color: #4caf50; text-decoration: none; }
-        .page-header .breadcrumb .active { color: #aaa; }
-        .request-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e8f0e8; margin-bottom: 15px; transition: 0.3s; }
-        .request-card:hover { border-color: #4caf50; box-shadow: 0 2px 15px rgba(0,0,0,0.05); }
-        .request-card .store-name { font-size: 1.1rem; font-weight: 700; color: #1a2e1a; }
-        .request-card .owner-info { color: #555; font-size: 0.95rem; }
-        .request-card .request-date { color: #888; font-size: 0.85rem; }
-        .badge-pending { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.75rem; }
-        .badge-approved { background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.75rem; }
-        .badge-rejected { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.75rem; }
-        .btn-approve { background: #28a745; color: #fff; border: none; border-radius: 30px; padding: 6px 20px; font-weight: 600; transition: 0.3s; }
+        .page-header .breadcrumb .active { color: #888; }
+
+        .main-content { padding: 20px 30px; }
+
+        .request-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e8f0e8;
+            margin-bottom: 15px;
+            transition: 0.3s;
+        }
+        .request-card:hover {
+            border-color: #4caf50;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        }
+        .request-card .store-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a2e1a;
+        }
+        .request-card .owner-info {
+            color: #555;
+            font-size: 0.95rem;
+        }
+        .request-card .request-date {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .badge-pending {
+            background: #fff3cd;
+            color: #856404;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            display: inline-block;
+        }
+        .badge-approved {
+            background: #d4edda;
+            color: #155724;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            display: inline-block;
+        }
+        .badge-rejected {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            display: inline-block;
+        }
+
+        .btn-approve {
+            background: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 6px 20px;
+            font-weight: 600;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.8rem;
+        }
         .btn-approve:hover { background: #1e7e34; color: #fff; }
-        .btn-reject { background: #dc3545; color: #fff; border: none; border-radius: 30px; padding: 6px 20px; font-weight: 600; transition: 0.3s; }
+
+        .btn-reject {
+            background: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 6px 20px;
+            font-weight: 600;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.8rem;
+        }
         .btn-reject:hover { background: #bd2130; color: #fff; }
-        .btn-view { background: #17a2b8; color: #fff; border: none; border-radius: 30px; padding: 6px 20px; font-weight: 600; transition: 0.3s; }
+
+        .btn-view {
+            background: #17a2b8;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 6px 20px;
+            font-weight: 600;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.8rem;
+        }
         .btn-view:hover { background: #117a8b; color: #fff; }
-        .footer { background: #1a2e1a; color: #d4d4d4; padding: 40px 0 20px; margin-top: 40px; }
-        .footer h5 { color: #fff; font-weight: 600; }
-        .footer a { color: #aaa; text-decoration: none; transition: 0.3s; }
-        .footer a:hover { color: #4caf50; }
-        .empty-state { text-align: center; padding: 60px 0; }
+
+        .nav-tabs .nav-link {
+            color: #555;
+            font-weight: 500;
+        }
+        .nav-tabs .nav-link.active {
+            color: #4caf50;
+            border-color: #4caf50 #4caf50 #fff;
+        }
+        .nav-tabs .nav-link:hover {
+            border-color: #e8f0e8;
+        }
+
+        .action-btns .btn { margin: 2px; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 0;
+        }
         .empty-state i { font-size: 4rem; color: #ddd; margin-bottom: 20px; }
         .empty-state h5 { color: #1a2e1a; }
         .empty-state p { color: #888; }
-        .nav-tabs .nav-link { color: #555; font-weight: 500; }
-        .nav-tabs .nav-link.active { color: #4caf50; border-color: #4caf50 #4caf50 #fff; }
-        .nav-tabs .nav-link:hover { border-color: #e8f0e8; }
-        .action-btns .btn { margin: 2px; }
+
+        .filter-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .filter-section .request-count {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 992px) {
+            body { padding-left: 0; }
+            .sidebar-wrapper { position: relative; top: 0; width: 100%; height: auto; border-right: none; border-bottom: 1px solid #e8f0e8; }
+            .sidebar-wrapper.collapsed { width: 100%; }
+            .sidebar-wrapper.collapsed .sidebar-menu li { justify-content: flex-start; }
+            .sidebar-wrapper.collapsed .sidebar-menu li .menu-text { display: inline; }
+            .sidebar-wrapper.collapsed .sidebar-menu li i { margin-right: 12px; }
+            .sidebar-wrapper.collapsed .admin-name,
+            .sidebar-wrapper.collapsed .admin-role,
+            .sidebar-wrapper.collapsed .sidebar-category { display: block; }
+            body.sidebar-collapsed { padding-left: 0; }
+            .main-content { padding: 15px; }
+            .request-card .row > div {
+                margin-bottom: 8px;
+            }
+            .request-card .text-end {
+                text-align: left !important;
+            }
+        }
     </style>
 </head>
-<body>
+<body id="mainBody">
 
-<nav class="navbar navbar-expand-lg fixed-top">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
     <div class="container">
         <a class="navbar-brand" href="/"><i class="fas fa-store"></i> ShopEase</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link active" href="#">Store Requests</a></li>
-            </ul>
-            <div class="d-flex align-items-center">
-                <span class="text-white me-3"><i class="fas fa-shield-alt me-1"></i>Super Admin</span>
-                <a href="/logout" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="fas fa-sign-out-alt"></i></a>
-            </div>
+        <div class="d-flex align-items-center ms-auto">
+            <span class="text-white me-3 d-none d-md-inline"><i class="fas fa-shield-alt me-1"></i>Super Admin</span>
+            <a href="/logout" class="icon-btn"><i class="fas fa-sign-out-alt"></i></a>
         </div>
     </div>
 </nav>
 
+<!-- Sidebar -->
+<div class="sidebar-wrapper" id="sidebarWrapper">
+    <div class="sidebar-card">
+        <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+            <span id="toggleText">Collapse</span>
+        </button>
+
+        <div class="admin-avatar"><i class="fas fa-user-shield"></i></div>
+        <div class="admin-name"><?= session()->get('full_name') ?? 'Super Admin' ?></div>
+        <div class="admin-role"><span class="badge bg-success">Super Admin</span></div>
+
+        <!-- MANAGEMENT -->
+        <div class="sidebar-category">Management</div>
+        <ul class="sidebar-menu">
+            <li onclick="location.href='/admin/dashboard'" data-tooltip="Dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span class="menu-text">Dashboard</span>
+            </li>
+            <li onclick="location.href='/admin/stores'" data-tooltip="Stores">
+                <i class="fas fa-store"></i>
+                <span class="menu-text">Stores</span>
+            </li>
+            <li class="active" onclick="location.href='/admin/store-requests'" data-tooltip="Store Requests">
+                <i class="fas fa-store"></i>
+                <span class="menu-text">Store Requests</span>
+            </li>
+            <li onclick="location.href='/admin/categories'" data-tooltip="Categories">
+                <i class="fas fa-tags"></i>
+                <span class="menu-text">Categories</span>
+            </li>
+            <li onclick="location.href='/admin/users'" data-tooltip="Users">
+                <i class="fas fa-users"></i>
+                <span class="menu-text">Users</span>
+            </li>
+        </ul>
+
+        <!-- FINANCE -->
+        <div class="sidebar-category">Finance</div>
+        <ul class="sidebar-menu">
+            <li onclick="location.href='/admin/payment-gateways'" data-tooltip="Payments">
+                <i class="fas fa-credit-card"></i>
+                <span class="menu-text">Payments</span>
+            </li>
+            <li onclick="location.href='/admin/escrow-queue'" data-tooltip="Escrow Releases">
+                <i class="fas fa-hand-holding-usd"></i>
+                <span class="menu-text">Escrow Releases</span>
+            </li>
+            <li onclick="location.href='/admin/analytics'" data-tooltip="Analytics">
+                <i class="fas fa-chart-bar"></i>
+                <span class="menu-text">Analytics</span>
+            </li>
+        </ul>
+
+        <!-- ORDERS & PRODUCTS -->
+        <div class="sidebar-category">Orders & Products</div>
+        <ul class="sidebar-menu">
+            <li onclick="location.href='/admin/orders'" data-tooltip="Orders">
+                <i class="fas fa-shopping-bag"></i>
+                <span class="menu-text">Orders</span>
+            </li>
+            <li onclick="location.href='/admin/products'" data-tooltip="Products">
+                <i class="fas fa-box"></i>
+                <span class="menu-text">Products</span>
+            </li>
+        </ul>
+
+        <!-- SETTINGS -->
+        <div class="sidebar-category">Settings</div>
+        <ul class="sidebar-menu">
+            <li onclick="location.href='/admin/settings'" data-tooltip="Settings">
+                <i class="fas fa-cog"></i>
+                <span class="menu-text">System Settings</span>
+            </li>
+            <li>
+                <a href="/logout" data-tooltip="Logout">
+                    <i class="fas fa-sign-out-alt text-danger"></i>
+                    <span class="menu-text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Page Header -->
 <section class="page-header">
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center">
+    <div class="container-fluid px-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
-                <h2><i class="fas fa-store me-2"></i>Store Requests</h2>
+                <h2><i class="fas fa-store me-2 text-success"></i>Store Requests</h2>
                 <nav class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="mx-2">/</span>
                     <a href="/admin/dashboard">Dashboard</a>
-                    <span class="mx-2 text-white-50">/</span>
-                    <span class="active">Store Requests</span>
+                    <span class="mx-2">/</span>
+                    <span class="text-muted">Store Requests</span>
                 </nav>
             </div>
             <div>
-                <span class="text-white-50">Manage store owner applications</span>
+                <span class="text-muted">Manage store owner applications</span>
             </div>
         </div>
     </div>
 </section>
 
-<section class="py-4">
-    <div class="container">
+<!-- Main Content -->
+<section class="main-content">
+    <div class="container-fluid px-4">
+
         <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success" id="successAlert">
-                <?= session()->getFlashdata('success') ?>
+            <div class="alert alert-success alert-dismissible fade show" id="successAlert">
+                <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
                 <?php if (strpos(session()->getFlashdata('success'), 'Password:') !== false): ?>
                     <br>
                     <button class="btn btn-sm btn-outline-success mt-2" onclick="copyPassword()">
                         <i class="fas fa-copy me-1"></i>Copy Password
                     </button>
                 <?php endif; ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
+
         <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
+            <div class="alert alert-danger alert-dismissible fade show">
+                <i class="fas fa-exclamation-circle me-2"></i><?= session()->getFlashdata('error') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+
+        <?php if (session()->getFlashdata('warning')): ?>
+            <div class="alert alert-warning alert-dismissible fade show">
+                <i class="fas fa-exclamation-triangle me-2"></i><?= session()->getFlashdata('warning') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
         <?php endif; ?>
 
         <div class="bg-white rounded-3 p-4 border">
+            <div class="filter-section">
+                <div class="request-count">
+                    <i class="fas fa-store me-1"></i>
+                    Total Requests: <?= (isset($pendingRequests) ? count($pendingRequests) : 0) + (isset($approvedRequests) ? count($approvedRequests) : 0) + (isset($rejectedRequests) ? count($rejectedRequests) : 0) ?>
+                </div>
+            </div>
+
             <ul class="nav nav-tabs mb-4" id="requestTabs">
                 <li class="nav-item">
                     <a class="nav-link active" data-bs-toggle="tab" href="#pending">
@@ -135,23 +462,41 @@
                             <div class="request-card">
                                 <div class="row align-items-center">
                                     <div class="col-md-4">
-                                        <div class="store-name"><i class="fas fa-store text-success me-2"></i><?= esc($request['store_name']) ?></div>
-                                        <div class="owner-info"><i class="fas fa-user me-2"></i><?= esc($request['owner_name']) ?></div>
+                                        <div class="store-name">
+                                            <i class="fas fa-store text-success me-2"></i><?= esc($request['store_name']) ?>
+                                        </div>
+                                        <div class="owner-info">
+                                            <i class="fas fa-user me-2"></i><?= esc($request['owner_name']) ?>
+                                        </div>
                                     </div>
                                     <div class="col-md-3">
-                                        <div class="owner-info"><i class="fas fa-envelope me-2"></i><?= esc($request['owner_email']) ?></div>
-                                        <div class="owner-info"><i class="fas fa-phone me-2"></i><?= esc($request['owner_phone']) ?></div>
+                                        <div class="owner-info">
+                                            <i class="fas fa-envelope me-2"></i><?= esc($request['owner_email']) ?>
+                                        </div>
+                                        <div class="owner-info">
+                                            <i class="fas fa-phone me-2"></i><?= esc($request['owner_phone']) ?>
+                                        </div>
                                     </div>
                                     <div class="col-md-2">
                                         <span class="badge-pending"><i class="fas fa-clock me-1"></i>Pending</span>
-                                        <div class="request-date mt-1"><?= date('M d, Y', strtotime($request['created_at'])) ?></div>
+                                        <div class="request-date mt-1">
+                                            <i class="fas fa-calendar me-1"></i><?= date('M d, Y', strtotime($request['created_at'])) ?>
+                                        </div>
                                     </div>
                                     <div class="col-md-3 text-end action-btns">
-                                        <a href="/admin/store-request/<?= $request['id'] ?>" class="btn-view btn-sm"><i class="fas fa-eye me-1"></i>View</a>
-                                        <a href="/admin/store-request/approve/<?= $request['id'] ?>" class="btn-approve btn-sm" onclick="return confirm('Approve this store request?')">
-    <i class="fas fa-check me-1"></i>Approve
-</a>
-                                        <a href="/admin/store-request/reject/<?= $request['id'] ?>" class="btn-reject btn-sm" onclick="return confirm('Reject this store request?')"><i class="fas fa-times me-1"></i>Reject</a>
+                                        <a href="/admin/store-request/<?= $request['id'] ?>" class="btn-view">
+                                            <i class="fas fa-eye me-1"></i>View
+                                        </a>
+                                        <a href="/admin/store-request/approve/<?= $request['id'] ?>" 
+                                           class="btn-approve" 
+                                           onclick="return confirm('Approve this store request? This will create a new store and send login credentials.')">
+                                            <i class="fas fa-check me-1"></i>Approve
+                                        </a>
+                                        <a href="/admin/store-request/reject/<?= $request['id'] ?>" 
+                                           class="btn-reject" 
+                                           onclick="return confirm('Reject this store request? The owner will be notified.')">
+                                            <i class="fas fa-times me-1"></i>Reject
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -172,19 +517,31 @@
                             <div class="request-card">
                                 <div class="row align-items-center">
                                     <div class="col-md-4">
-                                        <div class="store-name"><i class="fas fa-store text-success me-2"></i><?= esc($request['store_name']) ?></div>
-                                        <div class="owner-info"><i class="fas fa-user me-2"></i><?= esc($request['owner_name']) ?></div>
+                                        <div class="store-name">
+                                            <i class="fas fa-store text-success me-2"></i><?= esc($request['store_name']) ?>
+                                        </div>
+                                        <div class="owner-info">
+                                            <i class="fas fa-user me-2"></i><?= esc($request['owner_name']) ?>
+                                        </div>
                                     </div>
                                     <div class="col-md-3">
-                                        <div class="owner-info"><i class="fas fa-envelope me-2"></i><?= esc($request['owner_email']) ?></div>
-                                        <div class="owner-info"><i class="fas fa-phone me-2"></i><?= esc($request['owner_phone']) ?></div>
+                                        <div class="owner-info">
+                                            <i class="fas fa-envelope me-2"></i><?= esc($request['owner_email']) ?>
+                                        </div>
+                                        <div class="owner-info">
+                                            <i class="fas fa-phone me-2"></i><?= esc($request['owner_phone']) ?>
+                                        </div>
                                     </div>
                                     <div class="col-md-2">
                                         <span class="badge-approved"><i class="fas fa-check-circle me-1"></i>Approved</span>
-                                        <div class="request-date mt-1"><?= date('M d, Y', strtotime($request['updated_at'])) ?></div>
+                                        <div class="request-date mt-1">
+                                            <i class="fas fa-calendar me-1"></i><?= date('M d, Y', strtotime($request['updated_at'] ?? $request['created_at'])) ?>
+                                        </div>
                                     </div>
                                     <div class="col-md-3 text-end">
-                                        <a href="/admin/store-request/<?= $request['id'] ?>" class="btn-view btn-sm"><i class="fas fa-eye me-1"></i>View</a>
+                                        <a href="/admin/store-request/<?= $request['id'] ?>" class="btn-view">
+                                            <i class="fas fa-eye me-1"></i>View
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -205,19 +562,31 @@
                             <div class="request-card">
                                 <div class="row align-items-center">
                                     <div class="col-md-4">
-                                        <div class="store-name"><i class="fas fa-store text-danger me-2"></i><?= esc($request['store_name']) ?></div>
-                                        <div class="owner-info"><i class="fas fa-user me-2"></i><?= esc($request['owner_name']) ?></div>
+                                        <div class="store-name">
+                                            <i class="fas fa-store text-danger me-2"></i><?= esc($request['store_name']) ?>
+                                        </div>
+                                        <div class="owner-info">
+                                            <i class="fas fa-user me-2"></i><?= esc($request['owner_name']) ?>
+                                        </div>
                                     </div>
                                     <div class="col-md-3">
-                                        <div class="owner-info"><i class="fas fa-envelope me-2"></i><?= esc($request['owner_email']) ?></div>
-                                        <div class="owner-info"><i class="fas fa-phone me-2"></i><?= esc($request['owner_phone']) ?></div>
+                                        <div class="owner-info">
+                                            <i class="fas fa-envelope me-2"></i><?= esc($request['owner_email']) ?>
+                                        </div>
+                                        <div class="owner-info">
+                                            <i class="fas fa-phone me-2"></i><?= esc($request['owner_phone']) ?>
+                                        </div>
                                     </div>
                                     <div class="col-md-2">
                                         <span class="badge-rejected"><i class="fas fa-times-circle me-1"></i>Rejected</span>
-                                        <div class="request-date mt-1"><?= date('M d, Y', strtotime($request['updated_at'])) ?></div>
+                                        <div class="request-date mt-1">
+                                            <i class="fas fa-calendar me-1"></i><?= date('M d, Y', strtotime($request['updated_at'] ?? $request['created_at'])) ?>
+                                        </div>
                                     </div>
                                     <div class="col-md-3 text-end">
-                                        <a href="/admin/store-request/<?= $request['id'] ?>" class="btn-view btn-sm"><i class="fas fa-eye me-1"></i>View</a>
+                                        <a href="/admin/store-request/<?= $request['id'] ?>" class="btn-view">
+                                            <i class="fas fa-eye me-1"></i>View
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -235,55 +604,16 @@
     </div>
 </section>
 
-<footer class="footer">
-    <div class="container-fluid px-5">
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <h5><i class="fas fa-store text-success"></i> ShopEase</h5>
-                <p class="text-muted">Multi-Tenant SaaS E-Commerce Platform.</p>
-            </div>
-            <div class="col-md-2 mb-4">
-                <h5>Quick Links</h5>
-                <ul class="list-unstyled">
-                    <li><a href="/about">About Us</a></li>
-                    <li><a href="/contact">Contact</a></li>
-                    <li><a href="/privacy">Privacy Policy</a></li>
-                    <li><a href="/terms">Terms & Conditions</a></li>
-                </ul>
-            </div>
-            <div class="col-md-3 mb-4">
-                <h5>Customer Service</h5>
-                <ul class="list-unstyled">
-                    <li><a href="/help">Help Center</a></li>
-                    <li><a href="/returns">Returns</a></li>
-                    <li><a href="/shipping">Shipping Info</a></li>
-                    <li><a href="/track">Track Order</a></li>
-                </ul>
-            </div>
-            <div class="col-md-3 mb-4">
-                <h5>Newsletter</h5>
-                <p class="text-muted">Get the latest deals & updates</p>
-                <div class="input-group">
-                    <input type="email" class="form-control" placeholder="Your email" style="background:#2a402a;border:none;color:#fff;">
-                    <button class="btn btn-success" style="background:#4caf50;border:none;">Subscribe</button>
-                </div>
-            </div>
-        </div>
-        <hr class="border-top">
-        <p class="text-center text-muted small">&copy; 2026 ShopEase. All rights reserved.</p>
-    </div>
-</footer>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    window.addEventListener('scroll', function() {
-        var navbar = document.querySelector('.navbar');
-        if (window.scrollY > 50) {
-            navbar.classList.add('navbar-scrolled');
-        } else {
-            navbar.classList.remove('navbar-scrolled');
-        }
-    });
+    function toggleSidebar() {
+        var wrapper = document.getElementById('sidebarWrapper');
+        var body = document.getElementById('mainBody');
+        var toggleText = document.getElementById('toggleText');
+        wrapper.classList.toggle('collapsed');
+        body.classList.toggle('sidebar-collapsed');
+        toggleText.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+    }
 
     function copyPassword() {
         var alertText = document.getElementById('successAlert').innerText;

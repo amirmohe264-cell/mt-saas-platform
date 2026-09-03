@@ -345,6 +345,20 @@
     </style>
 </head>
 <body>
+    <?php
+function resolveImageUrl($path) {
+    if (empty($path)) {
+        return 'https://via.placeholder.com/300x300?text=No+Image';
+    }
+    if (preg_match('#^https?://#i', $path)) {
+        return $path;
+    }
+    if (strpos($path, '/') === 0) {
+        return $path;
+    }
+    return '/' . ltrim($path, './');
+}
+?>
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg fixed-top">
@@ -360,7 +374,19 @@
                 <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
             </ul>
             <div class="d-flex align-items-center">
-                <input class="search-box me-2" type="search" placeholder="Search for products...">
+              <form action="<?= site_url('search') ?>" method="get" class="d-flex align-items-center">
+    <input
+        class="search-box me-2"
+        type="search"
+        name="q"
+        placeholder="Search for products..."
+        value="<?= esc($searchKeyword ?? '') ?>"
+    >
+
+    <button type="submit" class="icon-btn" title="Search">
+        <i class="fas fa-search"></i>
+    </button>
+</form>
                 <button class="icon-btn"><i class="far fa-heart"></i></button>
                 <a href="/cart" class="icon-btn">
                     <i class="fas fa-shopping-cart"></i>
@@ -475,7 +501,7 @@
                                  data-price="<?= $product['price'] ?>">
                                 <div class="product-card">
                                     <div class="text-center">
-                                        <img src="<?= $product['image'] ?>" alt="<?= esc($product['name']) ?>" class="product-image">
+                                      <img src="<?= resolveImageUrl($product['image']) ?>" alt="<?= esc($product['name']) ?>" class="product-image">
                                     </div>
                                     <div class="d-flex justify-content-between mt-2">
                                         <?php if (isset($product['badges']) && !empty($product['badges'])): ?>

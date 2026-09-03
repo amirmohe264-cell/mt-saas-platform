@@ -1,4 +1,4 @@
-<!-- app/Views/admin/stores.php -->
+<!-- app/Views/admin/orders.php -->
 <?php
 // Check if user is logged in as admin
 $isLoggedIn = session()->get('is_logged_in') || session()->get('user_id');
@@ -15,7 +15,7 @@ if (!$isLoggedIn || !$isAdmin) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Stores - ShopEase</title>
+    <title>All Orders - ShopEase Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -124,25 +124,12 @@ if (!$isLoggedIn || !$isAdmin) {
 
         .main-content { padding: 20px 30px; }
 
-        .table-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e8f0e8; }
-        .btn-add {
-            background: #4caf50;
-            color: #fff;
-            border: none;
-            border-radius: 30px;
-            padding: 10px 25px;
-            font-weight: 600;
-            transition: 0.3s;
-            text-decoration: none;
-            display: inline-block;
+        .table-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e8f0e8;
         }
-        .btn-add:hover { background: #388e3c; color: #fff; }
-        .btn-edit { background: #ffc107; color: #000; border: none; border-radius: 30px; padding: 5px 15px; font-weight: 600; transition: 0.3s; text-decoration: none; display: inline-block; font-size: 0.8rem; }
-        .btn-edit:hover { background: #e0a800; color: #000; }
-        .btn-delete { background: #dc3545; color: #fff; border: none; border-radius: 30px; padding: 5px 15px; font-weight: 600; transition: 0.3s; text-decoration: none; display: inline-block; font-size: 0.8rem; }
-        .btn-delete:hover { background: #c82333; color: #fff; }
-        .btn-toggle { background: #17a2b8; color: #fff; border: none; border-radius: 30px; padding: 5px 15px; font-weight: 600; transition: 0.3s; text-decoration: none; display: inline-block; font-size: 0.8rem; }
-        .btn-toggle:hover { background: #138496; color: #fff; }
 
         .status-badge {
             padding: 4px 12px;
@@ -151,12 +138,16 @@ if (!$isLoggedIn || !$isAdmin) {
             font-weight: 600;
             display: inline-block;
         }
-        .status-active { background: #d4edda; color: #155724; }
         .status-pending { background: #fff3cd; color: #856404; }
-        .status-suspended { background: #f8d7da; color: #721c24; }
-        .status-disabled { background: #e2e3e5; color: #383d41; }
-
-        .action-btns .btn { margin: 2px; }
+        .status-confirmed { background: #cce5ff; color: #004085; }
+        .status-processing { background: #d1ecf1; color: #0c5460; }
+        .status-shipped { background: #d4edda; color: #155724; }
+        .status-delivered { background: #d4edda; color: #155724; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+        .status-refunded { background: #e2e3e5; color: #383d41; }
+        .status-paid { background: #d4edda; color: #155724; }
+        .status-failed { background: #f8d7da; color: #721c24; }
+        .status-cod { background: #e2e3e5; color: #383d41; }
 
         .filter-section {
             display: flex;
@@ -166,7 +157,7 @@ if (!$isLoggedIn || !$isAdmin) {
             gap: 10px;
             margin-bottom: 15px;
         }
-        .filter-section .store-count {
+        .filter-section .order-count {
             color: #6c757d;
             font-size: 0.9rem;
         }
@@ -245,7 +236,7 @@ if (!$isLoggedIn || !$isAdmin) {
                 <i class="fas fa-tachometer-alt"></i>
                 <span class="menu-text">Dashboard</span>
             </li>
-            <li class="active" onclick="location.href='/admin/stores'" data-tooltip="Stores">
+            <li onclick="location.href='/admin/stores'" data-tooltip="Stores">
                 <i class="fas fa-store"></i>
                 <span class="menu-text">Stores</span>
             </li>
@@ -283,7 +274,7 @@ if (!$isLoggedIn || !$isAdmin) {
         <!-- ORDERS & PRODUCTS -->
         <div class="sidebar-category">Orders & Products</div>
         <ul class="sidebar-menu">
-            <li onclick="location.href='/admin/orders'" data-tooltip="Orders">
+            <li class="active" onclick="location.href='/admin/orders'" data-tooltip="Orders">
                 <i class="fas fa-shopping-bag"></i>
                 <span class="menu-text">Orders</span>
             </li>
@@ -315,17 +306,17 @@ if (!$isLoggedIn || !$isAdmin) {
     <div class="container-fluid px-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
-                <h2><i class="fas fa-store me-2 text-success"></i>Manage Stores</h2>
+                <h2><i class="fas fa-shopping-bag me-2 text-success"></i>All Orders</h2>
                 <nav class="breadcrumb">
                     <a href="/">Home</a>
                     <span class="mx-2">/</span>
                     <a href="/admin/dashboard">Dashboard</a>
                     <span class="mx-2">/</span>
-                    <span class="text-muted">Stores</span>
+                    <span class="text-muted">Orders</span>
                 </nav>
             </div>
             <div>
-                <a href="/admin/store/create" class="btn-add"><i class="fas fa-plus me-2"></i>Add Store</a>
+                <span class="text-muted">Total Orders: <?= count($orders ?? []) ?></span>
             </div>
         </div>
     </div>
@@ -336,14 +327,8 @@ if (!$isLoggedIn || !$isAdmin) {
     <div class="container-fluid px-4">
 
         <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success alert-dismissible fade show" id="successAlert">
+            <div class="alert alert-success alert-dismissible fade show">
                 <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
-                <?php if (strpos(session()->getFlashdata('success'), 'Password:') !== false): ?>
-                    <br>
-                    <button class="btn btn-sm btn-outline-success mt-2" onclick="copyPassword()">
-                        <i class="fas fa-copy me-1"></i>Copy Password
-                    </button>
-                <?php endif; ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
@@ -355,43 +340,40 @@ if (!$isLoggedIn || !$isAdmin) {
             </div>
         <?php endif; ?>
 
-        <?php if (session()->getFlashdata('warning')): ?>
-            <div class="alert alert-warning alert-dismissible fade show">
-                <i class="fas fa-exclamation-triangle me-2"></i><?= session()->getFlashdata('warning') ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <?php endif; ?>
-
         <div class="table-card">
-            <!-- Filter Section - FIXED with null coalescing -->
+            <!-- Filter Section -->
             <div class="filter-section">
-                <div class="store-count">
-                    <i class="fas fa-store me-1"></i>
-                    <?= count($tenants ?? []) ?> stores found
-                    <?php if (!empty($statusFilter ?? '')): ?>
-                        <span class="text-muted">(filtered by: <strong><?= ucfirst($statusFilter ?? '') ?></strong>)</span>
+                <div class="order-count">
+                    <i class="fas fa-shopping-bag me-1"></i>
+                    <?= count($orders ?? []) ?> orders found
+                    <?php if (!empty($statusFilter)): ?>
+                        <span class="text-muted">(filtered by: <strong><?= ucfirst($statusFilter) ?></strong>)</span>
                     <?php endif; ?>
                 </div>
                 <div class="filter-actions">
-                    <a href="/admin/stores" class="btn-filter <?= empty($statusFilter ?? '') ? 'active' : '' ?>">
+                    <a href="/admin/orders" class="btn-filter <?= empty($statusFilter) ? 'active' : '' ?>">
                         <i class="fas fa-list me-1"></i>All
-                        <span class="badge bg-secondary text-white"><?= $totalStores ?? 0 ?></span>
+                        <span class="badge bg-secondary text-white"><?= $totalOrders ?? 0 ?></span>
                     </a>
-                    <a href="/admin/stores?status=active" class="btn-filter <?= ($statusFilter ?? '') === 'active' ? 'active' : '' ?>">
-                        <i class="fas fa-check-circle me-1"></i>Active
-                        <span class="badge bg-success text-white"><?= $statusCounts['active'] ?? 0 ?></span>
-                    </a>
-                    <a href="/admin/stores?status=pending" class="btn-filter <?= ($statusFilter ?? '') === 'pending' ? 'active' : '' ?>">
+                    <a href="/admin/orders?status=pending" class="btn-filter <?= $statusFilter === 'pending' ? 'active' : '' ?>">
                         <i class="fas fa-clock me-1"></i>Pending
                         <span class="badge bg-warning text-dark"><?= $statusCounts['pending'] ?? 0 ?></span>
                     </a>
-                    <a href="/admin/stores?status=suspended" class="btn-filter <?= ($statusFilter ?? '') === 'suspended' ? 'active' : '' ?>">
-                        <i class="fas fa-ban me-1"></i>Suspended
-                        <span class="badge bg-danger text-white"><?= $statusCounts['suspended'] ?? 0 ?></span>
+                    <a href="/admin/orders?status=processing" class="btn-filter <?= $statusFilter === 'processing' ? 'active' : '' ?>">
+                        <i class="fas fa-spinner me-1"></i>Processing
+                        <span class="badge bg-info text-white"><?= $statusCounts['processing'] ?? 0 ?></span>
                     </a>
-                    <a href="/admin/stores?status=disabled" class="btn-filter <?= ($statusFilter ?? '') === 'disabled' ? 'active' : '' ?>">
-                        <i class="fas fa-times-circle me-1"></i>Disabled
-                        <span class="badge bg-secondary text-white"><?= $statusCounts['disabled'] ?? 0 ?></span>
+                    <a href="/admin/orders?status=shipped" class="btn-filter <?= $statusFilter === 'shipped' ? 'active' : '' ?>">
+                        <i class="fas fa-truck me-1"></i>Shipped
+                        <span class="badge bg-primary text-white"><?= $statusCounts['shipped'] ?? 0 ?></span>
+                    </a>
+                    <a href="/admin/orders?status=delivered" class="btn-filter <?= $statusFilter === 'delivered' ? 'active' : '' ?>">
+                        <i class="fas fa-check-circle me-1"></i>Delivered
+                        <span class="badge bg-success text-white"><?= $statusCounts['delivered'] ?? 0 ?></span>
+                    </a>
+                    <a href="/admin/orders?status=cancelled" class="btn-filter <?= $statusFilter === 'cancelled' ? 'active' : '' ?>">
+                        <i class="fas fa-times-circle me-1"></i>Cancelled
+                        <span class="badge bg-danger text-white"><?= $statusCounts['cancelled'] ?? 0 ?></span>
                     </a>
                 </div>
             </div>
@@ -400,65 +382,57 @@ if (!$isLoggedIn || !$isAdmin) {
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Store Name</th>
-                            <th>Owner</th>
-                            <th>Email</th>
-                            <th>Phone</th>
+                            <th>Order #</th>
+                            <th>Customer</th>
+                            <th>Store</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Payment</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (isset($tenants) && !empty($tenants)): ?>
-                            <?php $count = 1; ?>
-                            <?php foreach ($tenants as $tenant): ?>
+                        <?php if (!empty($orders)): ?>
+                            <?php foreach ($orders as $order): ?>
                                 <tr>
-                                    <td><?= $count++ ?></td>
                                     <td>
-                                        <strong><?= esc($tenant['store_name']) ?></strong>
-                                        <?php if (!empty($tenant['store_description'])): ?>
-                                            <br>
-                                            <small class="text-muted"><?= esc(substr($tenant['store_description'], 0, 40)) ?>...</small>
-                                        <?php endif; ?>
+                                        <strong>#<?= esc($order['order_number']) ?></strong>
                                     </td>
-                                    <td><?= esc($tenant['owner_name'] ?? 'No owner') ?></td>
-                                    <td><?= esc($tenant['owner_email'] ?? 'No email') ?></td>
-                                    <td><?= esc($tenant['contact_phone'] ?? 'N/A') ?></td>
                                     <td>
-                                        <span class="status-badge 
-                                            <?= ($tenant['status'] ?? 'pending') === 'active' ? 'status-active' : '' ?>
-                                            <?= ($tenant['status'] ?? 'pending') === 'pending' ? 'status-pending' : '' ?>
-                                            <?= ($tenant['status'] ?? 'pending') === 'suspended' ? 'status-suspended' : '' ?>
-                                            <?= ($tenant['status'] ?? 'pending') === 'disabled' ? 'status-disabled' : '' ?>">
-                                            <?= ucfirst($tenant['status'] ?? 'Pending') ?>
+                                        <?= esc(trim(($order['first_name'] ?? '') . ' ' . ($order['last_name'] ?? '')) ?: 'N/A') ?>
+                                        <br>
+                                        <small class="text-muted"><?= esc($order['customer_email'] ?? '') ?></small>
+                                    </td>
+                                    <td><?= esc($order['store_name'] ?? 'N/A') ?></td>
+                                    <td><?= date('M d, Y', strtotime($order['created_at'])) ?></td>
+                                    <td><strong>$<?= number_format($order['total_amount'], 2) ?></strong></td>
+                                    <td>
+                                        <span class="status-badge status-<?= strtolower($order['payment_status'] ?? 'pending') ?>">
+                                            <?= ucfirst($order['payment_status'] ?? 'Pending') ?>
+                                        </span>
+                                        <div class="text-muted small mt-1"><?= strtoupper($order['payment_method'] ?? '') ?></div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-<?= strtolower($order['order_status'] ?? 'pending') ?>">
+                                            <?= ucfirst($order['order_status'] ?? 'Pending') ?>
                                         </span>
                                     </td>
-                                    <td class="action-btns">
-                                        <a href="/admin/store/edit/<?= $tenant['id'] ?>" class="btn-edit" title="Edit Store">
-                                            <i class="fas fa-edit"></i> Edit
+                                    <td>
+                                        <a href="/admin/orders/view/<?= $order['id'] ?>" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="/admin/store/suspend/<?= $tenant['id'] ?>" 
-                                           class="btn-toggle" 
-                                           title="<?= ($tenant['status'] ?? '') === 'suspended' ? 'Activate' : 'Suspend' ?>" 
-                                           onclick="return confirm('Are you sure you want to <?= ($tenant['status'] ?? '') === 'suspended' ? 'activate' : 'suspend' ?> this store?')">
-                                            <i class="fas <?= ($tenant['status'] ?? '') === 'suspended' ? 'fa-undo' : 'fa-ban' ?>"></i> 
-                                            <?= ($tenant['status'] ?? '') === 'suspended' ? 'Activate' : 'Suspend' ?>
-                                        </a>
-                                        <a href="/admin/store/delete/<?= $tenant['id'] ?>" 
-                                           class="btn-delete" 
-                                           title="Delete Store" 
-                                           onclick="return confirm('Are you sure you want to delete this store? This action cannot be undone! All products and data will be lost.')">
-                                            <i class="fas fa-trash"></i> Delete
+                                        <a href="/admin/orders/update-status/<?= $order['id'] ?>" class="btn btn-sm btn-outline-warning">
+                                            <i class="fas fa-edit"></i>
                                         </a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="7" class="text-center py-4">
-                                    <i class="fas fa-store fa-3x text-muted mb-3 d-block"></i>
-                                    <p class="text-muted">No stores found. Click "Add Store" to create your first store.</p>
+                                <td colspan="8" class="text-center py-4">
+                                    <i class="fas fa-shopping-bag fa-3x text-muted mb-3 d-block"></i>
+                                    <p class="text-muted">No orders found.</p>
                                 </td>
                             </tr>
                         <?php endif; ?>
@@ -478,25 +452,6 @@ if (!$isLoggedIn || !$isAdmin) {
         wrapper.classList.toggle('collapsed');
         body.classList.toggle('sidebar-collapsed');
         toggleText.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
-    }
-
-    function copyPassword() {
-        var alertText = document.getElementById('successAlert').innerText;
-        var match = alertText.match(/Password:\s*([a-zA-Z0-9!@#$%^&*()]+)/);
-        if (match) {
-            var password = match[1];
-            navigator.clipboard.writeText(password).then(function() {
-                alert('✅ Password copied: ' + password);
-            }, function() {
-                var textarea = document.createElement('textarea');
-                textarea.value = password;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                alert('✅ Password copied: ' + password);
-            });
-        }
     }
 </script>
 </body>

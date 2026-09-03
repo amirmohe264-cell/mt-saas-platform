@@ -682,19 +682,21 @@
                         
                         <div class="payment-methods">
                             <!-- Chapa -->
-                            <label class="payment-option <?= old('payment_method', 'chapa') == 'chapa' ? 'selected' : '' ?>">
-                                <input type="radio" 
-                                       name="payment_method" 
-                                       value="chapa" 
-                                       <?= old('payment_method', 'chapa') == 'chapa' ? 'checked' : '' ?>>
-                                <span class="payment-icon">
-                                    <i class="fas fa-university"></i>
-                                </span>
-                                <div>
-                                    <div class="payment-name">Chapa</div>
-                                    <div class="payment-desc">Pay with Chapa (Credit/Debit Card, Bank Transfer)</div>
-                                </div>
-                            </label>
+                          <?php if (($gatewaySettings['chapa_enabled'] ?? '1') === '1'): ?>
+<label class="payment-option <?= old('payment_method', 'chapa') == 'chapa' ? 'selected' : '' ?>">
+    <input type="radio" 
+           name="payment_method" 
+           value="chapa" 
+           <?= old('payment_method', 'chapa') == 'chapa' ? 'checked' : '' ?>>
+    <span class="payment-icon">
+        <i class="fas fa-university"></i>
+    </span>
+    <div>
+        <div class="payment-name">Chapa</div>
+        <div class="payment-desc">Pay with Chapa (Credit/Debit Card, Bank Transfer)</div>
+    </div>
+</label>
+<?php endif; ?>
                             
                             <!-- Telebirr -->
                             <label class="payment-option <?= old('payment_method') == 'telebirr' ? 'selected' : '' ?>">

@@ -569,7 +569,18 @@ body {
                 <?php endif; ?>
             </ul>
             <div class="d-flex align-items-center">
-                <input class="search-box me-2" type="search" placeholder="Search for products...">
+              <form action="<?= site_url('search') ?>" method="get" class="d-flex align-items-center">
+    <input
+        class="search-box me-2"
+        type="search"
+        name="q"
+        placeholder="Search for products..."
+    >
+
+    <button type="submit" class="icon-btn" title="Search">
+        <i class="fas fa-search"></i>
+    </button>
+</form>
                 <a href="/cart" class="icon-btn" style="color:#d4d4d4;text-decoration:none;position:relative;">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-badge" id="cartBadge"><?= session()->get('cart_count') ?? 0 ?></span>

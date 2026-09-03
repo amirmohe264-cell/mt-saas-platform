@@ -45,8 +45,9 @@ class ProductController extends BaseController
                     'category' => $category ? $category['category_name'] : 'General',
                     'subcategory_id' => $product['subcategory_id'] ?? 0,
                     'subcategory' => $subcategory ? $subcategory['subcategory_name'] : null,
-                    'image' => $product['product_image'] ?? 'https://via.placeholder.com/200x200?text=Product',
-                    'badges' => $this->getBadges($product),
+                'image' => !empty($product['product_image'])
+    ? base_url($product['product_image'])
+    : 'https://via.placeholder.com/200x200?text=Product',
                     'in_stock' => $product['quantity'] > 0,
                 ];
             }
@@ -163,42 +164,64 @@ $reviews = $reviewModel->getReviewsByProduct($product['id']);
         ]);
     }
 
-    public function search()
-    {
-        $keyword = $this->request->getGet('q');
-        $products = $this->productModel->searchProducts($keyword);
-        
-        $formattedProducts = [];
-        foreach ($products as $product) {
-            $category = $this->categoryModel->find($product['category_id']);
-            $subcategory = null;
-            if ($product['subcategory_id']) {
-                $subcategory = $this->subcategoryModel->find($product['subcategory_id']);
-            }
-            
-            $formattedProducts[] = [
-                'id' => $product['id'],
-                'name' => $product['product_name'],
-                'slug' => strtolower(str_replace(' ', '-', $product['product_name'])),
-                'price' => $product['price'],
-                'old_price' => $product['old_price'] ?? null,
-                'category' => $category ? $category['category_name'] : 'General',
-                'subcategory' => $subcategory ? $subcategory['subcategory_name'] : null,
-                'image' => $product['product_image'] ?? 'https://via.placeholder.com/200x200?text=Product',
-                'badges' => $this->getBadges($product),
-                'in_stock' => $product['quantity'] > 0,
-            ];
-        }
-        
-        $categories = $this->categoryModel->getActiveCategories();
+public function search()
+{
+    $keyword = trim($this->request->getGet('q') ?? '');
 
-        return view('public/products', [
-            'products' => $formattedProducts,
-            'categories' => $categories,
-            'searchKeyword' => $keyword,
-        ]);
+    $products = $this->productModel->searchProducts($keyword);
+
+    $formattedProducts = [];
+
+    foreach ($products as $product) {
+        $category = $this->categoryModel->find($product['category_id']);
+
+        $subcategory = null;
+
+        if (!empty($product['subcategory_id'])) {
+            $subcategory = $this->subcategoryModel->find($product['subcategory_id']);
+        }
+
+        $formattedProducts[] = [
+            'id' => $product['id'],
+            'name' => $product['product_name'],
+            'slug' => strtolower(str_replace(' ', '-', $product['product_name'])),
+            'price' => $product['price'],
+            'old_price' => $product['old_price'] ?? null,
+            'category_id' => $product['category_id'],
+            'category' => $category ? $category['category_name'] : 'General',
+            'subcategory_id' => $product['subcategory_id'] ?? 0,
+            'subcategory' => $subcategory ? $subcategory['subcategory_name'] : null,
+            'image' => $product['product_image'] ?? 'https://via.placeholder.com/200x200?text=Product',
+            'badges' => $this->getBadges($product),
+            'in_stock' => $product['quantity'] > 0,
+        ];
     }
 
+    // Get categories for the sidebar
+    $categories = $this->categoryModel->getActiveCategories();
+
+    // Get subcategories for the sidebar/filter system
+    $subcategories = $this->subcategoryModel->getActiveSubcategories();
+
+    // Get product counts for each category
+    $categoryCounts = [];
+
+    foreach ($categories as $cat) {
+        $categoryCounts[$cat['id']] = $this->productModel
+            ->where('category_id', $cat['id'])
+            ->where('status', 'published')
+            ->where('is_active', true)
+            ->countAllResults();
+    }
+
+    return view('public/products', [
+        'products' => $formattedProducts,
+        'categories' => $categories,
+        'subcategories' => $subcategories,
+        'categoryCounts' => $categoryCounts,
+        'searchKeyword' => $keyword,
+    ]);
+}
     private function getBadges($product)
     {
         $badges = [];

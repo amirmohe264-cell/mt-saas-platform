@@ -1,6 +1,6 @@
-<!-- app/Views/admin/stores.php -->
+<!-- app/Views/admin/payments.php -->
 <?php
-// Check if user is logged in as admin
+// ✅ Check for admin session
 $isLoggedIn = session()->get('is_logged_in') || session()->get('user_id');
 $isAdmin = session()->get('is_admin') || session()->get('role') === 'admin' || session()->get('role') === 'super_admin';
 
@@ -15,7 +15,7 @@ if (!$isLoggedIn || !$isAdmin) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Stores - ShopEase</title>
+    <title>Payment Gateways - ShopEase Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -124,77 +124,52 @@ if (!$isLoggedIn || !$isAdmin) {
 
         .main-content { padding: 20px 30px; }
 
-        .table-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e8f0e8; }
-        .btn-add {
+        .gateway-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e8f0e8;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+        }
+        .gateway-card:hover {
+            border-color: #4caf50;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .gateway-card h6 { margin-bottom: 4px; font-weight: 600; color: #1a2e1a; }
+        .gateway-card .gateway-icon { font-size: 1.5rem; width: 40px; text-align: center; }
+        .form-check-input {
+            width: 3em;
+            height: 1.5em;
+            cursor: pointer;
+        }
+        .form-check-input:checked {
+            background-color: #4caf50;
+            border-color: #4caf50;
+        }
+        .btn-save {
             background: #4caf50;
             color: #fff;
             border: none;
             border-radius: 30px;
-            padding: 10px 25px;
+            padding: 12px 40px;
             font-weight: 600;
             transition: 0.3s;
-            text-decoration: none;
-            display: inline-block;
         }
-        .btn-add:hover { background: #388e3c; color: #fff; }
-        .btn-edit { background: #ffc107; color: #000; border: none; border-radius: 30px; padding: 5px 15px; font-weight: 600; transition: 0.3s; text-decoration: none; display: inline-block; font-size: 0.8rem; }
-        .btn-edit:hover { background: #e0a800; color: #000; }
-        .btn-delete { background: #dc3545; color: #fff; border: none; border-radius: 30px; padding: 5px 15px; font-weight: 600; transition: 0.3s; text-decoration: none; display: inline-block; font-size: 0.8rem; }
-        .btn-delete:hover { background: #c82333; color: #fff; }
-        .btn-toggle { background: #17a2b8; color: #fff; border: none; border-radius: 30px; padding: 5px 15px; font-weight: 600; transition: 0.3s; text-decoration: none; display: inline-block; font-size: 0.8rem; }
-        .btn-toggle:hover { background: #138496; color: #fff; }
-
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-        .status-active { background: #d4edda; color: #155724; }
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-suspended { background: #f8d7da; color: #721c24; }
-        .status-disabled { background: #e2e3e5; color: #383d41; }
-
-        .action-btns .btn { margin: 2px; }
-
-        .filter-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .filter-section .store-count {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-        .filter-section .filter-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .filter-section .filter-actions .btn-filter {
-            border-radius: 20px;
-            padding: 5px 15px;
-            font-size: 0.8rem;
-            border: 1px solid #dee2e6;
-            color: #6c757d;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-        .filter-section .filter-actions .btn-filter:hover {
-            background: #f8f9fa;
-        }
-        .filter-section .filter-actions .btn-filter.active {
-            background: #4caf50;
+        .btn-save:hover {
+            background: #388e3c;
             color: #fff;
-            border-color: #4caf50;
         }
-        .filter-section .filter-actions .btn-filter .badge {
-            font-size: 0.65rem;
+        .gateway-status {
+            font-size: 0.8rem;
+            padding: 3px 12px;
+            border-radius: 20px;
         }
+        .status-enabled { background: #d4edda; color: #155724; }
+        .status-disabled { background: #f8d7da; color: #721c24; }
 
         @media (max-width: 992px) {
             body { padding-left: 0; }
@@ -208,8 +183,7 @@ if (!$isLoggedIn || !$isAdmin) {
             .sidebar-wrapper.collapsed .sidebar-category { display: block; }
             body.sidebar-collapsed { padding-left: 0; }
             .main-content { padding: 15px; }
-            .filter-section { flex-direction: column; align-items: stretch; }
-            .filter-section .filter-actions { justify-content: center; }
+            .gateway-card { flex-wrap: wrap; gap: 10px; }
         }
     </style>
 </head>
@@ -238,14 +212,13 @@ if (!$isLoggedIn || !$isAdmin) {
         <div class="admin-name"><?= session()->get('full_name') ?? 'Super Admin' ?></div>
         <div class="admin-role"><span class="badge bg-success">Super Admin</span></div>
 
-        <!-- MANAGEMENT -->
         <div class="sidebar-category">Management</div>
         <ul class="sidebar-menu">
             <li onclick="location.href='/admin/dashboard'" data-tooltip="Dashboard">
                 <i class="fas fa-tachometer-alt"></i>
                 <span class="menu-text">Dashboard</span>
             </li>
-            <li class="active" onclick="location.href='/admin/stores'" data-tooltip="Stores">
+            <li onclick="location.href='/admin/stores'" data-tooltip="Stores">
                 <i class="fas fa-store"></i>
                 <span class="menu-text">Stores</span>
             </li>
@@ -263,10 +236,10 @@ if (!$isLoggedIn || !$isAdmin) {
             </li>
         </ul>
 
-        <!-- FINANCE -->
         <div class="sidebar-category">Finance</div>
         <ul class="sidebar-menu">
-            <li onclick="location.href='/admin/payment-gateways'" data-tooltip="Payments">
+            <!-- ✅ FIXED: Use correct route '/admin/payment-gateways' -->
+            <li class="active" onclick="location.href='/admin/payment-gateways'" data-tooltip="Payments">
                 <i class="fas fa-credit-card"></i>
                 <span class="menu-text">Payments</span>
             </li>
@@ -280,7 +253,6 @@ if (!$isLoggedIn || !$isAdmin) {
             </li>
         </ul>
 
-        <!-- ORDERS & PRODUCTS -->
         <div class="sidebar-category">Orders & Products</div>
         <ul class="sidebar-menu">
             <li onclick="location.href='/admin/orders'" data-tooltip="Orders">
@@ -293,7 +265,6 @@ if (!$isLoggedIn || !$isAdmin) {
             </li>
         </ul>
 
-        <!-- SETTINGS -->
         <div class="sidebar-category">Settings</div>
         <ul class="sidebar-menu">
             <li onclick="location.href='/admin/settings'" data-tooltip="Settings">
@@ -315,17 +286,17 @@ if (!$isLoggedIn || !$isAdmin) {
     <div class="container-fluid px-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
-                <h2><i class="fas fa-store me-2 text-success"></i>Manage Stores</h2>
+                <h2><i class="fas fa-credit-card me-2 text-success"></i>Payment Gateways</h2>
                 <nav class="breadcrumb">
                     <a href="/">Home</a>
                     <span class="mx-2">/</span>
                     <a href="/admin/dashboard">Dashboard</a>
                     <span class="mx-2">/</span>
-                    <span class="text-muted">Stores</span>
+                    <span class="text-muted">Payments</span>
                 </nav>
             </div>
             <div>
-                <a href="/admin/store/create" class="btn-add"><i class="fas fa-plus me-2"></i>Add Store</a>
+                <span class="text-muted">Manage payment methods</span>
             </div>
         </div>
     </div>
@@ -336,14 +307,8 @@ if (!$isLoggedIn || !$isAdmin) {
     <div class="container-fluid px-4">
 
         <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success alert-dismissible fade show" id="successAlert">
+            <div class="alert alert-success alert-dismissible fade show">
                 <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
-                <?php if (strpos(session()->getFlashdata('success'), 'Password:') !== false): ?>
-                    <br>
-                    <button class="btn btn-sm btn-outline-success mt-2" onclick="copyPassword()">
-                        <i class="fas fa-copy me-1"></i>Copy Password
-                    </button>
-                <?php endif; ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         <?php endif; ?>
@@ -355,117 +320,86 @@ if (!$isLoggedIn || !$isAdmin) {
             </div>
         <?php endif; ?>
 
-        <?php if (session()->getFlashdata('warning')): ?>
-            <div class="alert alert-warning alert-dismissible fade show">
-                <i class="fas fa-exclamation-triangle me-2"></i><?= session()->getFlashdata('warning') ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <?php endif; ?>
+        <p class="text-muted mb-4">
+            <i class="fas fa-info-circle me-1"></i>
+            Turn a payment method off to hide it from the checkout page platform-wide.
+        </p>
 
-        <div class="table-card">
-            <!-- Filter Section - FIXED with null coalescing -->
-            <div class="filter-section">
-                <div class="store-count">
-                    <i class="fas fa-store me-1"></i>
-                    <?= count($tenants ?? []) ?> stores found
-                    <?php if (!empty($statusFilter ?? '')): ?>
-                        <span class="text-muted">(filtered by: <strong><?= ucfirst($statusFilter ?? '') ?></strong>)</span>
-                    <?php endif; ?>
+        <form action="/admin/payment-gateways/update" method="post">
+            <?= csrf_field() ?>
+
+            <!-- Chapa -->
+            <div class="gateway-card">
+                <div>
+                    <h6><i class="fas fa-university text-success gateway-icon"></i>Chapa</h6>
+                    <p class="text-muted small mb-0">Card payments, bank transfer</p>
                 </div>
-                <div class="filter-actions">
-                    <a href="/admin/stores" class="btn-filter <?= empty($statusFilter ?? '') ? 'active' : '' ?>">
-                        <i class="fas fa-list me-1"></i>All
-                        <span class="badge bg-secondary text-white"><?= $totalStores ?? 0 ?></span>
-                    </a>
-                    <a href="/admin/stores?status=active" class="btn-filter <?= ($statusFilter ?? '') === 'active' ? 'active' : '' ?>">
-                        <i class="fas fa-check-circle me-1"></i>Active
-                        <span class="badge bg-success text-white"><?= $statusCounts['active'] ?? 0 ?></span>
-                    </a>
-                    <a href="/admin/stores?status=pending" class="btn-filter <?= ($statusFilter ?? '') === 'pending' ? 'active' : '' ?>">
-                        <i class="fas fa-clock me-1"></i>Pending
-                        <span class="badge bg-warning text-dark"><?= $statusCounts['pending'] ?? 0 ?></span>
-                    </a>
-                    <a href="/admin/stores?status=suspended" class="btn-filter <?= ($statusFilter ?? '') === 'suspended' ? 'active' : '' ?>">
-                        <i class="fas fa-ban me-1"></i>Suspended
-                        <span class="badge bg-danger text-white"><?= $statusCounts['suspended'] ?? 0 ?></span>
-                    </a>
-                    <a href="/admin/stores?status=disabled" class="btn-filter <?= ($statusFilter ?? '') === 'disabled' ? 'active' : '' ?>">
-                        <i class="fas fa-times-circle me-1"></i>Disabled
-                        <span class="badge bg-secondary text-white"><?= $statusCounts['disabled'] ?? 0 ?></span>
-                    </a>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="gateway-status <?= isset($gateways['chapa_enabled']) && $gateways['chapa_enabled'] ? 'status-enabled' : 'status-disabled' ?>">
+                        <?= isset($gateways['chapa_enabled']) && $gateways['chapa_enabled'] ? 'Enabled' : 'Disabled' ?>
+                    </span>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" name="chapa_enabled" 
+                               <?= isset($gateways['chapa_enabled']) && $gateways['chapa_enabled'] ? 'checked' : '' ?>>
+                    </div>
                 </div>
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Store Name</th>
-                            <th>Owner</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (isset($tenants) && !empty($tenants)): ?>
-                            <?php $count = 1; ?>
-                            <?php foreach ($tenants as $tenant): ?>
-                                <tr>
-                                    <td><?= $count++ ?></td>
-                                    <td>
-                                        <strong><?= esc($tenant['store_name']) ?></strong>
-                                        <?php if (!empty($tenant['store_description'])): ?>
-                                            <br>
-                                            <small class="text-muted"><?= esc(substr($tenant['store_description'], 0, 40)) ?>...</small>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?= esc($tenant['owner_name'] ?? 'No owner') ?></td>
-                                    <td><?= esc($tenant['owner_email'] ?? 'No email') ?></td>
-                                    <td><?= esc($tenant['contact_phone'] ?? 'N/A') ?></td>
-                                    <td>
-                                        <span class="status-badge 
-                                            <?= ($tenant['status'] ?? 'pending') === 'active' ? 'status-active' : '' ?>
-                                            <?= ($tenant['status'] ?? 'pending') === 'pending' ? 'status-pending' : '' ?>
-                                            <?= ($tenant['status'] ?? 'pending') === 'suspended' ? 'status-suspended' : '' ?>
-                                            <?= ($tenant['status'] ?? 'pending') === 'disabled' ? 'status-disabled' : '' ?>">
-                                            <?= ucfirst($tenant['status'] ?? 'Pending') ?>
-                                        </span>
-                                    </td>
-                                    <td class="action-btns">
-                                        <a href="/admin/store/edit/<?= $tenant['id'] ?>" class="btn-edit" title="Edit Store">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </a>
-                                        <a href="/admin/store/suspend/<?= $tenant['id'] ?>" 
-                                           class="btn-toggle" 
-                                           title="<?= ($tenant['status'] ?? '') === 'suspended' ? 'Activate' : 'Suspend' ?>" 
-                                           onclick="return confirm('Are you sure you want to <?= ($tenant['status'] ?? '') === 'suspended' ? 'activate' : 'suspend' ?> this store?')">
-                                            <i class="fas <?= ($tenant['status'] ?? '') === 'suspended' ? 'fa-undo' : 'fa-ban' ?>"></i> 
-                                            <?= ($tenant['status'] ?? '') === 'suspended' ? 'Activate' : 'Suspend' ?>
-                                        </a>
-                                        <a href="/admin/store/delete/<?= $tenant['id'] ?>" 
-                                           class="btn-delete" 
-                                           title="Delete Store" 
-                                           onclick="return confirm('Are you sure you want to delete this store? This action cannot be undone! All products and data will be lost.')">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="7" class="text-center py-4">
-                                    <i class="fas fa-store fa-3x text-muted mb-3 d-block"></i>
-                                    <p class="text-muted">No stores found. Click "Add Store" to create your first store.</p>
-                                </td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+            <!-- Telebirr -->
+            <div class="gateway-card">
+                <div>
+                    <h6><i class="fas fa-mobile-alt text-success gateway-icon"></i>Telebirr</h6>
+                    <p class="text-muted small mb-0">Mobile money</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="gateway-status <?= isset($gateways['telebirr_enabled']) && $gateways['telebirr_enabled'] ? 'status-enabled' : 'status-disabled' ?>">
+                        <?= isset($gateways['telebirr_enabled']) && $gateways['telebirr_enabled'] ? 'Enabled' : 'Disabled' ?>
+                    </span>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" name="telebirr_enabled" 
+                               <?= isset($gateways['telebirr_enabled']) && $gateways['telebirr_enabled'] ? 'checked' : '' ?>>
+                    </div>
+                </div>
             </div>
-        </div>
+
+            <!-- Cash on Delivery -->
+            <div class="gateway-card">
+                <div>
+                    <h6><i class="fas fa-money-bill-wave text-success gateway-icon"></i>Cash on Delivery</h6>
+                    <p class="text-muted small mb-0">Pay when the order arrives</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="gateway-status <?= isset($gateways['cod_enabled']) && $gateways['cod_enabled'] ? 'status-enabled' : 'status-disabled' ?>">
+                        <?= isset($gateways['cod_enabled']) && $gateways['cod_enabled'] ? 'Enabled' : 'Disabled' ?>
+                    </span>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" name="cod_enabled" 
+                               <?= isset($gateways['cod_enabled']) && $gateways['cod_enabled'] ? 'checked' : '' ?>>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PayPal (Optional extra gateway) -->
+            <div class="gateway-card">
+                <div>
+                    <h6><i class="fab fa-paypal text-primary gateway-icon"></i>PayPal</h6>
+                    <p class="text-muted small mb-0">International payments</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="gateway-status <?= isset($gateways['paypal_enabled']) && $gateways['paypal_enabled'] ? 'status-enabled' : 'status-disabled' ?>">
+                        <?= isset($gateways['paypal_enabled']) && $gateways['paypal_enabled'] ? 'Enabled' : 'Disabled' ?>
+                    </span>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" name="paypal_enabled" 
+                               <?= isset($gateways['paypal_enabled']) && $gateways['paypal_enabled'] ? 'checked' : '' ?>>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-save mt-3">
+                <i class="fas fa-save me-2"></i>Save Changes
+            </button>
+        </form>
     </div>
 </section>
 
@@ -480,24 +414,23 @@ if (!$isLoggedIn || !$isAdmin) {
         toggleText.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
     }
 
-    function copyPassword() {
-        var alertText = document.getElementById('successAlert').innerText;
-        var match = alertText.match(/Password:\s*([a-zA-Z0-9!@#$%^&*()]+)/);
-        if (match) {
-            var password = match[1];
-            navigator.clipboard.writeText(password).then(function() {
-                alert('✅ Password copied: ' + password);
-            }, function() {
-                var textarea = document.createElement('textarea');
-                textarea.value = password;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                alert('✅ Password copied: ' + password);
+    // Real-time status update when toggling switches
+    document.addEventListener('DOMContentLoaded', function() {
+        const switches = document.querySelectorAll('.form-check-input');
+        switches.forEach(function(switchEl) {
+            switchEl.addEventListener('change', function() {
+                const card = this.closest('.gateway-card');
+                const statusSpan = card.querySelector('.gateway-status');
+                if (this.checked) {
+                    statusSpan.textContent = 'Enabled';
+                    statusSpan.className = 'gateway-status status-enabled';
+                } else {
+                    statusSpan.textContent = 'Disabled';
+                    statusSpan.className = 'gateway-status status-disabled';
+                }
             });
-        }
-    }
+        });
+    });
 </script>
 </body>
 </html>

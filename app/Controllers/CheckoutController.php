@@ -54,6 +54,20 @@ class CheckoutController extends BaseController
 
         // Get customer data from database
         $customer = $this->customerModel->find($customerId);
+            $db = \Config\Database::connect();
+    $settingsRows = $db->table('settings')
+        ->whereIn('setting_key', ['chapa_enabled', 'telebirr_enabled', 'cod_enabled'])
+        ->get()
+        ->getResultArray();
+
+    $gatewaySettings = [
+        'chapa_enabled' => '1',
+        'telebirr_enabled' => '1',
+        'cod_enabled' => '1',
+    ];
+    foreach ($settingsRows as $row) {
+        $gatewaySettings[$row['setting_key']] = $row['setting_value'];
+    }
         
         // Calculate totals
         $subtotal = 0;
@@ -88,7 +102,8 @@ class CheckoutController extends BaseController
             'total' => $total,
             'itemCount' => $itemCount,
             'user' => $customerData,  // For the form fields
-            'customer' => $customerData,  // Alias for compatibility
+            'customer' => $customerData,
+             'gatewaySettings' => $gatewaySettings,  // Alias for compatibility
         ]);
     }
 
@@ -118,7 +133,8 @@ class CheckoutController extends BaseController
         $address = $this->request->getPost('address');
         $city = $this->request->getPost('city');
         $postalCode = $this->request->getPost('postal_code');
-        $paymentMethod = $this->request->getPost('payment_method');
+        
+ $paymentMethod = $this->request->getPost('payment_method');
 
         // Validate
         $validation = \Config\Services::validation();

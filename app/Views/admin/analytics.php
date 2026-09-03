@@ -1,4 +1,4 @@
-<!-- app/Views/admin/request_details.php -->
+<!-- app/Views/admin/analytics.php -->
 <?php
 // ✅ Check for admin session
 $isLoggedIn = session()->get('is_logged_in') || session()->get('user_id');
@@ -15,9 +15,9 @@ if (!$isLoggedIn || !$isAdmin) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Details - ShopEase</title>
+    <title>Analytics - Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -124,90 +124,99 @@ if (!$isLoggedIn || !$isAdmin) {
 
         .main-content { padding: 20px 30px; }
 
-        .detail-card {
-            background: #fff;
+        .analytics-container { max-width: 1400px; margin: 0 auto; }
+
+        .stat-card {
+            background: white;
             border-radius: 12px;
-            padding: 30px;
-            border: 1px solid #e8f0e8;
-        }
-        .detail-card .label {
-            color: #888;
-            font-weight: 500;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .detail-card .value {
-            color: #1a2e1a;
-            font-weight: 600;
-            font-size: 1rem;
-            margin-top: 3px;
-        }
-        .detail-card .value a {
-            color: #4caf50;
-            text-decoration: none;
-        }
-        .detail-card .value a:hover {
-            text-decoration: underline;
-        }
-
-        .status-badge {
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-approved { background: #d4edda; color: #155724; }
-        .status-rejected { background: #f8d7da; color: #721c24; }
-
-        .btn-approve {
-            background: #28a745;
-            color: #fff;
-            border: none;
-            border-radius: 30px;
-            padding: 10px 30px;
-            font-weight: 600;
+            padding: 22px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
             transition: 0.3s;
-            text-decoration: none;
-            display: inline-block;
+            height: 100%;
         }
-        .btn-approve:hover { background: #1e7e34; color: #fff; }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+            font-size: 20px;
+        }
+        .stat-label { color: #6b7280; font-size: 14px; margin-bottom: 6px; }
+        .stat-value { font-size: 28px; font-weight: 700; color: #111827; }
 
-        .btn-reject {
-            background: #dc3545;
-            color: #fff;
-            border: none;
-            border-radius: 30px;
-            padding: 10px 30px;
-            font-weight: 600;
-            transition: 0.3s;
-            text-decoration: none;
-            display: inline-block;
+        .panel {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            height: 100%;
         }
-        .btn-reject:hover { background: #bd2130; color: #fff; }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .panel-header h2 { margin: 0; font-size: 20px; font-weight: 600; }
 
-        .btn-back {
-            background: #6c757d;
-            color: #fff;
-            border: none;
-            border-radius: 30px;
-            padding: 10px 30px;
-            font-weight: 600;
-            transition: 0.3s;
-            text-decoration: none;
-            display: inline-block;
+        .growth-box {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 10px;
         }
-        .btn-back:hover { background: #5a6268; color: #fff; }
+        .growth-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e5e7eb;
+            font-size: 22px;
+        }
+        .growth-value { font-size: 30px; font-weight: 700; }
+        .growth-label { color: #6b7280; font-size: 14px; margin-top: 4px; }
 
-        .detail-row {
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
+        .stores-table { width: 100%; border-collapse: collapse; }
+        .stores-table th,
+        .stores-table td { padding: 14px 10px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        .stores-table th { font-size: 13px; color: #6b7280; font-weight: 600; }
+        .stores-table td { font-size: 14px; }
+        .store-rank {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+            font-weight: 700;
         }
-        .detail-row:last-child {
-            border-bottom: none;
+        .revenue { font-weight: 700; }
+        .empty-state {
+            text-align: center;
+            padding: 35px 10px;
+            color: #6b7280;
         }
+        .empty-state i { font-size: 35px; margin-bottom: 10px; }
 
         @media (max-width: 992px) {
             body { padding-left: 0; }
@@ -221,7 +230,6 @@ if (!$isLoggedIn || !$isAdmin) {
             .sidebar-wrapper.collapsed .sidebar-category { display: block; }
             body.sidebar-collapsed { padding-left: 0; }
             .main-content { padding: 15px; }
-            .detail-card { padding: 20px; }
         }
     </style>
 </head>
@@ -261,7 +269,7 @@ if (!$isLoggedIn || !$isAdmin) {
                 <i class="fas fa-store"></i>
                 <span class="menu-text">Stores</span>
             </li>
-            <li class="active" onclick="location.href='/admin/store-requests'" data-tooltip="Store Requests">
+            <li onclick="location.href='/admin/store-requests'" data-tooltip="Store Requests">
                 <i class="fas fa-store"></i>
                 <span class="menu-text">Store Requests</span>
             </li>
@@ -286,7 +294,7 @@ if (!$isLoggedIn || !$isAdmin) {
                 <i class="fas fa-hand-holding-usd"></i>
                 <span class="menu-text">Escrow Releases</span>
             </li>
-            <li onclick="location.href='/admin/analytics'" data-tooltip="Analytics">
+            <li class="active" onclick="location.href='/admin/analytics'" data-tooltip="Analytics">
                 <i class="fas fa-chart-bar"></i>
                 <span class="menu-text">Analytics</span>
             </li>
@@ -327,22 +335,17 @@ if (!$isLoggedIn || !$isAdmin) {
     <div class="container-fluid px-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
-                <h2><i class="fas fa-info-circle me-2 text-success"></i>Request Details</h2>
+                <h2><i class="fas fa-chart-bar me-2 text-success"></i>Analytics</h2>
                 <nav class="breadcrumb">
                     <a href="/">Home</a>
                     <span class="mx-2">/</span>
                     <a href="/admin/dashboard">Dashboard</a>
                     <span class="mx-2">/</span>
-                    <a href="/admin/store-requests">Store Requests</a>
-                    <span class="mx-2">/</span>
-                    <span class="text-muted">Details</span>
+                    <span class="text-muted">Analytics</span>
                 </nav>
             </div>
             <div>
-                <span class="status-badge <?= $request['status'] === 'pending' ? 'status-pending' : ($request['status'] === 'approved' ? 'status-approved' : 'status-rejected') ?>">
-                    <i class="fas <?= $request['status'] === 'pending' ? 'fa-clock' : ($request['status'] === 'approved' ? 'fa-check-circle' : 'fa-times-circle') ?> me-1"></i>
-                    <?= ucfirst($request['status']) ?>
-                </span>
+                <span class="text-muted">Overview of platform performance</span>
             </div>
         </div>
     </div>
@@ -351,104 +354,181 @@ if (!$isLoggedIn || !$isAdmin) {
 <!-- Main Content -->
 <section class="main-content">
     <div class="container-fluid px-4">
+        <div class="analytics-container">
 
-        <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success alert-dismissible fade show">
-                <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <?php endif; ?>
+            <?php if (session()->getFlashdata('success')): ?>
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <?php endif; ?>
 
-        <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert alert-danger alert-dismissible fade show">
-                <i class="fas fa-exclamation-circle me-2"></i><?= session()->getFlashdata('error') ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        <?php endif; ?>
+            <?php if (session()->getFlashdata('error')): ?>
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="fas fa-exclamation-circle me-2"></i><?= session()->getFlashdata('error') ?>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <?php endif; ?>
 
-        <div class="detail-card">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="detail-row">
-                        <div class="label"><i class="fas fa-store me-1"></i>Store Name</div>
-                        <div class="value"><?= esc($request['store_name']) ?></div>
+            <!-- STAT CARDS -->
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-label">Total Revenue</div>
+                                <div class="stat-value">
+                                    <?= number_format((float) ($totalRevenue ?? 0), 2) ?> ETB
+                                </div>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-money-bill-wave text-success"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="detail-row">
-                        <div class="label"><i class="fas fa-briefcase me-1"></i>Business Type</div>
-                        <div class="value"><?= esc(ucfirst($request['business_type'] ?? 'Not specified')) ?></div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-label">Total Orders</div>
+                                <div class="stat-value">
+                                    <?= number_format((int) ($totalOrders ?? 0)) ?>
+                                </div>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-shopping-cart text-primary"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="detail-row">
-                        <div class="label"><i class="fas fa-user me-1"></i>Owner Name</div>
-                        <div class="value"><?= esc($request['owner_name']) ?></div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-label">Total Customers</div>
+                                <div class="stat-value">
+                                    <?= number_format((int) ($totalCustomers ?? 0)) ?>
+                                </div>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-users text-info"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="detail-row">
-                        <div class="label"><i class="fas fa-envelope me-1"></i>Owner Email</div>
-                        <div class="value"><?= esc($request['owner_email']) ?></div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="detail-row">
-                        <div class="label"><i class="fas fa-phone me-1"></i>Phone Number</div>
-                        <div class="value"><?= esc($request['owner_phone']) ?></div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="detail-row">
-                        <div class="label"><i class="fas fa-calendar me-1"></i>Submitted On</div>
-                        <div class="value"><?= date('F d, Y H:i A', strtotime($request['created_at'])) ?></div>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <div class="detail-row">
-                        <div class="label"><i class="fas fa-map-marker-alt me-1"></i>Store Address</div>
-                        <div class="value"><?= esc($request['store_address']) ?></div>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <div class="detail-row">
-                        <div class="label"><i class="fas fa-align-left me-1"></i>Store Description</div>
-                        <div class="value"><?= esc($request['store_description'] ?? 'No description provided.') ?></div>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <div class="detail-row">
-                        <div class="label"><i class="fas fa-file-alt me-1"></i>Legal Documents</div>
-                        <div class="value">
-                            <?php if (!empty($request['legal_documents'])): ?>
-                                <a href="/<?= $request['legal_documents'] ?>" target="_blank" class="btn btn-sm btn-outline-success">
-                                    <i class="fas fa-file-pdf me-1"></i>View Document
-                                </a>
-                            <?php else: ?>
-                                <span class="text-muted"><i class="fas fa-times-circle me-1"></i>No document uploaded</span>
-                            <?php endif; ?>
+
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-label">Total Products</div>
+                                <div class="stat-value">
+                                    <?= number_format((int) ($totalProducts ?? 0)) ?>
+                                </div>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-box text-warning"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <?php if ($request['status'] === 'pending'): ?>
-                <hr>
-                <div class="d-flex flex-wrap gap-3 mt-3">
-                    <a href="/admin/store-request/approve/<?= $request['id'] ?>" class="btn-approve" onclick="return confirm('Are you sure you want to approve this store request?\n\nThis will create a new store and send a welcome email to the owner.')">
-                        <i class="fas fa-check me-2"></i>Approve
-                    </a>
-                    <a href="/admin/store-request/reject/<?= $request['id'] ?>" class="btn-reject" onclick="return confirm('Are you sure you want to reject this store request?\n\nThe owner will be notified via email.')">
-                        <i class="fas fa-times me-2"></i>Reject
-                    </a>
-                    <a href="/admin/store-requests" class="btn-back"><i class="fas fa-arrow-left me-2"></i>Back to Requests</a>
+            <!-- LOWER CONTENT -->
+            <div class="row">
+                <!-- Customer Growth -->
+                <div class="col-md-6 mb-4">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-chart-line text-success me-2"></i>Customer Growth</h2>
+                        </div>
+                        <div class="growth-box">
+                            <div class="growth-icon" style="background: #e8f5e9;">
+                                <i class="fas fa-chart-line text-success"></i>
+                            </div>
+                            <div>
+                                <div class="growth-value <?= ($customerGrowth ?? 0) >= 0 ? 'text-success' : 'text-danger' ?>">
+                                    <?= number_format((float) ($customerGrowth ?? 0), 1) ?>%
+                                </div>
+                                <div class="growth-label">
+                                    <?= ($customerGrowth ?? 0) >= 0 ? '↑' : '↓' ?> 
+                                    Customer growth compared with last month
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            <?php else: ?>
-                <hr>
-                <div class="mt-3">
-                    <a href="/admin/store-requests" class="btn-back"><i class="fas fa-arrow-left me-2"></i>Back to Requests</a>
+
+                <!-- Top Stores -->
+                <div class="col-md-6 mb-4">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-crown text-warning me-2"></i>Top Stores</h2>
+                        </div>
+                        <?php if (!empty($topStores)): ?>
+                            <table class="stores-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Store</th>
+                                        <th>Revenue</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($topStores as $index => $store): ?>
+                                        <tr>
+                                            <td>
+                                                <span class="store-rank <?= $index == 0 ? 'bg-warning text-white' : '' ?>">
+                                                    <?= $index + 1 ?>
+                                                </span>
+                                            </td>
+                                            <td><?= esc($store['store_name'] ?? 'Unknown Store') ?></td>
+                                            <td class="revenue"><?= number_format((float) ($store['revenue'] ?? 0), 2) ?> ETB</td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        <?php else: ?>
+                            <div class="empty-state">
+                                <i class="fas fa-store text-muted"></i>
+                                <p class="text-muted">No store revenue data available yet.</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
-            <?php endif; ?>
+            </div>
+
+            <!-- Additional Metrics -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2><i class="fas fa-info-circle text-info me-2"></i>Platform Overview</h2>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 text-center py-3">
+                                <div class="stat-value text-primary"><?= number_format((int) ($totalStores ?? 0)) ?></div>
+                                <div class="stat-label">Total Stores</div>
+                            </div>
+                            <div class="col-md-3 text-center py-3">
+                                <div class="stat-value text-success"><?= number_format((int) ($activeStores ?? 0)) ?></div>
+                                <div class="stat-label">Active Stores</div>
+                            </div>
+                            <div class="col-md-3 text-center py-3">
+                                <div class="stat-value text-warning"><?= number_format((int) ($pendingOrders ?? 0)) ?></div>
+                                <div class="stat-label">Pending Orders</div>
+                            </div>
+                            <div class="col-md-3 text-center py-3">
+                                <div class="stat-value text-info"><?= number_format((int) ($totalCategories ?? 0)) ?></div>
+                                <div class="stat-label">Categories</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>

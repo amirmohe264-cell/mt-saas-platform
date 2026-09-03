@@ -242,3 +242,13 @@ $routes->get('admin/escrow-queue', 'AdminController::escrowQueue');
 $routes->post('admin/escrow-release/(:num)', 'AdminController::releasePayment/$1');
 $routes->post('store/settings/update', 'Home::updateStoreSettings');
 $routes->post('store/settings/change-password', 'Home::changeStoreOwnerPassword');
+$routes->get('admin/orders', 'AdminController::orders');
+$routes->get('admin/products', 'AdminController::products');
+$routes->get('admin/products/delete/(:num)', 'AdminController::deleteProduct/$1');
+$routes->get('admin/settings', 'AdminController::systemSettings');
+$routes->post('admin/settings/update', 'AdminController::updateSystemSettings');
+$routes->get('admin/payment-gateways', 'AdminController::paymentGateways');
+$routes->post('admin/payment-gateways/update', 'AdminController::updatePaymentGateways');
+$routes->get('admin/analytics', 'AdminController::analytics');
+// Super Admin Dashboard
+$routes->get('admin/dashboard', 'AdminController::dashboard');

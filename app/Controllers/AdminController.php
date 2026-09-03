@@ -21,6 +21,95 @@ class AdminController extends BaseController
     // ==========================================
 // ESCROW / PAYMENT RELEASE
 // ==========================================
+// ==========================================
+// ANALYTICS
+// ==========================================
+public function analytics()
+{
+    // Check admin access
+    $isLoggedIn = session()->get('is_logged_in') || session()->get('user_id');
+    $isAdmin = session()->get('is_admin') || session()->get('role') === 'admin' || session()->get('role') === 'super_admin';
+
+    if (!$isLoggedIn || !$isAdmin) {
+        return redirect()->to('/login')->with('error', 'Access denied. Admin only.');
+    }
+
+    $db = \Config\Database::connect();
+
+    // Get total revenue
+    $totalRevenue = $db->table('orders')
+                       ->selectSum('total_amount')
+                       ->where('payment_status', 'paid')
+                       ->get()
+                       ->getRow()
+                       ->total_amount ?? 0;
+
+    // Get total orders
+    $totalOrders = $db->table('orders')->countAllResults();
+
+    // Get total customers
+    $totalCustomers = $db->table('customers')->countAllResults();
+
+    // Get total products
+    $totalProducts = $db->table('products')->countAllResults();
+
+    // Get total stores
+    $totalStores = $db->table('tenants')->countAllResults();
+
+    // Get active stores
+    $activeStores = $db->table('tenants')
+                       ->where('status', 'active')
+                       ->countAllResults();
+
+    // Get pending orders
+    $pendingOrders = $db->table('orders')
+                        ->where('order_status', 'pending')
+                        ->countAllResults();
+
+    // Get total categories
+    $totalCategories = $db->table('categories')->countAllResults();
+
+    // Get customer growth (compare this month vs last month)
+    $currentMonthCustomers = $db->table('customers')
+                                ->where('created_at >=', date('Y-m-01 00:00:00'))
+                                ->countAllResults();
+
+    $lastMonthCustomers = $db->table('customers')
+                             ->where('created_at >=', date('Y-m-01 00:00:00', strtotime('-1 month')))
+                             ->where('created_at <', date('Y-m-01 00:00:00'))
+                             ->countAllResults();
+
+    $customerGrowth = 0;
+    if ($lastMonthCustomers > 0) {
+        $customerGrowth = (($currentMonthCustomers - $lastMonthCustomers) / $lastMonthCustomers) * 100;
+    }
+
+    // Get top stores by revenue
+    $topStores = $db->table('orders o')
+                    ->select('t.store_name, SUM(o.total_amount) as revenue')
+                    ->join('tenants t', 't.id = o.tenant_id')
+                    ->where('o.payment_status', 'paid')
+                    ->groupBy('t.store_name')
+                    ->orderBy('revenue', 'DESC')
+                    ->limit(5)
+                    ->get()
+                    ->getResultArray();
+
+    $data = [
+        'totalRevenue' => $totalRevenue,
+        'totalOrders' => $totalOrders,
+        'totalCustomers' => $totalCustomers,
+        'totalProducts' => $totalProducts,
+        'totalStores' => $totalStores,
+        'activeStores' => $activeStores,
+        'pendingOrders' => $pendingOrders,
+        'totalCategories' => $totalCategories,
+        'customerGrowth' => $customerGrowth,
+        'topStores' => $topStores,
+    ];
+
+    return view('admin/analytics', $data);
+}
 
 public function escrowQueue()
 {
@@ -84,42 +173,462 @@ public function releasePayment($paymentId)
     // DASHBOARD
     // ==========================================
 
-    public function dashboard()
-    {
-        $tenants = $this->tenantModel->findAll();
-        
-        // Get store owner info for each tenant
-        foreach ($tenants as &$tenant) {
-            $owner = $this->systemUserModel->where('tenant_id', $tenant['id'])
-                                          ->where('role', 'store_owner')
-                                          ->first();
-            $tenant['owner_name'] = $owner ? $owner['full_name'] : 'No owner';
-            $tenant['owner_email'] = $owner ? $owner['email'] : 'No email';
-        }
-        
-        $storeRequestModel = new StoreRequestModel();
-        $data = [
-            'tenants' => $tenants,
-            'pendingRequests' => $storeRequestModel->getPendingRequests(),
+   // ==========================================
+// DASHBOARD
+// ==========================================
+
+
+// ==========================================
+// DASHBOARD
+// ==========================================
+
+public function dashboard()
+{
+    $db = \Config\Database::connect();
+    
+    // Get total stores
+    $totalStores = $db->table('tenants')->countAllResults();
+    
+    // Get active stores
+    $activeStores = $db->table('tenants')
+                        ->where('status', 'active')
+                        ->countAllResults();
+    
+    // Get suspended stores
+    $suspendedStores = $db->table('tenants')
+                          ->where('status', 'suspended')
+                          ->countAllResults();
+    
+    // Get total customers
+    $totalCustomers = $db->table('customers')->countAllResults();
+    
+    // Get new customers (this month)
+    $newCustomers = $db->table('customers')
+                       ->where('created_at >=', date('Y-m-01 00:00:00'))
+                       ->countAllResults();
+    
+    // Get total products
+    $totalProducts = $db->table('products')->countAllResults();
+    
+    // Get total orders
+    $totalOrders = $db->table('orders')->countAllResults();
+    
+    // Get total revenue (from paid orders)
+    $revenueResult = $db->table('orders')
+                        ->selectSum('total_amount')
+                        ->where('payment_status', 'paid')
+                        ->get()
+                        ->getRow();
+    $totalRevenue = $revenueResult->total_amount ?? 0;
+    
+    // Get recent activities
+    $recentActivities = $this->getRecentActivities();
+    
+    $data = [
+        'totalStores' => $totalStores,
+        'activeStores' => $activeStores,
+        'suspendedStores' => $suspendedStores,
+        'totalCustomers' => $totalCustomers,
+        'newCustomers' => $newCustomers,
+        'totalProducts' => $totalProducts,
+        'totalOrders' => $totalOrders,
+        'totalRevenue' => $totalRevenue,
+        'recentActivities' => $recentActivities,
+    ];
+    
+    return view('admin/dashboard', $data);
+}
+
+// ==========================================
+// GET RECENT ACTIVITIES
+// ==========================================
+
+private function getRecentActivities()
+{
+    $db = \Config\Database::connect();
+    
+    $activities = [];
+    
+    // Get recent store registrations
+    $recentStores = $db->table('tenants')
+                       ->orderBy('created_at', 'DESC')
+                       ->limit(3)
+                       ->get()
+                       ->getResultArray();
+    
+    foreach ($recentStores as $store) {
+        $activities[] = [
+            'icon' => 'fa-store',
+            'icon_type' => 'success',
+            'message' => 'New store registered: "' . esc($store['store_name']) . '"',
+            'time' => $this->timeAgo($store['created_at']),
+            'badge_class' => 'bg-success',
+            'badge_text' => 'Approved'
         ];
-        
-        return view('admin/dashboard', $data);
     }
+    
+    // Get recent orders
+    $recentOrders = $db->table('orders')
+                       ->orderBy('created_at', 'DESC')
+                       ->limit(3)
+                       ->get()
+                       ->getResultArray();
+    
+    foreach ($recentOrders as $order) {
+        $activities[] = [
+            'icon' => 'fa-shopping-bag',
+            'icon_type' => 'info',
+            'message' => 'New order #' . esc($order['order_number']) . ' placed',
+            'time' => $this->timeAgo($order['created_at']),
+            'badge_class' => 'bg-info',
+            'badge_text' => 'New'
+        ];
+    }
+    
+    // Get recent customer registrations
+    $recentCustomers = $db->table('customers')
+                          ->orderBy('created_at', 'DESC')
+                          ->limit(2)
+                          ->get()
+                          ->getResultArray();
+    
+    foreach ($recentCustomers as $customer) {
+        $activities[] = [
+            'icon' => 'fa-user',
+            'icon_type' => 'info',
+            'message' => 'New customer registered: ' . esc($customer['email']),
+            'time' => $this->timeAgo($customer['created_at']),
+            'badge_class' => 'bg-info',
+            'badge_text' => 'New'
+        ];
+    }
+    
+    // Sort by time (newest first)
+    usort($activities, function($a, $b) {
+        $timeA = strtotime($a['time'] ?? 'now');
+        $timeB = strtotime($b['time'] ?? 'now');
+        return $timeB - $timeA;
+    });
+    
+    return array_slice($activities, 0, 6);
+}
+
+private function timeAgo($datetime)
+{
+    if (empty($datetime)) return 'Just now';
+    
+    $time = strtotime($datetime);
+    $diff = time() - $time;
+    
+    if ($diff < 60) return 'Just now';
+    if ($diff < 3600) return floor($diff / 60) . ' minutes ago';
+    if ($diff < 86400) return floor($diff / 3600) . ' hours ago';
+    if ($diff < 2592000) return floor($diff / 86400) . ' days ago';
+    if ($diff < 31536000) return floor($diff / 2592000) . ' months ago';
+    return date('M d, Y', $time);
+}
+  // ==========================================
+// ORDERS
+// ==========================================
+public function orders()
+{
+    // Check admin access
+    $isLoggedIn = session()->get('is_logged_in') || session()->get('user_id');
+    $isAdmin = session()->get('is_admin') || session()->get('role') === 'admin' || session()->get('role') === 'super_admin';
+
+    if (!$isLoggedIn || !$isAdmin) {
+        return redirect()->to('/login')->with('error', 'Access denied. Admin only.');
+    }
+
+    $db = \Config\Database::connect();
+    
+    // Get status filter from URL
+    $statusFilter = $this->request->getGet('status') ?? '';
+    
+    // Build query
+    $builder = $db->table('orders o')
+                  ->select('o.*, c.first_name, c.last_name, c.email as customer_email, t.store_name')
+                  ->join('customers c', 'c.id = o.customer_id', 'left')
+                  ->join('tenants t', 't.id = o.tenant_id', 'left')
+                  ->orderBy('o.created_at', 'DESC');
+    
+    if (!empty($statusFilter)) {
+        $builder->where('o.order_status', $statusFilter);
+    }
+    
+    $orders = $builder->get()->getResultArray();
+    
+    // Get status counts for filter badges
+    $statusCounts = [];
+    $statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+    foreach ($statuses as $status) {
+        $statusCounts[$status] = $db->table('orders')
+                                    ->where('order_status', $status)
+                                    ->countAllResults();
+    }
+    $totalOrders = $db->table('orders')->countAllResults();
+    
+    return view('admin/orders', [
+        'orders' => $orders,
+        'statusFilter' => $statusFilter,
+        'statusCounts' => $statusCounts,
+        'totalOrders' => $totalOrders,
+    ]);
+}
+// ==========================================
+// PRODUCTS
+// ==========================================
+public function products()
+{
+    // Check admin access
+    $isLoggedIn = session()->get('is_logged_in') || session()->get('user_id');
+    $isAdmin = session()->get('is_admin') || session()->get('role') === 'admin' || session()->get('role') === 'super_admin';
+
+    if (!$isLoggedIn || !$isAdmin) {
+        return redirect()->to('/login')->with('error', 'Access denied. Admin only.');
+    }
+
+    $db = \Config\Database::connect();
+    
+    // Get status filter from URL
+    $statusFilter = $this->request->getGet('status') ?? '';
+    
+    // Build query
+    $builder = $db->table('products p')
+                  ->select('p.*, t.store_name, c.category_name')
+                  ->join('tenants t', 't.id = p.tenant_id', 'left')
+                  ->join('categories c', 'c.id = p.category_id', 'left')
+                  ->orderBy('p.created_at', 'DESC');
+    
+    if (!empty($statusFilter)) {
+        $builder->where('p.status', $statusFilter);
+    }
+    
+    $products = $builder->get()->getResultArray();
+    
+    // Get status counts for filter badges
+    $statusCounts = [];
+    $statuses = ['published', 'draft', 'archived'];
+    foreach ($statuses as $status) {
+        $statusCounts[$status] = $db->table('products')
+                                    ->where('status', $status)
+                                    ->countAllResults();
+    }
+    $totalProducts = $db->table('products')->countAllResults();
+    
+    return view('admin/products', [
+        'products' => $products,
+        'statusFilter' => $statusFilter,
+        'statusCounts' => $statusCounts,
+        'totalProducts' => $totalProducts,
+    ]);
+}
+
+// ==========================================
+// DELETE PRODUCT (Admin)
+// ==========================================
+public function deleteProduct($id)
+{
+    // Check admin access
+    $isLoggedIn = session()->get('is_logged_in') || session()->get('user_id');
+    $isAdmin = session()->get('is_admin') || session()->get('role') === 'admin' || session()->get('role') === 'super_admin';
+
+    if (!$isLoggedIn || !$isAdmin) {
+        return redirect()->to('/login')->with('error', 'Access denied.');
+    }
+
+    $db = \Config\Database::connect();
+    
+    // Get product to delete image
+    $product = $db->table('products')
+                  ->where('id', $id)
+                  ->get()
+                  ->getRowArray();
+    
+    if (!$product) {
+        return redirect()->back()->with('error', 'Product not found.');
+    }
+    
+    // Delete product image if exists
+    if (!empty($product['product_image']) && file_exists(ROOTPATH . 'public/' . $product['product_image'])) {
+        unlink(ROOTPATH . 'public/' . $product['product_image']);
+    }
+    
+    // Delete product
+    $db->table('products')->where('id', $id)->delete();
+    
+    log_message('info', "Product #{$id} deleted by admin.");
+    
+    return redirect()->to('/admin/products')->with('success', '✅ Product deleted successfully.');
+}
+// ==========================================
+// SYSTEM SETTINGS
+// ==========================================
+public function systemSettings()
+{
+    // Check admin access
+    $isLoggedIn = session()->get('is_logged_in') || session()->get('user_id');
+    $isAdmin = session()->get('is_admin') || session()->get('role') === 'admin' || session()->get('role') === 'super_admin';
+
+    if (!$isLoggedIn || !$isAdmin) {
+        return redirect()->to('/login')->with('error', 'Access denied. Admin only.');
+    }
+
+    // Get settings from session or config
+    $settings = [
+        'platform_name' => session()->get('platform_name') ?? 'ShopEase',
+        'platform_email' => session()->get('platform_email') ?? 'admin@shopease.com',
+        'default_currency' => session()->get('default_currency') ?? 'USD',
+        'default_language' => session()->get('default_language') ?? 'en',
+        'platform_fee' => session()->get('platform_fee') ?? 10,
+        'delivery_fee' => session()->get('delivery_fee') ?? 5,
+        'free_shipping_threshold' => session()->get('free_shipping_threshold') ?? 50,
+    ];
+
+    return view('admin/settings', ['settings' => $settings]);
+}
+
+// ==========================================
+// UPDATE SYSTEM SETTINGS
+// ==========================================
+public function updateSystemSettings()
+{
+    // Check admin access
+    $isLoggedIn = session()->get('is_logged_in') || session()->get('user_id');
+    $isAdmin = session()->get('is_admin') || session()->get('role') === 'admin' || session()->get('role') === 'super_admin';
+
+    if (!$isLoggedIn || !$isAdmin) {
+        return redirect()->to('/login')->with('error', 'Access denied.');
+    }
+
+    // Get POST data
+    $platformName = $this->request->getPost('platform_name');
+    $platformEmail = $this->request->getPost('platform_email');
+    $defaultCurrency = $this->request->getPost('default_currency');
+    $defaultLanguage = $this->request->getPost('default_language');
+    $platformFee = $this->request->getPost('platform_fee');
+    $deliveryFee = $this->request->getPost('delivery_fee');
+    $freeShippingThreshold = $this->request->getPost('free_shipping_threshold');
+
+    // Validate
+    if (empty($platformName) || empty($platformEmail)) {
+        return redirect()->back()->with('error', 'Platform name and email are required.');
+    }
+
+    // Save to session (or database)
+    session()->set([
+        'platform_name' => $platformName,
+        'platform_email' => $platformEmail,
+        'default_currency' => $defaultCurrency,
+        'default_language' => $defaultLanguage,
+        'platform_fee' => $platformFee,
+        'delivery_fee' => $deliveryFee,
+        'free_shipping_threshold' => $freeShippingThreshold,
+    ]);
+
+    // You can also save to a database table
+    // $this->settingsModel->updateSettings($data);
+
+    log_message('info', "System settings updated by admin.");
+
+    return redirect()->back()->with('success', '✅ Settings updated successfully!');
+}
+public function paymentGateways()
+{
+    $db = \Config\Database::connect();
+    $rows = $db->table('settings')->get()->getResultArray();
+
+    $settings = [];
+    foreach ($rows as $row) {
+        $settings[$row['setting_key']] = $row['setting_value'];
+    }
+
+    $gateways = [
+        'chapa_enabled' => $settings['chapa_enabled'] ?? '1',
+        'telebirr_enabled' => $settings['telebirr_enabled'] ?? '1',
+        'cod_enabled' => $settings['cod_enabled'] ?? '1',
+    ];
+
+    return view('admin/payment_gateways', ['gateways' => $gateways]);
+}
+
+public function updatePaymentGateways()
+{
+    $db = \Config\Database::connect();
+
+    $fields = [
+        'chapa_enabled' => $this->request->getPost('chapa_enabled') ? '1' : '0',
+        'telebirr_enabled' => $this->request->getPost('telebirr_enabled') ? '1' : '0',
+        'cod_enabled' => $this->request->getPost('cod_enabled') ? '1' : '0',
+    ];
+
+    foreach ($fields as $key => $value) {
+        $existing = $db->table('settings')->where('setting_key', $key)->get()->getRowArray();
+
+        if ($existing) {
+            $db->table('settings')->where('setting_key', $key)->update([
+                'setting_value' => $value,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+        } else {
+            $db->table('settings')->insert([
+                'setting_key' => $key,
+                'setting_value' => $value,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
+    }
+
+    return redirect()->to('/admin/payment-gateways')->with('success', 'Payment gateway settings updated!');
+}
 
     // ==========================================
     // STORE REQUESTS
     // ==========================================
 
-    public function storeRequests()
-    {
-        $data = [
-            'pendingRequests' => $this->storeRequestModel->getPendingRequests(),
-            'approvedRequests' => $this->storeRequestModel->getApprovedRequests(),
-            'rejectedRequests' => $this->storeRequestModel->getRejectedRequests(),
-        ];
+   // ==========================================
+// STORE REQUESTS
+// ==========================================
+public function storeRequests()
+{
+    // Check admin access
+    $isLoggedIn = session()->get('is_logged_in') || session()->get('user_id');
+    $isAdmin = session()->get('is_admin') || session()->get('role') === 'admin' || session()->get('role') === 'super_admin';
 
-        return view('admin/store_requests', $data);
+    if (!$isLoggedIn || !$isAdmin) {
+        return redirect()->to('/login')->with('error', 'Access denied. Admin only.');
     }
+
+    $db = \Config\Database::connect();
+    
+    // Get pending requests
+    $pendingRequests = $db->table('store_requests')
+                          ->where('status', 'pending')
+                          ->orderBy('created_at', 'DESC')
+                          ->get()
+                          ->getResultArray();
+    
+    // Get approved requests
+    $approvedRequests = $db->table('store_requests')
+                           ->where('status', 'approved')
+                           ->orderBy('updated_at', 'DESC')
+                           ->get()
+                           ->getResultArray();
+    
+    // Get rejected requests
+    $rejectedRequests = $db->table('store_requests')
+                           ->where('status', 'rejected')
+                           ->orderBy('updated_at', 'DESC')
+                           ->get()
+                           ->getResultArray();
+
+    return view('admin/store_requests', [
+        'pendingRequests' => $pendingRequests,
+        'approvedRequests' => $approvedRequests,
+        'rejectedRequests' => $rejectedRequests,
+    ]);
+}
 
     public function viewRequest($id)
     {
@@ -218,21 +727,52 @@ public function releasePayment($paymentId)
     // STORE MANAGEMENT (TENANTS)
     // ==========================================
 
-    public function stores()
-    {
-        $tenants = $this->tenantModel->findAll();
-        
-        // Get store owner info for each tenant
-        foreach ($tenants as &$tenant) {
-            $owner = $this->systemUserModel->where('tenant_id', $tenant['id'])
-                                          ->where('role', 'store_owner')
-                                          ->first();
-            $tenant['owner_name'] = $owner ? $owner['full_name'] : 'No owner';
-            $tenant['owner_email'] = $owner ? $owner['email'] : 'No email';
-        }
-        
-        return view('admin/stores', ['tenants' => $tenants]);
+ public function stores()
+{
+    $db = \Config\Database::connect();
+    
+    // ✅ Get status filter from URL
+    $statusFilter = $this->request->getGet('status') ?? '';
+    
+    // ✅ Build query
+    $builder = $db->table('tenants')
+                  ->orderBy('created_at', 'DESC');
+    
+    if (!empty($statusFilter)) {
+        $builder->where('status', $statusFilter);
     }
+    
+    $tenants = $builder->get()->getResultArray();
+    
+    // Get store owner info for each tenant
+    foreach ($tenants as &$tenant) {
+        $owner = $db->table('system_users')
+                    ->where('tenant_id', $tenant['id'])
+                    ->where('role', 'store_owner')
+                    ->get()
+                    ->getRowArray();
+        $tenant['owner_name'] = $owner ? $owner['full_name'] : 'No owner';
+        $tenant['owner_email'] = $owner ? $owner['email'] : 'No email';
+    }
+    
+    // ✅ Get status counts for filter badges
+    $statusCounts = [];
+    $statuses = ['active', 'pending', 'suspended', 'disabled'];
+    foreach ($statuses as $status) {
+        $statusCounts[$status] = $db->table('tenants')
+                                    ->where('status', $status)
+                                    ->countAllResults();
+    }
+    $totalStores = $db->table('tenants')->countAllResults();
+    
+    // ✅ Pass ALL variables to the view
+    return view('admin/stores', [
+        'tenants' => $tenants,
+        'statusFilter' => $statusFilter,
+        'statusCounts' => $statusCounts,
+        'totalStores' => $totalStores,
+    ]);
+}
 
     public function createStore()
     {
@@ -420,24 +960,40 @@ public function releasePayment($paymentId)
     // USER MANAGEMENT
     // ==========================================
 
-    public function users()
-    {
-        if (session()->get('role') !== 'super_admin') {
-            return redirect()->to('/login')->with('error', 'Unauthorized access.');
-        }
-
-        // Get all customers
-        $customerModel = new CustomerModel();
-        $customers = $customerModel->findAll();
-
-        // Get all store owners
-        $storeOwners = $this->systemUserModel->where('role', 'store_owner')->findAll();
-
-        return view('admin/users', [
-            'customers' => $customers,
-            'storeOwners' => $storeOwners,
-        ]);
+  public function users()
+{
+    if (session()->get('role') !== 'super_admin') {
+        return redirect()->to('/login')->with('error', 'Unauthorized access.');
     }
+
+    // ==========================================
+    // GET ALL CUSTOMERS
+    // ==========================================
+    $customerModel = new CustomerModel();
+
+    $customers = $customerModel
+        ->orderBy('id', 'DESC')
+        ->findAll();
+
+    // ==========================================
+    // GET ALL STORE OWNERS
+    // ==========================================
+    $storeOwners = $this->systemUserModel
+        ->where('role', 'store_owner')
+        ->orderBy('id', 'DESC')
+        ->findAll();
+
+    // ==========================================
+    // TOTAL USERS
+    // ==========================================
+    $totalUsers = count($customers) + count($storeOwners);
+
+    return view('admin/users', [
+        'customers'   => $customers,
+        'storeOwners' => $storeOwners,
+        'totalUsers'  => $totalUsers,
+    ]);
+}
 
     public function toggleCustomerStatus($id)
     {

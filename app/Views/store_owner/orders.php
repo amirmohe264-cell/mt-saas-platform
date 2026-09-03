@@ -119,7 +119,7 @@ if (!session()->get('tenant_id')) {
 
         .main-content { padding: 20px 30px; }
 
-        .order-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e8f0e8; margin-bottom: 15px; }
+        .aorder-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e8f0e8; margin-bottom: 15px; }
         .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
         .status-pending { background: #fff3cd; color: #856404; }
         .status-confirmed { background: #cce5ff; color: #004085; }

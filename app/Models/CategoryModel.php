@@ -21,11 +21,27 @@ class CategoryModel extends Model
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
 
-    // ✅ FIXED: Use PostgreSQL boolean syntax
     public function getActiveCategories()
     {
-        return $this->where('is_active', true)  // ✅ Changed from 1 to true
+        return $this->where('is_active', true)
                     ->orderBy('category_name', 'ASC')
                     ->findAll();
     }
+
+  public function getCategoryWithProductCount()
+{
+    return $this->select(
+        'categories.*, 
+         COUNT(products.id) FILTER (WHERE products.is_active = TRUE) AS product_count',
+        false
+    )
+    ->join(
+        'products',
+        'products.category_id = categories.id',
+        'left'
+    )
+    ->groupBy('categories.id')
+    ->orderBy('categories.category_name', 'ASC')
+    ->findAll();
+}
 }
