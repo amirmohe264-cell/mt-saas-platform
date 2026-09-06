@@ -198,6 +198,21 @@ if (!session()->get('tenant_id')) {
                 <span class="menu-text">Reports</span>
             </li>
         </ul>
+        <ul class="sidebar-menu">
+    <li onclick="location.href='/store/earnings'" data-tooltip="Earnings">
+        <i class="fas fa-chart-line"></i>
+        <span class="menu-text">Earnings & Commission</span>
+    </li>
+    <li onclick="location.href='/store/payouts'" data-tooltip="Payouts">
+        <i class="fas fa-money-bill-wave"></i>
+        <span class="menu-text">Payouts</span>
+    </li>
+    <li onclick="location.href='/store/payment-history'" data-tooltip="Payment History">
+        <i class="fas fa-history"></i>
+        <span class="menu-text">Payment History</span>
+    </li>
+</ul>
+
 
         <div class="sidebar-category">Services</div>
         <ul class="sidebar-menu">

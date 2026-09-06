@@ -16,26 +16,54 @@ class CartController extends BaseController
         $this->cartModel = new CartModel();
     }
 
-    public function index()
+    /**
+     * Builds a cart-items array (matching the DB cart's shape) from the
+     * guest session cart, so the view doesn't need to know the difference.
+     */
+    private function buildGuestCartItems()
     {
-        // Get customer ID
-        $customerId = session()->get('customer_id');
-        
-        if (!$customerId) {
-            $customerId = session()->get('user_id');
-        }
-        
-        if (!$customerId) {
-            return redirect()->to('/login')->with('error', 'Please login to view your cart.');
+        $guestCart = session()->get('guest_cart') ?? [];
+        $items = [];
+
+        foreach ($guestCart as $productId => $quantity) {
+            $product = $this->productModel->find($productId);
+            if (!$product) {
+                continue;
+            }
+
+            $items[] = [
+                'product_id' => $product['id'],
+                'product_name' => $product['product_name'],
+                'price' => $product['price'],
+                'product_image' => $product['product_image'],
+                'quantity' => $quantity,
+                'stock' => $product['quantity'],
+            ];
         }
 
-        // Get cart items
-        $cartItems = $this->cartModel->getCartByCustomer($customerId);
+        return $items;
+    }
+
+    private function getGuestCartCount()
+    {
+        $guestCart = session()->get('guest_cart') ?? [];
+        return array_sum($guestCart);
+    }
+
+    public function index()
+    {
+        $customerId = session()->get('customer_id') ?? session()->get('user_id');
+
+        if ($customerId) {
+            $cartItems = $this->cartModel->getCartByCustomer($customerId);
+        } else {
+            $cartItems = $this->buildGuestCartItems();
+        }
 
         // Calculate totals
         $subtotal = 0;
         $itemCount = 0;
-        
+
         if (!empty($cartItems)) {
             foreach ($cartItems as &$item) {
                 $item['subtotal'] = $item['price'] * $item['quantity'];
@@ -48,15 +76,8 @@ class CartController extends BaseController
         $tax = $subtotal * 0.08;
         $grandTotal = $subtotal + $shipping + $tax;
 
-        // Update session cart count
         session()->set('cart_count', $itemCount);
 
-        // Debug: Log what's being sent to view
-        log_message('debug', 'Cart Items count: ' . count($cartItems));
-        log_message('debug', 'Item Count: ' . $itemCount);
-        log_message('debug', 'Subtotal: ' . $subtotal);
-
-        // Pass data to view
         return view('public/cart', [
             'cartItems' => $cartItems,
             'subtotal' => $subtotal,
@@ -69,19 +90,7 @@ class CartController extends BaseController
 
     public function add()
     {
-        $customerId = session()->get('customer_id');
-        
-        if (!$customerId) {
-            $customerId = session()->get('user_id');
-        }
-        
-        if (!$customerId) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Please login to add items to cart.',
-                'redirect' => '/login'
-            ]);
-        }
+        $customerId = session()->get('customer_id') ?? session()->get('user_id');
 
         $productId = $this->request->getPost('product_id');
         $quantity = (int) $this->request->getPost('quantity') ?: 1;
@@ -101,16 +110,24 @@ class CartController extends BaseController
             ]);
         }
 
-        $result = $this->cartModel->addOrUpdateItem($customerId, $productId, $quantity);
+        if ($customerId) {
+            $result = $this->cartModel->addOrUpdateItem($customerId, $productId, $quantity);
 
-        if (!$result) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Failed to add item to cart.'
-            ]);
+            if (!$result) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to add item to cart.'
+                ]);
+            }
+
+            $cartCount = $this->cartModel->getCartItemCount($customerId);
+        } else {
+            $guestCart = session()->get('guest_cart') ?? [];
+            $guestCart[$productId] = ($guestCart[$productId] ?? 0) + $quantity;
+            session()->set('guest_cart', $guestCart);
+            $cartCount = $this->getGuestCartCount();
         }
 
-        $cartCount = $this->cartModel->getCartItemCount($customerId);
         session()->set('cart_count', $cartCount);
 
         return $this->response->setJSON([
@@ -122,18 +139,7 @@ class CartController extends BaseController
 
     public function update()
     {
-        $customerId = session()->get('customer_id');
-        
-        if (!$customerId) {
-            $customerId = session()->get('user_id');
-        }
-        
-        if (!$customerId) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Please login.'
-            ]);
-        }
+        $customerId = session()->get('customer_id') ?? session()->get('user_id');
 
         $productId = $this->request->getPost('product_id');
         $quantity = (int) $this->request->getPost('quantity');
@@ -142,16 +148,24 @@ class CartController extends BaseController
             return $this->remove($productId);
         }
 
-        $result = $this->cartModel->addOrUpdateItem($customerId, $productId, $quantity);
+        if ($customerId) {
+            $result = $this->cartModel->addOrUpdateItem($customerId, $productId, $quantity);
 
-        if (!$result) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Failed to update cart.'
-            ]);
+            if (!$result) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to update cart.'
+                ]);
+            }
+
+            $cartCount = $this->cartModel->getCartItemCount($customerId);
+        } else {
+            $guestCart = session()->get('guest_cart') ?? [];
+            $guestCart[$productId] = $quantity;
+            session()->set('guest_cart', $guestCart);
+            $cartCount = $this->getGuestCartCount();
         }
 
-        $cartCount = $this->cartModel->getCartItemCount($customerId);
         session()->set('cart_count', $cartCount);
 
         return $this->response->setJSON([
@@ -167,29 +181,26 @@ class CartController extends BaseController
             $productId = $this->request->getPost('product_id');
         }
 
-        $customerId = session()->get('customer_id');
-        
-        if (!$customerId) {
-            $customerId = session()->get('user_id');
-        }
-        
-        if (!$customerId) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Please login.'
-            ]);
-        }
+        $customerId = session()->get('customer_id') ?? session()->get('user_id');
 
-        $result = $this->cartModel->removeItem($customerId, $productId);
+        if ($customerId) {
+            $result = $this->cartModel->removeItem($customerId, $productId);
 
-        if (!$result) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Failed to remove item.'
-            ]);
+            if (!$result) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to remove item.'
+                ]);
+            }
+
+            $cartCount = $this->cartModel->getCartItemCount($customerId);
+        } else {
+            $guestCart = session()->get('guest_cart') ?? [];
+            unset($guestCart[$productId]);
+            session()->set('guest_cart', $guestCart);
+            $cartCount = $this->getGuestCartCount();
         }
 
-        $cartCount = $this->cartModel->getCartItemCount($customerId);
         session()->set('cart_count', $cartCount);
 
         return $this->response->setJSON([
@@ -201,17 +212,11 @@ class CartController extends BaseController
 
     public function count()
     {
-        $customerId = session()->get('customer_id');
-        
-        if (!$customerId) {
-            $customerId = session()->get('user_id');
-        }
-        
-        $count = 0;
+        $customerId = session()->get('customer_id') ?? session()->get('user_id');
 
-        if ($customerId) {
-            $count = $this->cartModel->getCartItemCount($customerId);
-        }
+        $count = $customerId
+            ? $this->cartModel->getCartItemCount($customerId)
+            : $this->getGuestCartCount();
 
         return $this->response->setJSON([
             'success' => true,
@@ -221,20 +226,12 @@ class CartController extends BaseController
 
     public function getCartTotals()
     {
-        $customerId = session()->get('customer_id');
-        
-        if (!$customerId) {
-            $customerId = session()->get('user_id');
-        }
-        
-        if (!$customerId) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Please login.'
-            ]);
-        }
+        $customerId = session()->get('customer_id') ?? session()->get('user_id');
 
-        $cartItems = $this->cartModel->getCartByCustomer($customerId);
+        $cartItems = $customerId
+            ? $this->cartModel->getCartByCustomer($customerId)
+            : $this->buildGuestCartItems();
+
         $subtotal = 0;
         $itemCount = 0;
 
@@ -259,14 +256,12 @@ class CartController extends BaseController
 
     public function clear()
     {
-        $customerId = session()->get('customer_id');
-        
-        if (!$customerId) {
-            $customerId = session()->get('user_id');
-        }
-        
+        $customerId = session()->get('customer_id') ?? session()->get('user_id');
+
         if ($customerId) {
             $this->cartModel->where('customer_id', $customerId)->delete();
+        } else {
+            session()->remove('guest_cart');
         }
 
         session()->set('cart_count', 0);
@@ -278,7 +273,7 @@ class CartController extends BaseController
     {
         $count = $this->request->getPost('cart_count');
         session()->set('cart_count', $count);
-        
+
         return $this->response->setJSON([
             'success' => true
         ]);

@@ -157,10 +157,9 @@ if (!session()->get('tenant_id')) {
 
 <div class="sidebar-wrapper" id="sidebarWrapper">
     <div class="sidebar-card">
-        <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-            <span id="toggleText">Collapse</span>
-        </button>
+    <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+</button>
 
         <div class="store-avatar"><i class="fas fa-store"></i></div>
         <div class="store-name"><?= session()->get('store_name') ?? 'Store' ?></div>
@@ -193,6 +192,21 @@ if (!session()->get('tenant_id')) {
                 <span class="menu-text">Reports</span>
             </li>
         </ul>
+        <ul class="sidebar-menu">
+    <li onclick="location.href='/store/earnings'" data-tooltip="Earnings">
+        <i class="fas fa-chart-line"></i>
+        <span class="menu-text">Earnings & Commission</span>
+    </li>
+    <li onclick="location.href='/store/payouts'" data-tooltip="Payouts">
+        <i class="fas fa-money-bill-wave"></i>
+        <span class="menu-text">Payouts</span>
+    </li>
+    <li onclick="location.href='/store/payment-history'" data-tooltip="Payment History">
+        <i class="fas fa-history"></i>
+        <span class="menu-text">Payment History</span>
+    </li>
+</ul>
+
 
         <div class="sidebar-category">Services</div>
         <ul class="sidebar-menu">
@@ -275,14 +289,12 @@ if (!session()->get('tenant_id')) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    function toggleSidebar() {
-        var wrapper = document.getElementById('sidebarWrapper');
-        var body = document.getElementById('mainBody');
-        var toggleText = document.getElementById('toggleText');
-        wrapper.classList.toggle('collapsed');
-        body.classList.toggle('sidebar-collapsed');
-        toggleText.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
-    }
+   function toggleSidebar() {
+    var wrapper = document.getElementById('sidebarWrapper');
+    var body = document.getElementById('mainBody');
+    wrapper.classList.toggle('collapsed');
+    body.classList.toggle('sidebar-collapsed');
+}
 </script>
 </body>
 </html>

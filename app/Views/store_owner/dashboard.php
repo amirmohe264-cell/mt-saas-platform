@@ -526,10 +526,9 @@ if (!session()->get('tenant_id')) {
 <div class="sidebar-wrapper" id="sidebarWrapper">
     <div class="sidebar-card">
         <!-- Toggle Button -->
-        <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-            <span id="toggleText">Collapse</span>
-        </button>
+      <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+</button>
 
         <div class="store-avatar">
             <i class="fas fa-store"></i>
@@ -566,6 +565,21 @@ if (!session()->get('tenant_id')) {
                 <span class="menu-text">Reports</span>
             </li>
         </ul>
+
+<ul class="sidebar-menu">
+    <li onclick="location.href='/store/earnings'" data-tooltip="Earnings">
+        <i class="fas fa-chart-line"></i>
+        <span class="menu-text">Earnings & Commission</span>
+    </li>
+    <li onclick="location.href='/store/payouts'" data-tooltip="Payouts">
+        <i class="fas fa-money-bill-wave"></i>
+        <span class="menu-text">Payouts</span>
+    </li>
+    <li onclick="location.href='/store/payment-history'" data-tooltip="Payment History">
+        <i class="fas fa-history"></i>
+        <span class="menu-text">Payment History</span>
+    </li>
+</ul>
 
         <!-- SERVICES -->
         <div class="sidebar-category">Services</div>
@@ -1213,20 +1227,13 @@ function saveStoreSettings() {
     // ==========================================
     // TOGGLE SIDEBAR
     // ==========================================
+  
     function toggleSidebar() {
-        var wrapper = document.getElementById('sidebarWrapper');
-        var body = document.getElementById('mainBody');
-        var toggleText = document.getElementById('toggleText');
-        
-        wrapper.classList.toggle('collapsed');
-        body.classList.toggle('sidebar-collapsed');
-        
-        if (wrapper.classList.contains('collapsed')) {
-            toggleText.textContent = 'Expand';
-        } else {
-            toggleText.textContent = 'Collapse';
-        }
-    }
+    var wrapper = document.getElementById('sidebarWrapper');
+    var body = document.getElementById('mainBody');
+    wrapper.classList.toggle('collapsed');
+    body.classList.toggle('sidebar-collapsed');
+}
 
     // ==========================================
     // 8. FLASH MESSAGES

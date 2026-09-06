@@ -786,6 +786,13 @@
                                 <span class="label">Shipping</span>
                                 <span>$<?= number_format($shipping ?? 5.00, 2) ?></span>
                             </div>
+                            <div class="price-breakdown">
+    
+    <div class="price-row">
+        <span class="label">Platform Fee <small class="text-muted">(paid to store owner's platform cut)</small></span>
+        <span>$<?= number_format($platformFee ?? 0, 2) ?></span>
+    </div>
+    
                             <div class="price-row">
                                 <span class="label">Tax (8%)</span>
                                 <span>$<?= number_format($tax ?? 0, 2) ?></span>

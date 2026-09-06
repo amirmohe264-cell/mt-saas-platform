@@ -181,50 +181,596 @@ public function releasePayment($paymentId)
 // ==========================================
 // DASHBOARD
 // ==========================================
+// ==========================================
+// DELIVERY COMPANY MANAGEMENT
+// ==========================================
 
+public function deliveryCompanies()
+{
+    $deliveryCompanyModel = new \App\Models\DeliveryCompanyModel();
+    $companies = $deliveryCompanyModel->orderBy('created_at', 'DESC')->findAll();
+    
+    $data = [
+        'companies' => $companies,
+        'title' => 'Delivery Companies'
+    ];
+    
+    return view('admin/delivery_companies', $data);
+}
+
+public function addDeliveryCompany()
+{
+    return view('admin/delivery_companies_add');
+}
+
+public function storeDeliveryCompany()
+{
+    $rules = [
+        'name' => 'required|min_length[3]|max_length[100]',
+        'email' => 'required|valid_email|is_unique[delivery_companies.email]',
+        'phone' => 'required|min_length[10]|max_length[20]',
+        'password' => 'required|min_length[8]',
+        'address' => 'permit_empty'
+    ];
+
+    if (!$this->validate($rules)) {
+        return redirect()->back()->with('errors', $this->validator->getErrors())->withInput();
+    }
+
+    $deliveryCompanyModel = new \App\Models\DeliveryCompanyModel();
+    
+    $data = [
+        'name' => $this->request->getPost('name'),
+        'email' => $this->request->getPost('email'),
+        'phone' => $this->request->getPost('phone'),
+        'address' => $this->request->getPost('address'),
+        'password' => $this->request->getPost('password'),
+        'status' => $this->request->getPost('status') ?? 'pending',
+        'force_password_change' => true
+    ];
+
+    if ($deliveryCompanyModel->insert($data)) {
+        return redirect()->to('/admin/delivery-companies')->with('success', 'Delivery company added successfully!');
+    }
+
+    return redirect()->back()->with('error', 'Failed to add delivery company.');
+}
+
+public function editDeliveryCompany($id)
+{
+    $deliveryCompanyModel = new \App\Models\DeliveryCompanyModel();
+    $company = $deliveryCompanyModel->find($id);
+    
+    if (!$company) {
+        return redirect()->to('/admin/delivery-companies')->with('error', 'Company not found.');
+    }
+    
+    return view('admin/delivery_companies_edit', ['company' => $company]);
+}
+
+public function updateDeliveryCompany($id)
+{
+    $deliveryCompanyModel = new \App\Models\DeliveryCompanyModel();
+    $company = $deliveryCompanyModel->find($id);
+    
+    if (!$company) {
+        return redirect()->to('/admin/delivery-companies')->with('error', 'Company not found.');
+    }
+
+    $rules = [
+        'name' => 'required|min_length[3]|max_length[100]',
+        'email' => 'required|valid_email|is_unique[delivery_companies.email,id,' . $id . ']',
+        'phone' => 'required|min_length[10]|max_length[20]',
+        'address' => 'permit_empty',
+        'status' => 'required|in_list[pending,active,inactive]'
+    ];
+
+    if (!$this->validate($rules)) {
+        return redirect()->back()->with('errors', $this->validator->getErrors())->withInput();
+    }
+
+    $data = [
+        'name' => $this->request->getPost('name'),
+        'email' => $this->request->getPost('email'),
+        'phone' => $this->request->getPost('phone'),
+        'address' => $this->request->getPost('address'),
+        'status' => $this->request->getPost('status')
+    ];
+
+    // Update password only if provided
+    $newPassword = $this->request->getPost('password');
+    if (!empty($newPassword)) {
+        if (strlen($newPassword) < 8) {
+            return redirect()->back()->with('error', 'Password must be at least 8 characters.');
+        }
+        $data['password'] = password_hash($newPassword, PASSWORD_DEFAULT);
+        $data['force_password_change'] = true;
+    }
+
+    if ($deliveryCompanyModel->update($id, $data)) {
+        return redirect()->to('/admin/delivery-companies')->with('success', 'Company updated successfully!');
+    }
+
+    return redirect()->back()->with('error', 'Failed to update company.');
+}
+
+public function toggleDeliveryCompany($id)
+{
+    $deliveryCompanyModel = new \App\Models\DeliveryCompanyModel();
+    $company = $deliveryCompanyModel->find($id);
+    
+    if (!$company) {
+        return redirect()->to('/admin/delivery-companies')->with('error', 'Company not found.');
+    }
+
+    $newStatus = $company['status'] === 'active' ? 'inactive' : 'active';
+    $deliveryCompanyModel->update($id, ['status' => $newStatus]);
+
+    return redirect()->to('/admin/delivery-companies')->with('success', 'Company ' . $newStatus . ' successfully!');
+}
+
+public function deleteDeliveryCompany($id)
+{
+    $deliveryCompanyModel = new \App\Models\DeliveryCompanyModel();
+    $company = $deliveryCompanyModel->find($id);
+    
+    if (!$company) {
+        return redirect()->to('/admin/delivery-companies')->with('error', 'Company not found.');
+    }
+
+    // Check if company has active deliveries
+    $assignmentModel = new \App\Models\DeliveryAssignmentModel();
+    $activeAssignments = $assignmentModel->where('company_id', $id)
+        ->whereIn('status', ['assigned', 'picked_up', 'in_transit'])
+        ->countAllResults();
+
+    if ($activeAssignments > 0) {
+        return redirect()->back()->with('error', 'Cannot delete company with active deliveries.');
+    }
+
+    $deliveryCompanyModel->delete($id);
+    return redirect()->to('/admin/delivery-companies')->with('success', 'Company deleted successfully.');
+}
+
+public function resetDeliveryCompanyPassword($id)
+{
+    $deliveryCompanyModel = new \App\Models\DeliveryCompanyModel();
+    $company = $deliveryCompanyModel->find($id);
+    
+    if (!$company) {
+        return redirect()->to('/admin/delivery-companies')->with('error', 'Company not found.');
+    }
+
+    // Generate a random password
+    $newPassword = substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%'), 0, 12);
+    
+    $deliveryCompanyModel->update($id, [
+        'password' => password_hash($newPassword, PASSWORD_DEFAULT),
+        'force_password_change' => true
+    ]);
+
+    return redirect()->back()->with('success', 'Password reset successfully! New password: ' . $newPassword);
+}
+
+// ==========================================
+// PLATFORM FEES
+// ==========================================
+public function orderDetails($orderId)
+{
+    $orderModel = new \App\Models\OrderModel();
+    $order = $orderModel->find($orderId);
+    
+    if (!$order) {
+        return redirect()->to('/admin/orders')->with('error', 'Order not found.');
+    }
+    
+    $customerModel = new \App\Models\CustomerModel();
+    $tenantModel = new \App\Models\TenantModel();
+    $orderItemModel = new \App\Models\OrderItemModel();
+    $productModel = new \App\Models\ProductModel();
+    $deliveryAssignmentModel = new \App\Models\DeliveryAssignmentModel();
+    
+    $order['customer'] = $customerModel->find($order['customer_id']);
+    $order['store'] = $tenantModel->find($order['tenant_id']);
+    $order['items'] = $orderItemModel->where('order_id', $orderId)->findAll();
+    
+    foreach ($order['items'] as &$item) {
+        $product = $productModel->find($item['product_id']);
+        $item['product_name'] = $product['product_name'] ?? 'Unknown Product';
+    }
+    
+    $assignment = $deliveryAssignmentModel->where('order_id', $orderId)->first();
+    $order['pickup_code'] = $assignment['pickup_verification_code'] ?? 'N/A';
+    $order['delivery_code'] = $assignment['delivery_verification_code'] ?? 'N/A';
+    $order['delivery_status'] = $assignment['status'] ?? $order['delivery_status'] ?? 'pending';
+    
+    $data = [
+        'order' => $order,
+        'title' => 'Order Details'
+    ];
+    
+    return view('admin/order_details', $data);
+}
+
+public function platformFees()
+{
+    $platformSettingsModel = new \App\Models\PlatformSettingModel();
+    $settings = $platformSettingsModel->findAll();
+    
+    // Convert to key-value array
+    $feeData = [];
+    foreach ($settings as $setting) {
+        $feeData[$setting['setting_key']] = $setting['setting_value'];
+    }
+    
+    $data = [
+        'fees' => $feeData,
+        'title' => 'Platform Fees'
+    ];
+    
+    return view('admin/platform_fees', $data);
+}
+
+public function updatePlatformFees()
+{
+    $platformSettingsModel = new \App\Models\PlatformSettingModel();
+    
+    $feeKeys = [
+        'platform_fee_percentage',
+        'platform_fee_fixed',
+        'delivery_fee_base',
+        'delivery_fee_per_km',
+        'refund_window_days',
+        'max_refund_percentage'
+    ];
+    
+    foreach ($feeKeys as $key) {
+        $value = $this->request->getPost($key);
+        if ($value !== null) {
+            $platformSettingsModel->where('setting_key', $key)->set(['setting_value' => $value])->update();
+        }
+    }
+    
+    return redirect()->to('/admin/platform-fees')->with('success', 'Platform fees updated successfully!');
+}
+// ==========================================
+// STORE OWNER COMMISSIONS
+// ==========================================
+
+public function commissions()
+{
+    $platformSettingsModel = new \App\Models\PlatformSettingModel();
+    $settings = $platformSettingsModel->findAll();
+    
+    $commissionData = [];
+    foreach ($settings as $setting) {
+        $commissionData[$setting['setting_key']] = $setting['setting_value'];
+    }
+    
+    $data = [
+        'commissions' => $commissionData,
+        'title' => 'Store Owner Commissions'
+    ];
+    
+    return view('admin/commissions', $data);
+}
+
+public function updateCommissions()
+{
+    $platformSettingsModel = new \App\Models\PlatformSettingModel();
+    
+    $commissionKeys = [
+        'store_commission_percentage',
+        'store_commission_fixed'
+    ];
+    
+    foreach ($commissionKeys as $key) {
+        $value = $this->request->getPost($key);
+        if ($value !== null) {
+            $platformSettingsModel->where('setting_key', $key)->set(['setting_value' => $value])->update();
+        }
+    }
+    
+    return redirect()->to('/admin/commissions')->with('success', 'Commissions updated successfully!');
+}
+// ==========================================
+// SELLER PAYOUTS
+// ==========================================
+
+public function sellerPayouts()
+{
+    $payoutModel = new \App\Models\PayoutModel();
+    $tenantModel = new \App\Models\TenantModel();
+    
+    // Get all payouts with tenant details
+    $payouts = $payoutModel->orderBy('created_at', 'DESC')->findAll();
+    
+    foreach ($payouts as &$payout) {
+        $tenant = $tenantModel->find($payout['tenant_id']);
+        $payout['store_name'] = $tenant['store_name'] ?? 'Unknown Store';
+    }
+    
+    $summary = [
+        'total_pending' => $payoutModel->where('status', 'pending')->countAllResults(),
+        'total_processing' => $payoutModel->where('status', 'processing')->countAllResults(),
+        'total_paid' => $payoutModel->where('status', 'paid')->countAllResults(),
+        'total_amount_pending' => $payoutModel->where('status', 'pending')->selectSum('net_amount')->first()['net_amount'] ?? 0,
+        'total_amount_paid' => $payoutModel->where('status', 'paid')->selectSum('net_amount')->first()['net_amount'] ?? 0,
+    ];
+    
+    $data = [
+        'payouts' => $payouts,
+        'summary' => $summary,
+        'title' => 'Seller Payouts'
+    ];
+    
+    return view('admin/seller_payouts', $data);
+}
+
+public function processPayout($payoutId)
+{
+    $payoutModel = new \App\Models\PayoutModel();
+    $payout = $payoutModel->find($payoutId);
+    
+    if (!$payout) {
+        return redirect()->back()->with('error', 'Payout not found.');
+    }
+    
+    $paymentMethod = $this->request->getPost('payment_method') ?? 'bank_transfer';
+    $transactionId = $this->request->getPost('transaction_id') ?? 'TXN-' . time();
+    
+    $payoutModel->processPayout($payoutId, $paymentMethod, $transactionId);
+    
+    return redirect()->back()->with('success', 'Payout marked as processing.');
+}
+
+public function completePayout($payoutId)
+{
+    $payoutModel = new \App\Models\PayoutModel();
+    $payout = $payoutModel->find($payoutId);
+    
+    if (!$payout) {
+        return redirect()->back()->with('error', 'Payout not found.');
+    }
+    
+    $payoutModel->completePayout($payoutId);
+    
+    return redirect()->back()->with('success', 'Payout marked as paid.');
+}
+// ==========================================
+// DELIVERY ASSIGNMENTS
+// ==========================================
+
+public function deliveryAssignments()
+{
+    $assignmentModel = new \App\Models\DeliveryAssignmentModel();
+    $companyModel = new \App\Models\DeliveryCompanyModel();
+    $tenantModel = new \App\Models\TenantModel();
+    $orderModel = new \App\Models\OrderModel();
+    
+    $assignments = $assignmentModel->orderBy('created_at', 'DESC')->findAll();
+    
+    foreach ($assignments as &$assignment) {
+        $company = $companyModel->find($assignment['company_id']);
+        $assignment['company_name'] = $company['name'] ?? 'Unknown';
+        
+        $order = $orderModel->find($assignment['order_id']);
+        if ($order) {
+            $tenant = $tenantModel->find($order['tenant_id']);
+            $assignment['store_name'] = $tenant['store_name'] ?? 'Unknown Store';
+            $assignment['order_number'] = $order['order_number'] ?? '#' . $order['id'];
+        }
+    }
+    
+    $data = [
+        'assignments' => $assignments,
+        'companies' => $companyModel->findAll(),
+        'title' => 'Delivery Assignments'
+    ];
+    
+    return view('admin/delivery_assignments', $data);
+}
+
+public function updateDeliveryAssignment($assignmentId)
+{
+    $assignmentModel = new \App\Models\DeliveryAssignmentModel();
+    $assignment = $assignmentModel->find($assignmentId);
+    
+    if (!$assignment) {
+        return redirect()->back()->with('error', 'Assignment not found.');
+    }
+    
+    $companyId = $this->request->getPost('company_id');
+    $status = $this->request->getPost('status');
+    
+    if ($companyId) {
+        $assignmentModel->update($assignmentId, ['company_id' => $companyId]);
+    }
+    
+    if ($status) {
+        $assignmentModel->updateStatus($assignmentId, $status);
+    }
+    
+    return redirect()->back()->with('success', 'Delivery assignment updated successfully!');
+}
+// ==========================================
+// DELIVERY STATUS
+// ==========================================
+
+public function deliveryStatus()
+{
+    $orderModel = new \App\Models\OrderModel();
+    $assignmentModel = new \App\Models\DeliveryAssignmentModel();
+    
+    $orders = $orderModel->where('delivery_status !=', '')->orderBy('created_at', 'DESC')->limit(100)->findAll();
+    
+    $statusCounts = [
+        'pending' => $orderModel->where('delivery_status', 'pending')->countAllResults(),
+        'assigned' => $orderModel->where('delivery_status', 'assigned')->countAllResults(),
+        'picked_up' => $orderModel->where('delivery_status', 'picked_up')->countAllResults(),
+        'in_transit' => $orderModel->where('delivery_status', 'in_transit')->countAllResults(),
+        'delivered' => $orderModel->where('delivery_status', 'delivered')->countAllResults(),
+        'completed' => $orderModel->where('delivery_status', 'completed')->countAllResults(),
+        'failed' => $orderModel->where('delivery_status', 'failed')->countAllResults(),
+    ];
+    
+    foreach ($orders as &$order) {
+        $assignment = $assignmentModel->where('order_id', $order['id'])->first();
+        $order['pickup_code'] = $assignment['pickup_verification_code'] ?? 'N/A';
+        $order['delivery_code'] = $assignment['delivery_verification_code'] ?? 'N/A';
+        $order['company_id'] = $assignment['company_id'] ?? null;
+    }
+    
+    $data = [
+        'orders' => $orders,
+        'statusCounts' => $statusCounts,
+        'title' => 'Delivery Status'
+    ];
+    
+    return view('admin/delivery_status', $data);
+}
+// ==========================================
+// REFUNDS & DISPUTES
+// ==========================================
+
+public function refunds()
+{
+    $refundModel = new \App\Models\RefundRequestModel();
+    $orderModel = new \App\Models\OrderModel();
+    $customerModel = new \App\Models\CustomerModel();
+    
+    $refunds = $refundModel->orderBy('created_at', 'DESC')->findAll();
+    
+    foreach ($refunds as &$refund) {
+        $order = $orderModel->find($refund['order_id']);
+        $refund['order_number'] = $order['order_number'] ?? '#' . $order['id'];
+        $refund['order_total'] = $order['total_amount'] ?? 0;
+        $customer = $customerModel->find($refund['customer_id']);
+        $refund['customer_name'] = $customer['first_name'] . ' ' . $customer['last_name'] ?? 'Unknown';
+    }
+    
+    $stats = [
+        'total' => $refundModel->countAllResults(),
+        'pending' => $refundModel->where('status', 'pending')->countAllResults(),
+        'approved' => $refundModel->where('status', 'approved')->countAllResults(),
+        'rejected' => $refundModel->where('status', 'rejected')->countAllResults(),
+    ];
+    
+    $data = [
+        'refunds' => $refunds,
+        'stats' => $stats,
+        'title' => 'Refunds & Disputes'
+    ];
+    
+    return view('admin/refunds', $data);
+}
+
+public function refundDetails($refundId)
+{
+    $refundModel = new \App\Models\RefundRequestModel();
+    $refund = $refundModel->find($refundId);
+    
+    if (!$refund) {
+        return redirect()->to('/admin/refunds')->with('error', 'Refund not found.');
+    }
+    
+    $orderModel = new \App\Models\OrderModel();
+    $customerModel = new \App\Models\CustomerModel();
+    
+    $refund['order'] = $orderModel->find($refund['order_id']);
+    $refund['customer'] = $customerModel->find($refund['customer_id']);
+    
+    $data = [
+        'refund' => $refund,
+        'title' => 'Refund Details'
+    ];
+    
+    return view('admin/refund_details', $data);
+}
+
+public function updateRefund($refundId)
+{
+    $refundModel = new \App\Models\RefundRequestModel();
+    $refund = $refundModel->find($refundId);
+    
+    if (!$refund) {
+        return redirect()->back()->with('error', 'Refund not found.');
+    }
+    
+    $status = $this->request->getPost('status');
+    $adminNote = $this->request->getPost('admin_note');
+    
+    if ($status === 'approved') {
+        $refundModel->approveRequest($refundId, $adminNote);
+        return redirect()->to('/admin/refunds')->with('success', 'Refund approved successfully!');
+    } elseif ($status === 'rejected') {
+        $refundModel->rejectRequest($refundId, $adminNote);
+        return redirect()->to('/admin/refunds')->with('success', 'Refund rejected.');
+    }
+    
+    return redirect()->back()->with('error', 'Invalid action.');
+}
 public function dashboard()
 {
     $db = \Config\Database::connect();
-    
-    // Get total stores
-    $totalStores = $db->table('tenants')->countAllResults();
-    
-    // Get active stores
-    $activeStores = $db->table('tenants')
-                        ->where('status', 'active')
-                        ->countAllResults();
-    
-    // Get suspended stores
-    $suspendedStores = $db->table('tenants')
-                          ->where('status', 'suspended')
-                          ->countAllResults();
-    
-    // Get total customers
+
+    $tenants = $this->tenantModel->findAll();
+
+    foreach ($tenants as &$tenant) {
+        $owner = $this->systemUserModel->where('tenant_id', $tenant['id'])
+                                      ->where('role', 'store_owner')
+                                      ->first();
+        $tenant['owner_name'] = $owner ? $owner['full_name'] : 'No owner';
+        $tenant['owner_email'] = $owner ? $owner['email'] : 'No email';
+    }
+
+    $totalStores = count($tenants);
+    $activeStores = $this->tenantModel->where('status', 'active')->countAllResults();
+    $suspendedStores = $this->tenantModel->where('status', 'suspended')->countAllResults();
+
     $totalCustomers = $db->table('customers')->countAllResults();
-    
-    // Get new customers (this month)
     $newCustomers = $db->table('customers')
-                       ->where('created_at >=', date('Y-m-01 00:00:00'))
-                       ->countAllResults();
-    
-    // Get total products
+        ->where('created_at >=', date('Y-m-01'))
+        ->countAllResults();
+
     $totalProducts = $db->table('products')->countAllResults();
-    
-    // Get total orders
     $totalOrders = $db->table('orders')->countAllResults();
-    
-    // Get total revenue (from paid orders)
-    $revenueResult = $db->table('orders')
-                        ->selectSum('total_amount')
-                        ->where('payment_status', 'paid')
-                        ->get()
-                        ->getRow();
-    $totalRevenue = $revenueResult->total_amount ?? 0;
-    
-    // Get recent activities
-    $recentActivities = $this->getRecentActivities();
-    
+
+    $revenueRow = $db->table('orders')->selectSum('total_amount')->get()->getRow();
+    $totalRevenue = $revenueRow->total_amount ?? 0;
+
+    // Build recent activity from real store requests, newest first
+    $recentActivities = [];
+    $recentRequests = $this->storeRequestModel->orderBy('created_at', 'DESC')->limit(5)->findAll();
+    foreach ($recentRequests as $req) {
+        $iconType = 'info';
+        $badgeClass = 'bg-secondary';
+        $badgeText = ucfirst($req['status']);
+        if ($req['status'] === 'approved') {
+            $iconType = 'success';
+            $badgeClass = 'bg-success';
+        } elseif ($req['status'] === 'pending') {
+            $iconType = 'warning';
+            $badgeClass = 'bg-warning text-dark';
+        } elseif ($req['status'] === 'rejected') {
+            $iconType = 'danger';
+            $badgeClass = 'bg-danger';
+        }
+
+        $recentActivities[] = [
+            'message' => 'Store request: "' . $req['store_name'] . '" by ' . $req['owner_name'],
+            'time' => date('M d, Y', strtotime($req['created_at'])),
+            'icon' => 'fa-store',
+            'icon_type' => $iconType,
+            'badge_class' => $badgeClass,
+            'badge_text' => $badgeText,
+        ];
+    }
+
+    $storeRequestModel = new StoreRequestModel();
     $data = [
+        'tenants' => $tenants,
+        'pendingRequests' => $storeRequestModel->getPendingRequests(),
         'totalStores' => $totalStores,
         'activeStores' => $activeStores,
         'suspendedStores' => $suspendedStores,
@@ -235,10 +781,9 @@ public function dashboard()
         'totalRevenue' => $totalRevenue,
         'recentActivities' => $recentActivities,
     ];
-    
+
     return view('admin/dashboard', $data);
 }
-
 // ==========================================
 // GET RECENT ACTIVITIES
 // ==========================================

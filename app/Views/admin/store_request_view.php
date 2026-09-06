@@ -242,9 +242,8 @@ if (!$isLoggedIn || !$isAdmin) {
 <div class="sidebar-wrapper" id="sidebarWrapper">
     <div class="sidebar-card">
         <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-            <span id="toggleText">Collapse</span>
-        </button>
+    <i class="fas fa-bars"></i>
+</button>
 
         <div class="admin-avatar"><i class="fas fa-user-shield"></i></div>
         <div class="admin-name"><?= session()->get('full_name') ?? 'Super Admin' ?></div>
@@ -260,6 +259,10 @@ if (!$isLoggedIn || !$isAdmin) {
             <li onclick="location.href='/admin/stores'" data-tooltip="Stores">
                 <i class="fas fa-store"></i>
                 <span class="menu-text">Stores</span>
+            </li>
+            <li onclick="location.href='/admin/delivery-companies'" data-tooltip="Delivery Companies">
+                <i class="fas fa-truck"></i>
+                <span class="menu-text">Delivery Companies</span>
             </li>
             <li class="active" onclick="location.href='/admin/store-requests'" data-tooltip="Store Requests">
                 <i class="fas fa-store"></i>
@@ -277,6 +280,11 @@ if (!$isLoggedIn || !$isAdmin) {
 
         <!-- FINANCE -->
         <div class="sidebar-category">Finance</div>
+          <ul class="sidebar-menu">
+            <li  onclick="location.href='/admin/platform-fees'" data-tooltip="Platform Fees">
+                <i class="fas fa-percentage"></i>
+                <span class="menu-text">Platform Fees</span>
+            </li>
         <ul class="sidebar-menu">
             <li onclick="location.href='/admin/payment-gateways'" data-tooltip="Payments">
                 <i class="fas fa-credit-card"></i>
@@ -455,14 +463,12 @@ if (!$isLoggedIn || !$isAdmin) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    function toggleSidebar() {
-        var wrapper = document.getElementById('sidebarWrapper');
-        var body = document.getElementById('mainBody');
-        var toggleText = document.getElementById('toggleText');
-        wrapper.classList.toggle('collapsed');
-        body.classList.toggle('sidebar-collapsed');
-        toggleText.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
-    }
+  function toggleSidebar() {
+    var wrapper = document.getElementById('sidebarWrapper');
+    var body = document.getElementById('mainBody');
+    wrapper.classList.toggle('collapsed');
+    body.classList.toggle('sidebar-collapsed');
+}
 </script>
 </body>
 </html>

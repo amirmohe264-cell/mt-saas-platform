@@ -815,10 +815,9 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
 
 <div class="sidebar-wrapper" id="sidebarWrapper">
     <div class="sidebar-card">
-        <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-            <span id="toggleText">Collapse</span>
-        </button>
+      <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+</button>
 
         <div class="user-avatar">
             <i class="fas fa-user"></i>
@@ -1258,12 +1257,10 @@ function showSection(section) {
 }
 
 function toggleSidebar() {
-    const wrapper = document.getElementById('sidebarWrapper');
-    const body = document.getElementById('mainBody');
-    const txt = document.getElementById('toggleText');
+    var wrapper = document.getElementById('sidebarWrapper');
+    var body = document.getElementById('mainBody');
     wrapper.classList.toggle('collapsed');
     body.classList.toggle('sidebar-collapsed');
-    txt.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
 }
 
 function updateProfile(event) {

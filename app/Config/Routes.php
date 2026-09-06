@@ -85,10 +85,7 @@ $routes->post('store/subcategories/update/(:num)', 'SubcategoryController::updat
 $routes->get('store/subcategories/delete/(:num)', 'SubcategoryController::delete/$1');
 $routes->get('store/subcategories/toggle/(:num)', 'SubcategoryController::toggleStatus/$1');
 
-// ==========================================
-// SUPER ADMIN DASHBOARD
-// ==========================================
-$routes->get('admin/dashboard', 'Home::adminDashboard');
+
 
 // Admin - Category CRUD
 $routes->get('admin/categories', 'CategoryController::adminIndex');
@@ -218,6 +215,40 @@ $routes->post('wishlist/remove/(:num)', 'WishlistController::remove/$1');
 // ==========================================
 // ROUTE SETTINGS
 // ==========================================
+// ==========================================
+// DELIVERY COMPANY ROUTES
+// ==========================================
+
+// Delivery Company Auth (uses existing login page)
+$routes->get('delivery/login', 'AuthController::login');
+$routes->post('delivery/login', 'AuthController::loginPost');
+
+// Delivery Company Logout
+$routes->get('delivery/logout', 'AuthController::logout');
+
+// Delivery Company Change Password
+$routes->get('delivery/change-password', 'DeliveryCompanyController::changePassword');
+$routes->post('delivery/change-password', 'DeliveryCompanyController::updatePassword');
+
+// Delivery Company Dashboard (protected)
+$routes->group('delivery', ['filter' => 'delivery'], function($routes) {
+    $routes->get('dashboard', 'DeliveryCompanyController::dashboard');
+    $routes->get('orders', 'DeliveryCompanyController::orders');
+    $routes->get('orders/(:num)', 'DeliveryCompanyController::orderDetails/$1');
+    $routes->get('agents', 'DeliveryCompanyController::agents');
+    $routes->get('agents/add', 'DeliveryCompanyController::addAgent');
+    $routes->post('agents/store', 'DeliveryCompanyController::storeAgent');
+    $routes->get('agents/edit/(:num)', 'DeliveryCompanyController::editAgent/$1');
+    $routes->post('agents/update/(:num)', 'DeliveryCompanyController::updateAgent/$1');
+    $routes->get('agents/delete/(:num)', 'DeliveryCompanyController::deleteAgent/$1');
+    $routes->get('agents/toggle/(:num)', 'DeliveryCompanyController::toggleAgent/$1');
+    $routes->get('assign/(:num)', 'DeliveryCompanyController::assignDelivery/$1');
+    $routes->post('assign/update/(:num)', 'DeliveryCompanyController::updateAssignment/$1');
+    $routes->get('active', 'DeliveryCompanyController::activeDeliveries');
+    $routes->get('completed', 'DeliveryCompanyController::completedDeliveries');
+    $routes->get('history', 'DeliveryCompanyController::deliveryHistory');
+    $routes->post('update-delivery-status/(:num)', 'DeliveryCompanyController::updateDeliveryStatus/$1');
+});
 $routes->setTranslateURIDashes(true);
 $routes->setAutoRoute(false);
 // ==========================================
@@ -252,3 +283,51 @@ $routes->post('admin/payment-gateways/update', 'AdminController::updatePaymentGa
 $routes->get('admin/analytics', 'AdminController::analytics');
 // Super Admin Dashboard
 $routes->get('admin/dashboard', 'AdminController::dashboard');
+$routes->post('orders/request-refund/(:num)', 'RefundController::request/$1');
+// Admin - Delivery Company Management
+$routes->get('admin/delivery-companies', 'AdminController::deliveryCompanies');
+$routes->get('admin/delivery-companies/add', 'AdminController::addDeliveryCompany');
+$routes->post('admin/delivery-companies/store', 'AdminController::storeDeliveryCompany');
+$routes->get('admin/delivery-companies/edit/(:num)', 'AdminController::editDeliveryCompany/$1');
+$routes->post('admin/delivery-companies/update/(:num)', 'AdminController::updateDeliveryCompany/$1');
+$routes->get('admin/delivery-companies/toggle/(:num)', 'AdminController::toggleDeliveryCompany/$1');
+$routes->get('admin/delivery-companies/delete/(:num)', 'AdminController::deleteDeliveryCompany/$1');
+$routes->get('admin/delivery-companies/reset-password/(:num)', 'AdminController::resetDeliveryCompanyPassword/$1');
+// Delivery Company - Assign Delivery page (shows all pending orders)
+$routes->get('delivery/assign', 'DeliveryCompanyController::assign');
+$routes->get('delivery/assign/(:num)', 'DeliveryCompanyController::assignDelivery/$1');
+// Admin - Platform Fees
+$routes->get('admin/platform-fees', 'AdminController::platformFees');
+$routes->post('admin/platform-fees/update', 'AdminController::updatePlatformFees');
+
+// Admin - Commissions
+$routes->get('admin/commissions', 'AdminController::commissions');
+$routes->post('admin/commissions/update', 'AdminController::updateCommissions');
+
+// Admin - Seller Payouts
+$routes->get('admin/seller-payouts', 'AdminController::sellerPayouts');
+$routes->post('admin/seller-payouts/process/(:num)', 'AdminController::processPayout/$1');
+$routes->get('admin/seller-payouts/complete/(:num)', 'AdminController::completePayout/$1');
+
+// Admin - Delivery Assignments
+$routes->get('admin/delivery-assignments', 'AdminController::deliveryAssignments');
+$routes->post('admin/delivery-assignments/update/(:num)', 'AdminController::updateDeliveryAssignment/$1');
+
+// Admin - Delivery Status
+$routes->get('admin/delivery-status', 'AdminController::deliveryStatus');
+
+// Admin - Refunds & Disputes
+$routes->get('admin/refunds', 'AdminController::refunds');
+$routes->get('admin/refunds/(:num)', 'AdminController::refundDetails/$1');
+$routes->post('admin/refunds/update/(:num)', 'AdminController::updateRefund/$1');
+$routes->get('admin/order-details/(:num)', 'AdminController::orderDetails/$1');
+// Store Owner - Earnings & Payouts
+$routes->get('store/earnings', 'EarningsController::index');
+$routes->get('store/payouts', 'EarningsController::payouts');
+$routes->get('store/payment-history', 'EarningsController::paymentHistory');
+// app/Config/Routes.php
+
+// Add this route
+$routes->get('store/settings', 'StoreOwner\Dashboard::settings');
+// Or if your controller is in a different namespace:
+$routes->get('store/settings', 'StoreOwnerController::settings');

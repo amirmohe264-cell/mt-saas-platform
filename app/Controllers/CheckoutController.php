@@ -37,13 +37,14 @@ class CheckoutController extends BaseController
     // CHECKOUT PAGE
     // ============================================
 
-    public function index()
-    {
-        $customerId = session()->get('customer_id') ?? session()->get('user_id');
-        
-        if (!$customerId) {
-            return redirect()->to('/login')->with('error', 'Please login to checkout.');
-        }
+   public function index()
+{
+    $customerId = session()->get('customer_id') ?? session()->get('user_id');
+    
+    if (!$customerId) {
+        session()->set('redirect_after_login', '/checkout');
+        return redirect()->to('/login')->with('error', 'Please create an account or login to complete your order.');
+    }
 
         // Get cart items
         $cartItems = $this->cartModel->getCartByCustomer($customerId);
