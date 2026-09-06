@@ -23,7 +23,7 @@ if (!session()->get('tenant_id')) {
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f8f9fa;
-            padding-left: 280px;
+            padding-left: 180px;
             padding-top: 80px;
             transition: padding-left 0.3s ease;
             min-height: 100vh;
@@ -75,9 +75,10 @@ if (!session()->get('tenant_id')) {
             box-shadow: 0 2px 20px rgba(0,0,0,0.3);
             position: fixed;
             top: 0;
-            left: 0;
+            left: 180px;
             right: 0;
             z-index: 1050;
+            transition: left 0.3s ease;
         }
         .navbar-brand {
             color: #fff !important;
@@ -119,10 +120,10 @@ if (!session()->get('tenant_id')) {
         /* ========================================== */
         .sidebar-wrapper {
             position: fixed;
-            top: 80px;
+            top: 0;
             left: 0;
-            width: 280px;
-            height: calc(100vh - 80px);
+            width: 180px;
+            height: 100vh;
             overflow-y: auto;
             background: #fff;
             border-right: 1px solid #e8f0e8;
@@ -191,6 +192,11 @@ if (!session()->get('tenant_id')) {
 
         body.sidebar-collapsed {
             padding-left: 70px;
+        }
+
+        /* ✅ Navbar follows the sidebar's collapsed state */
+        body.sidebar-collapsed .navbar {
+            left: 70px;
         }
 
         .sidebar-card .store-avatar {
@@ -459,6 +465,12 @@ if (!session()->get('tenant_id')) {
             body {
                 padding-left: 0;
             }
+            .navbar {
+                left: 0 !important;
+            }
+            body.sidebar-collapsed .navbar {
+                left: 0 !important;
+            }
             .sidebar-wrapper {
                 position: relative;
                 top: 0;
@@ -528,7 +540,7 @@ if (!session()->get('tenant_id')) {
         <!-- Toggle Button -->
         <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
             <i class="fas fa-bars"></i>
-            <span id="toggleText">Collapse</span>
+           
         </button>
 
         <div class="store-avatar">

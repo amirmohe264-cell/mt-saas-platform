@@ -6,206 +6,369 @@
     <title>Register - ShopEase</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+        :root {
+            --brand: #1a1a2e;
+            --brand-mid: #16213e;
+            --accent: #e94560;
+            --accent-light: #ff6b6b;
+            --gold: #f5a623;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --surface: #f9fafb;
+            --white: #ffffff;
+            --radius: 12px;
+            --radius-lg: 20px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --font: 'Inter', sans-serif;
+            --display: 'Sora', sans-serif;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f8f9fa;
+            font-family: var(--font);
+            color: var(--text);
+            background: var(--white);
         }
-        .navbar {
-            background: #1a2e1a !important;
-            padding: 15px 0;
+        a { text-decoration: none; }
+        .site-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 18px 0;
+            background: rgba(255, 255, 255, 0.98);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(12px);
         }
-        .navbar-brand {
-            color: #fff !important;
-            font-weight: bold;
+        .nav-logo {
+            color: var(--brand);
+            font-family: var(--display);
             font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
-        .navbar-brand i {
-            color: #4caf50;
-        }
-        .navbar .nav-link {
-            color: #d4d4d4 !important;
+        .nav-logo span { color: var(--accent); }
+        .nav-link-item {
+            color: #374151;
+            font-size: 0.9rem;
             font-weight: 500;
-            transition: 0.3s;
+            padding: 6px 14px;
+            border-radius: 8px;
+            transition: all 0.2s;
         }
-        .navbar .nav-link:hover {
-            color: #4caf50 !important;
+        .nav-link-item:hover,
+        .nav-link-item.active {
+            color: var(--accent);
+            background: #fff5f5;
         }
-        .navbar .nav-link.active {
-            color: #4caf50 !important;
+        .btn-nav-signin {
+            color: white;
+            background: var(--brand);
+            border-radius: 50px;
+            padding: 9px 22px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-nav-signin:hover {
+            color: white;
+            background: #2d2d4e;
+            transform: translateY(-1px);
+        }
+        .search-wrap { position: relative; }
+        .search-ico {
+            position: absolute;
+            top: 50%;
+            left: 14px;
+            color: #9ca3af;
+            font-size: 0.82rem;
+            transform: translateY(-50%);
         }
         .search-box {
-            background: #2a402a;
+            width: 240px;
+            padding: 9px 18px 9px 40px;
+            color: var(--text);
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 30px;
-            padding: 5px 15px;
-            border: none;
-            color: #fff;
-        }
-        .search-box::placeholder {
-            color: #aaa;
+            font-size: 0.875rem;
         }
         .search-box:focus {
             outline: none;
-            background: #2a402a;
+            background: var(--white);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
         }
         .icon-btn {
-            color: #d4d4d4;
-            font-size: 1.2rem;
-            margin: 0 10px;
-            transition: 0.3s;
-            background: none;
-            border: none;
+            width: 38px;
+            height: 38px;
+            margin-left: 8px;
+            color: #374151;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
             text-decoration: none;
+            transition: all 0.2s;
         }
         .icon-btn:hover {
-            color: #4caf50;
+            color: var(--accent);
+            background: #fff5f5;
+            border-color: var(--accent);
+        }
+        .page-header {
+            padding: 44px 0 34px;
+            background: var(--brand);
+        }
+        .page-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            padding: 5px 14px;
+            color: #e5e7eb;
+            background: rgba(255,255,255,.1);
+            border: 1px solid rgba(255,255,255,.18);
+            border-radius: 50px;
+            font-size: .75rem;
+            font-weight: 600;
+        }
+        .page-eyebrow span {
+            width: 6px;
+            height: 6px;
+            background: var(--gold);
+            border-radius: 50%;
+        }
+        .page-title {
+            margin-bottom: 8px;
+            color: white;
+            font-family: var(--display);
+            font-size: 2rem;
+            font-weight: 800;
+        }
+        .page-crumb a {
+            color: rgba(255,255,255,.6);
+            font-size: .85rem;
+        }
+        .page-crumb a:hover { color: var(--accent-light); }
+        .page-crumb .sep {
+            margin: 0 8px;
+            color: rgba(255,255,255,.3);
+        }
+        .page-crumb .active {
+            color: rgba(255,255,255,.9);
+            font-size: .85rem;
+            font-weight: 500;
         }
         .register-section {
-            padding: 60px 0;
+            padding: 64px 0;
         }
         .register-box {
-            background: #fff;
-            border-radius: 16px;
-            padding: 40px;
-            border: 1px solid #e8f0e8;
-            max-width: 500px;
+            max-width: 560px;
             margin: 0 auto;
+            padding: 40px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
         }
         .register-box h3 {
-            color: #1a2e1a;
-            font-weight: 700;
+            color: var(--brand);
+            font-family: var(--display);
+            font-size: 1.45rem;
+            font-weight: 800;
         }
+        .register-box h3 i { color: var(--accent) !important; }
         .register-box .subtitle {
-            color: #888;
-            font-size: 0.95rem;
+            color: var(--muted);
+            font-size: 0.9rem;
         }
         .register-box label {
+            color: var(--brand);
+            font-size: 0.86rem;
             font-weight: 600;
-            color: #1a2e1a;
         }
         .register-box .form-control {
-            border-radius: 8px;
-            border: 2px solid #e8f0e8;
-            padding: 10px 15px;
+            padding: 10px 14px;
+            color: var(--text);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
         }
         .register-box .form-control:focus {
-            border-color: #4caf50;
-            box-shadow: none;
+            background: var(--white);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+        }
+        .register-box .form-check-input:checked {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+        .register-box .text-success,
+        .register-box .login-link {
+            color: var(--accent) !important;
         }
         .btn-register {
-            background: #4caf50;
-            color: #fff;
-            border: none;
-            border-radius: 30px;
-            padding: 12px 40px;
-            font-weight: 600;
-            font-size: 1rem;
             width: 100%;
-            transition: 0.3s;
+            padding: 12px 40px;
+            color: #fff;
+            background: var(--accent);
+            border: none;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
         }
         .btn-register:hover {
-            background: #388e3c;
-        }
-        .register-box .login-link {
-            color: #4caf50;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .register-box .login-link:hover {
-            text-decoration: underline;
+            color: #fff;
+            background: #c73652;
+            box-shadow: 0 8px 20px rgba(233, 69, 96, .22);
+            transform: translateY(-1px);
         }
         .divider {
             display: flex;
             align-items: center;
+            margin: 24px 0;
             text-align: center;
-            margin: 20px 0;
         }
         .divider::before,
         .divider::after {
             content: '';
             flex: 1;
-            border-bottom: 1px solid #e8f0e8;
+            border-bottom: 1px solid var(--border);
         }
         .divider span {
             padding: 0 15px;
-            color: #888;
-            font-size: 0.9rem;
-        }
-        .social-register .btn-social {
-            border-radius: 30px;
-            padding: 10px;
-            font-weight: 500;
-            width: 100%;
-            border: 2px solid #e8f0e8;
-            background: #fff;
-            transition: 0.3s;
-        }
-        .social-register .btn-social:hover {
-            border-color: #4caf50;
-            background: #f0f8f0;
-        }
-        .social-register .btn-social i {
-            margin-right: 10px;
-        }
-        .footer {
-            background: #1a2e1a;
-            color: #d4d4d4;
-            padding: 40px 0 20px;
-            margin-top: 40px;
-        }
-        .footer h5 {
-            color: #fff;
+            color: var(--muted);
+            font-size: .8rem;
             font-weight: 600;
         }
-        .footer a {
-            color: #aaa;
+        .social-register .btn-social {
+            width: 100%;
+            padding: 10px;
+            color: var(--brand);
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all .2s;
+        }
+        .social-register .btn-social:hover {
+            background: #fff5f5;
+            border-color: var(--accent);
+        }
+        .register-box .login-link {
             text-decoration: none;
-            transition: 0.3s;
+            font-weight: 600;
         }
-        .footer a:hover {
-            color: #4caf50;
+        .register-box .login-link:hover { text-decoration: underline; }
+        .alert {
+            border: none;
+            border-radius: 10px;
+            font-size: .88rem;
         }
-        .alert-danger p {
-            margin-bottom: 0;
+        .alert-danger { color: #be123c; background: #fff1f2; }
+        .alert-success { color: #047857; background: #ecfdf5; }
+        .alert-danger p { margin-bottom: 0; }
+        .site-footer {
+            padding: 60px 0 28px;
+            background: #111827;
         }
-        @media (max-width: 768px) {
-            .register-box {
-                padding: 30px 20px;
-            }
+        .footer-logo {
+            color: white;
+            font-family: var(--display);
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+        .footer-logo span { color: var(--accent); }
+        .footer-tagline {
+            max-width: 240px;
+            margin-top: 8px;
+            color: #6b7280;
+            font-size: .85rem;
+        }
+        .footer-heading {
+            margin-bottom: 16px;
+            color: white;
+            font-size: .88rem;
+            font-weight: 700;
+        }
+        .footer-link {
+            display: block;
+            margin-bottom: 9px;
+            color: #6b7280;
+            font-size: .84rem;
+            transition: color .2s;
+        }
+        .footer-link:hover { color: white; }
+        .footer-divider { border-color: #1f2937; }
+        .footer-bottom { color: #4b5563; font-size: .8rem; }
+        .payment-lbl {
+            margin-right: 6px;
+            padding: 4px 10px;
+            color: #9ca3af;
+            background: #1f2937;
+            border-radius: 6px;
+            font-size: .75rem;
+            font-weight: 600;
+        }
+        @media (max-width: 576px) {
+            .register-box { padding: 26px 20px; }
+            .page-title { font-size: 1.6rem; }
+            .search-box { width: 180px; }
         }
     </style>
 </head>
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg">
+<nav class="navbar navbar-expand-lg site-nav" id="siteNav">
     <div class="container">
-        <a class="navbar-brand" href="/"><i class="fas fa-store"></i> ShopEase</a>
+        <a href="/" class="nav-logo">Shop<span>Ease</span></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
-                <li class="nav-item"><a class="nav-link" href="/cart">Cart</a></li>
-                <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-                <li class="nav-item"><a class="nav-link active" href="/register">Register</a></li>
+                <li><a class="nav-link-item" href="/">Home</a></li>
+                <li><a class="nav-link-item" href="/products">Shop</a></li>
+                <li><a class="nav-link-item" href="/store/apply">Sell With Us</a></li>
+                <li><a class="nav-link-item" href="/contact">Contact</a></li>
             </ul>
-            <div class="d-flex align-items-center">
-                <input class="search-box me-2" type="search" placeholder="Search for products...">
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="search-wrap d-none d-md-block">
+                    <i class="fas fa-search search-ico"></i>
+                    <input class="search-box" type="search" placeholder="Search products...">
+                </div>
                 <button class="icon-btn"><i class="far fa-heart"></i></button>
-                <a href="/cart" class="icon-btn"><i class="fas fa-shopping-cart"></i></a>
-                <a href="/login" class="icon-btn"><i class="far fa-user"></i></a>
+                <a href="/cart" class="icon-btn"><i class="fas fa-shopping-bag"></i></a>
+                <a href="/login" class="btn-nav-signin">Sign In</a>
             </div>
         </div>
     </div>
 </nav>
+
+<section class="page-header">
+    <div class="container">
+        <div class="page-eyebrow"><span></span> Account</div>
+        <h2 class="page-title">Create Account</h2>
+        <nav class="page-crumb">
+            <a href="/">Home</a>
+            <span class="sep">/</span>
+            <span class="active">Register</span>
+        </nav>
+    </div>
+</section>
 
 <!-- Register Section -->
 <section class="register-section">
@@ -303,6 +466,39 @@
 </section>
 
 
+
+<footer class="site-footer">
+    <div class="container">
+        <div class="row g-4 pb-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="footer-logo">Shop<span>Ease</span></div>
+                <p class="footer-tagline">Your trusted multi-vendor marketplace for quality products and secure shopping.</p>
+            </div>
+            <div class="col-lg-2 col-6">
+                <h6 class="footer-heading">Shop</h6>
+                <a href="/products" class="footer-link">All Products</a>
+                <a href="/store/apply" class="footer-link">Sell With Us</a>
+                <a href="/track" class="footer-link">Track Order</a>
+            </div>
+            <div class="col-lg-2 col-6">
+                <h6 class="footer-heading">Company</h6>
+                <a href="/about" class="footer-link">About Us</a>
+                <a href="/contact" class="footer-link">Contact</a>
+                <a href="/privacy" class="footer-link">Privacy Policy</a>
+                <a href="/terms" class="footer-link">Terms</a>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <h6 class="footer-heading">Secure Shopping</h6>
+                <p class="footer-link mb-3">Shop confidently with our trusted payment options.</p>
+                <span class="payment-lbl">Telebirr</span>
+                <span class="payment-lbl">CBE Bank</span>
+                <span class="payment-lbl">Chapa</span>
+            </div>
+        </div>
+        <hr class="footer-divider">
+        <p class="footer-bottom mb-0">&copy; <?= date('Y') ?> ShopEase. All rights reserved.</p>
+    </div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
