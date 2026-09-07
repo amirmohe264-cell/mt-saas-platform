@@ -5,18 +5,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Confirmation - ShopEase</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f8f9fa;
-            padding-top: 80px;
+        :root {
+            --brand: #1a1a2e;
+            --brand-mid: #16213e;
+            --accent: #e94560;
+            --accent-light: #ff6b6b;
+            --gold: #f5a623;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --surface: #f9fafb;
+            --white: #ffffff;
+            --radius: 12px;
+            --radius-lg: 20px;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --font: 'Inter', sans-serif;
+            --display: 'Sora', sans-serif;
         }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font);
+            background: var(--surface);
+            padding-top: 92px;
+        }
+        a { text-decoration: none; }
+
+        /* ─── NAVBAR (matches homepage) ─────────────── */
         .navbar {
-            background: #1a2e1a !important;
+            background: var(--brand) !important;
             padding: 12px 0;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 20px rgba(26,26,46,0.3);
             position: fixed;
             top: 0;
             left: 0;
@@ -26,14 +47,15 @@
         }
         .navbar-brand {
             color: #fff !important;
-            font-weight: bold;
+            font-family: var(--display);
+            font-weight: 800;
             font-size: 1.4rem;
         }
-        .navbar-brand i { color: #4caf50; }
-        .navbar .nav-link { color: #d4d4d4 !important; font-weight: 500; transition: 0.3s; }
-        .navbar .nav-link:hover { color: #4caf50 !important; }
+        .navbar-brand i { color: var(--accent); }
+        .navbar .nav-link { color: #d1d5db !important; font-weight: 500; transition: 0.3s; }
+        .navbar .nav-link:hover { color: var(--accent-light) !important; }
         .icon-btn {
-            color: #d4d4d4;
+            color: #d1d5db;
             font-size: 1.1rem;
             margin: 0 6px;
             transition: 0.3s;
@@ -41,46 +63,51 @@
             border: none;
             text-decoration: none;
         }
-        .icon-btn:hover { color: #4caf50; transform: scale(1.1); }
-        
+        .icon-btn:hover { color: var(--accent-light); transform: scale(1.1); }
+
+        /* ─── CONFIRMATION CARD ──────────────────────── */
         .confirmation-card {
-            background: #fff;
-            border-radius: 16px;
+            background: var(--white);
+            border-radius: var(--radius-lg);
             padding: 40px;
-            box-shadow: 0 5px 30px rgba(0,0,0,0.08);
-            border: 1px solid #e8f0e8;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
         }
         .confirmation-card .success-icon {
             font-size: 4rem;
-            color: #4caf50;
+            color: var(--accent);
             margin-bottom: 15px;
         }
         .confirmation-card h2 {
-            color: #1a2e1a;
-            font-weight: 700;
+            font-family: var(--display);
+            color: var(--brand);
+            font-weight: 800;
         }
         .confirmation-card .subtitle {
-            color: #666;
+            color: var(--muted);
             font-size: 1.1rem;
         }
-        
+        .confirmation-card h5, .confirmation-card h6 {
+            font-family: var(--display);
+            color: var(--brand);
+        }
+        .confirmation-card h5 i, .confirmation-card h6 i { color: var(--accent); }
+
         .order-details-table {
-            background: #fff;
-            border-radius: 12px;
-            border: 1px solid #e8f0e8;
+            background: var(--white);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
             overflow: hidden;
         }
-        .order-details-table .table {
-            margin-bottom: 0;
-        }
+        .order-details-table .table { margin-bottom: 0; }
         .order-details-table .table th {
-            background: #f8f9fa;
-            border-bottom: 2px solid #e8f0e8;
+            background: var(--surface);
+            border-bottom: 2px solid var(--border);
             color: #555;
-            font-weight: 600;
-            font-size: 0.85rem;
+            font-weight: 700;
+            font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.4px;
             padding: 12px 15px;
         }
         .order-details-table .table td {
@@ -88,15 +115,13 @@
             vertical-align: middle;
             border-bottom: 1px solid #f0f0f0;
         }
-        .order-details-table .table tr:last-child td {
-            border-bottom: none;
-        }
-        
+        .order-details-table .table tr:last-child td { border-bottom: none; }
+
         .order-summary-box {
-            background: #f8f9fa;
-            border-radius: 12px;
+            background: var(--surface);
+            border-radius: var(--radius);
             padding: 20px;
-            border: 1px solid #e8f0e8;
+            border: 1px solid var(--border);
         }
         .order-summary-box .summary-row {
             display: flex;
@@ -106,23 +131,19 @@
         }
         .order-summary-box .summary-row:last-child {
             border-bottom: none;
-            font-weight: 700;
+            font-family: var(--display);
+            font-weight: 800;
             font-size: 1.2rem;
-            color: #1a2e1a;
+            color: var(--brand);
         }
-        .order-summary-box .summary-label {
-            color: #666;
-        }
-        .order-summary-box .summary-value {
-            font-weight: 600;
-            color: #1a2e1a;
-        }
-        
+        .order-summary-box .summary-label { color: var(--muted); }
+        .order-summary-box .summary-value { font-weight: 700; color: var(--brand); }
+
         .status-badge {
             padding: 5px 16px;
             border-radius: 20px;
             font-size: 0.8rem;
-            font-weight: 600;
+            font-weight: 700;
             display: inline-block;
         }
         .status-pending { background: #fff3cd; color: #856404; }
@@ -131,27 +152,28 @@
         .status-shipped { background: #d4edda; color: #155724; }
         .status-delivered { background: #d4edda; color: #155724; }
         .status-cancelled { background: #f8d7da; color: #721c24; }
-        
+
         .btn-order-action {
-            background: #4caf50;
+            background: var(--accent);
             color: #fff;
             border: none;
             border-radius: 30px;
             padding: 10px 30px;
-            font-weight: 600;
+            font-weight: 700;
             transition: 0.3s;
             text-decoration: none;
             display: inline-block;
+            box-shadow: 0 8px 24px rgba(233,69,96,0.3);
         }
         .btn-order-action:hover {
-            background: #388e3c;
+            background: #c73652;
             color: #fff;
             transform: translateY(-2px);
         }
         .btn-order-secondary {
-            background: #f8f9fa;
-            color: #1a2e1a;
-            border: 1px solid #e8f0e8;
+            background: var(--surface);
+            color: var(--brand);
+            border: 1.5px solid var(--border);
             border-radius: 30px;
             padding: 10px 30px;
             font-weight: 600;
@@ -160,30 +182,35 @@
             display: inline-block;
         }
         .btn-order-secondary:hover {
-            background: #e8f0e8;
-            color: #1a2e1a;
+            background: var(--white);
+            border-color: var(--brand);
+            color: var(--brand);
             transform: translateY(-2px);
         }
-        
+
         .order-item-image {
             width: 60px;
             height: 60px;
             object-fit: contain;
             border-radius: 8px;
-            background: #f8f9fa;
+            background: var(--surface);
             padding: 5px;
         }
-        
+
+        .alert-danger { background: #fff5f5; border: 1px solid #ffd6dc; color: #b3273f; border-radius: var(--radius); }
+        .alert-success { background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; border-radius: var(--radius); }
+
+        /* ─── FOOTER (matches homepage) ─────────────── */
         .footer {
-            background: #1a2e1a;
-            color: #d4d4d4;
+            background: #111827;
+            color: #d1d5db;
             padding: 40px 0 20px;
             margin-top: 40px;
         }
-        .footer h5 { color: #fff; font-weight: 600; }
-        .footer a { color: #aaa; text-decoration: none; transition: 0.3s; }
-        .footer a:hover { color: #4caf50; }
-        
+        .footer h5 { color: #fff; font-family: var(--display); font-weight: 700; }
+        .footer a { color: #9ca3af; text-decoration: none; transition: 0.3s; }
+        .footer a:hover { color: var(--accent-light); }
+
         @media (max-width: 768px) {
             .confirmation-card { padding: 20px; }
             .order-item-image { width: 40px; height: 40px; }
@@ -244,7 +271,7 @@
             <!-- Order Header -->
             <div class="row mb-4">
                 <div class="col-md-6">
-                    <h5 class="fw-bold"><i class="fas fa-receipt me-2 text-success"></i>Order # <?= esc($order['order_number'] ?? 'N/A') ?></h5>
+                    <h5 class="fw-bold"><i class="fas fa-receipt me-2"></i>Order # <?= esc($order['order_number'] ?? 'N/A') ?></h5>
                 </div>
                 <div class="col-md-6 text-md-end">
                     <span class="status-badge status-<?= esc($order['order_status'] ?? 'pending') ?>">
@@ -256,7 +283,7 @@
             <!-- Order Details -->
             <div class="row">
                 <div class="col-lg-8">
-                    <h6 class="fw-bold mb-3"><i class="fas fa-box me-2 text-success"></i>Order Items</h6>
+                    <h6 class="fw-bold mb-3"><i class="fas fa-box me-2"></i>Order Items</h6>
                     <div class="order-details-table">
                         <table class="table">
                             <thead>
@@ -308,7 +335,7 @@
 
                 <!-- Order Summary -->
                 <div class="col-lg-4">
-                    <h6 class="fw-bold mb-3"><i class="fas fa-calculator me-2 text-success"></i>Order Summary</h6>
+                    <h6 class="fw-bold mb-3"><i class="fas fa-calculator me-2"></i>Order Summary</h6>
                     <div class="order-summary-box">
                         <div class="summary-row">
                             <span class="summary-label">Subtotal</span>
@@ -322,13 +349,13 @@
                             <span class="summary-label">Tax (8%)</span>
                             <span class="summary-value">$<?= number_format($order['tax'] ?? 0, 2) ?></span>
                         </div>
-                        <div class="summary-row" style="border-bottom: 2px solid #4caf50; padding-bottom: 10px; margin-bottom: 5px;">
+                        <div class="summary-row" style="border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 5px;">
                             <span class="summary-label fw-bold">Total</span>
-                            <span class="summary-value fw-bold text-success" style="font-size: 1.3rem;">
+                            <span class="summary-value fw-bold" style="font-size: 1.3rem; color: var(--accent);">
                                 $<?= number_format($order['total_amount'] ?? 0, 2) ?>
                             </span>
                         </div>
-                        
+
                         <div class="mt-3">
                             <div class="d-flex justify-content-between py-1">
                                 <span class="text-muted small">Payment Method</span>
@@ -367,8 +394,46 @@
     </div>
 </section>
 
+<!-- Footer -->
+<footer class="footer">
+    <div class="container-fluid px-5">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <h5><i class="fas fa-store" style="color: var(--accent);"></i> ShopEase</h5>
+                <p class="text-muted">Your one-stop shop for everything you need.</p>
+            </div>
+            <div class="col-md-2 mb-4">
+                <h5>Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                    <li><a href="/terms">Terms & Conditions</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3 mb-4">
+                <h5>Customer Service</h5>
+                <ul class="list-unstyled">
+                    <li><a href="/help">Help Center</a></li>
+                    <li><a href="/returns">Returns</a></li>
+                    <li><a href="/shipping">Shipping Info</a></li>
+                    <li><a href="/track">Track Order</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3 mb-4">
+                <h5>Newsletter</h5>
+                <p class="text-muted">Get the latest deals & updates</p>
+                <div class="input-group">
+                    <input type="email" class="form-control" placeholder="Your email" style="background:#16213e;border:none;color:#fff;">
+                    <button class="btn" style="background: var(--accent); border:none; color:#fff;">Subscribe</button>
+                </div>
+            </div>
+        </div>
+        <hr class="border-top">
+        <p class="text-center text-muted small">&copy; <?= date('Y') ?> ShopEase. All rights reserved.</p>
+    </div>
+</footer>
 
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

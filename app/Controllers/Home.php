@@ -380,6 +380,84 @@ class Home extends BaseController
             'selectedSlug' => $selectedSlug
         ]);
     }
+    // ==========================================
+// STORE OWNER - REPORTS
+// ==========================================
+
+public function storeReports()
+{
+    $tenantId = session()->get('tenant_id');
+    
+    if (!$tenantId) {
+        return redirect()->to('/login')->with('error', 'Please login first.');
+    }
+
+    $orderModel = new \App\Models\OrderModel();
+    $productModel = new \App\Models\ProductModel();
+
+    // Today's Sales
+    $todaySales = $orderModel
+        ->where('tenant_id', $tenantId)
+        ->where('order_status', 'delivered')
+        ->where('DATE(created_at)', date('Y-m-d'))
+        ->selectSum('total_amount')
+        ->first();
+
+    // This Week's Sales
+    $weekSales = $orderModel
+        ->where('tenant_id', $tenantId)
+        ->where('order_status', 'delivered')
+        ->where('created_at >=', date('Y-m-d', strtotime('monday this week')))
+        ->where('created_at <=', date('Y-m-d', strtotime('sunday this week')))
+        ->selectSum('total_amount')
+        ->first();
+
+    // ✅ FIXED: This Month's Sales (PostgreSQL compatible)
+    $monthSales = $orderModel
+        ->where('tenant_id', $tenantId)
+        ->where('order_status', 'delivered')
+        ->where('EXTRACT(MONTH FROM created_at)', date('n'))
+        ->where('EXTRACT(YEAR FROM created_at)', date('Y'))
+        ->selectSum('total_amount')
+        ->first();
+
+    // Total Revenue
+    $totalRevenue = $orderModel
+        ->where('tenant_id', $tenantId)
+        ->where('order_status', 'delivered')
+        ->selectSum('total_amount')
+        ->first();
+
+    // Best Selling Products (PostgreSQL compatible)
+    $db = \Config\Database::connect();
+    $bestSellers = $db->table('order_items oi')
+        ->select('oi.product_id, SUM(oi.quantity) as total_sold')
+        ->join('orders o', 'o.id = oi.order_id')
+        ->where('o.tenant_id', $tenantId)
+        ->where('o.order_status', 'delivered')
+        ->groupBy('oi.product_id')
+        ->orderBy('total_sold', 'DESC')
+        ->limit(10)
+        ->get()
+        ->getResultArray();
+
+    // Get product names for best sellers
+    foreach ($bestSellers as &$product) {
+        $prod = $productModel->find($product['product_id']);
+        $product['product_name'] = $prod['product_name'] ?? 'Unknown Product';
+    }
+
+    $data = [
+        'todaySales' => $todaySales['total_amount'] ?? 0,
+        'weekSales' => $weekSales['total_amount'] ?? 0,
+        'monthSales' => $monthSales['total_amount'] ?? 0,
+        'totalRevenue' => $totalRevenue['total_amount'] ?? 0,
+        'bestSellers' => $bestSellers,
+        'active_menu' => 'reports'
+    ];
+
+    return view('store_owner/reports', $data);
+}
 
 
     public function cart()
@@ -656,6 +734,41 @@ $monthSales = $orderModel->getRevenueByPeriod($tenantId, 'month');
             ]
         );
     }
+    public function storeSettings()
+{
+    if (!$this->isLoggedIn()) {
+        return $this->redirectWithMessage(
+            '/login',
+            'Please login to access your store settings.',
+            'error'
+        );
+    }
+
+    if ($this->getUserRole() !== 'store_owner') {
+        return $this->redirectWithMessage(
+            '/dashboard',
+            'You do not have permission to access this page.',
+            'error'
+        );
+    }
+
+    $tenantId = $this->getTenantId();
+
+    if (!$tenantId) {
+        return $this->redirectWithMessage(
+            '/login',
+            'Store information not found.',
+            'error'
+        );
+    }
+
+    $tenantModel = new \App\Models\TenantModel();
+    $tenant = $tenantModel->find($tenantId);
+
+    return $this->view('store_owner/settings', [
+        'tenant' => $tenant,
+    ]);
+}
     public function updateStoreSettings()
 {
     $tenantId = $this->getTenantId();

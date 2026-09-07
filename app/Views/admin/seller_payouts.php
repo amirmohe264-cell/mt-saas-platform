@@ -1,5 +1,17 @@
 <!-- app/Views/admin/seller_payouts.php -->
-<?php $active_menu = 'seller_payouts'; ?>
+<?php
+// ✅ Check for admin session
+$isLoggedIn = session()->get('is_logged_in') || session()->get('user_id');
+$isAdmin = session()->get('is_admin') || session()->get('role') === 'admin' || session()->get('role') === 'super_admin';
+
+if (!$isLoggedIn || !$isAdmin) {
+    header('Location: /login');
+    exit();
+}
+
+$active_menu = 'seller_payouts';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,18 +35,60 @@
         }
 
         /* ========================================== */
-        /* NAVBAR */
+        /* NOTIFICATION STYLES */
+        /* ========================================== */
+        .notification-container {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+            width: 100%;
+        }
+        .notification-toast {
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            border-left: 4px solid #4caf50;
+            animation: slideInRight 0.4s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .notification-toast.error { border-left-color: #dc3545; }
+        .notification-toast.warning { border-left-color: #ffc107; }
+        .notification-toast.info { border-left-color: #17a2b8; }
+        .notification-toast .notif-icon { font-size: 1.3rem; margin-top: 2px; }
+        .notification-toast .notif-content { flex: 1; }
+        .notification-toast .notif-title { font-weight: 600; color: #1a2e1a; font-size: 0.9rem; }
+        .notification-toast .notif-message { color: #555; font-size: 0.85rem; }
+        .notification-toast .notif-time { color: #aaa; font-size: 0.7rem; margin-top: 3px; }
+        .notification-toast .notif-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1rem; padding: 0 5px; }
+        .notification-toast .notif-close:hover { color: #333; }
+        .notification-toast.removing { animation: slideOutRight 0.3s ease forwards; }
+        @keyframes slideInRight { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100px); opacity: 0; } }
+
+        /* ========================================== */
+        /* NAVBAR - WITH LEFT OFFSET FOR SIDEBAR */
         /* ========================================== */
         .navbar {
             background: #1a2e1a !important;
             padding: 15px 0;
             box-shadow: 0 2px 20px rgba(0,0,0,0.3);
             position: fixed;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 280px;
+            right: 0;
             z-index: 1050;
+            transition: left 0.3s ease;
         }
         .navbar-brand { color: #fff !important; font-weight: bold; font-size: 1.5rem; }
         .navbar-brand i { color: #4caf50; }
+        .navbar .nav-link { color: #d4d4d4 !important; font-weight: 500; transition: 0.3s; }
+        .navbar .nav-link:hover { color: #4caf50 !important; }
         .icon-btn {
             color: #d4d4d4;
             font-size: 1.2rem;
@@ -46,14 +100,17 @@
         }
         .icon-btn:hover { color: #4caf50; transform: scale(1.1); }
 
+        body.sidebar-collapsed .navbar { left: 70px; }
+
         /* ========================================== */
-        /* SIDEBAR */
+        /* FIXED SIDEBAR - FULL HEIGHT */
         /* ========================================== */
         .sidebar-wrapper {
             position: fixed;
-            top: 80px; left: 0;
+            top: 0;
+            left: 0;
             width: 280px;
-            height: calc(100vh - 80px);
+            height: 100vh;
             overflow-y: auto;
             background: #fff;
             border-right: 1px solid #e8f0e8;
@@ -89,6 +146,7 @@
             background: #4caf50; color: #fff;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.8rem; margin: 0 auto 10px;
+            transition: all 0.3s ease;
         }
         .sidebar-card .admin-name { text-align: center; font-weight: 700; color: #1a2e1a; font-size: 1rem; }
         .sidebar-card .admin-role { text-align: center; font-size: 0.8rem; }
@@ -97,6 +155,7 @@
             background: #4caf50; color: #fff; border: none; border-radius: 8px;
             padding: 8px 12px; font-size: 1rem; cursor: pointer; width: 100%;
             margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: 0.3s;
         }
         .toggle-sidebar-btn:hover { background: #388e3c; }
 
@@ -125,12 +184,13 @@
         .page-header {
             background: #f8f9fa;
             color: #1a2e1a;
-            padding: 20px 0 20px;
+            padding: 20px 0;
             border-bottom: 1px solid #e8f0e8;
         }
         .page-header h2 { font-weight: 700; color: #1a2e1a; }
         .page-header .breadcrumb { background: none; padding: 0; margin: 0; }
         .page-header .breadcrumb a { color: #4caf50; text-decoration: none; }
+        .page-header .breadcrumb a:hover { text-decoration: underline; }
         .page-header .breadcrumb .active { color: #888; }
 
         /* ========================================== */
@@ -150,15 +210,29 @@
             padding: 20px;
             border: 1px solid #e8f0e8;
             text-align: center;
+            transition: 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+        .stat-card:hover {
+            border-color: #4caf50;
+            transform: translateY(-2px);
         }
         .stat-card .number {
             font-size: 2rem;
             font-weight: 700;
             color: #1a2e1a;
         }
+        .stat-card .number.text-warning { color: #ffc107; }
+        .stat-card .number.text-info { color: #17a2b8; }
+        .stat-card .number.text-success { color: #28a745; }
+        .stat-card .number.text-danger { color: #dc3545; }
         .stat-card .label {
             color: #888;
             font-size: 0.85rem;
+        }
+        .stat-card .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
         }
 
         /* ========================================== */
@@ -169,32 +243,103 @@
             border-radius: 12px;
             padding: 20px;
             border: 1px solid #e8f0e8;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+        .table-card .table th {
+            border-top: none;
+            color: #1a2e1a;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .table-card .table td {
+            vertical-align: middle;
+        }
+        .table-card .table tr:hover {
+            background-color: #f8fdf8;
         }
 
         /* ========================================== */
         /* STATUS BADGE */
         /* ========================================== */
         .status-badge {
-            padding: 4px 12px;
+            padding: 4px 14px;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
+            display: inline-block;
         }
         .status-pending { background: #fff3cd; color: #856404; }
+        .status-pending i { color: #856404; }
         .status-processing { background: #cce5ff; color: #004085; }
+        .status-processing i { color: #004085; }
         .status-paid { background: #d4edda; color: #155724; }
+        .status-paid i { color: #155724; }
         .status-failed { background: #f8d7da; color: #721c24; }
+        .status-failed i { color: #721c24; }
 
         /* ========================================== */
         /* BUTTONS */
         /* ========================================== */
-        .btn-sm-custom { padding: 4px 10px; font-size: 0.8rem; border-radius: 6px; }
+        .btn-sm-custom { 
+            padding: 4px 12px; 
+            font-size: 0.75rem; 
+            border-radius: 6px; 
+            transition: 0.3s;
+        }
+        .btn-sm-custom:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-filter {
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        .btn-filter:hover {
+            transform: translateY(-1px);
+        }
+        .btn-filter.active {
+            background: #4caf50;
+            color: #fff;
+            border-color: #4caf50;
+        }
+
+        /* ========================================== */
+        /* SEARCH BAR */
+        /* ========================================== */
+        .search-bar {
+            border-radius: 30px;
+            padding: 10px 20px;
+            border: 2px solid #e8f0e8;
+            transition: 0.3s;
+            width: 100%;
+            max-width: 300px;
+        }
+        .search-bar:focus {
+            border-color: #4caf50;
+            box-shadow: 0 0 0 0.2rem rgba(76,175,80,0.25);
+        }
+
+        /* ========================================== */
+        /* EMPTY STATE */
+        /* ========================================== */
+        .empty-state {
+            padding: 40px 0;
+        }
+        .empty-state i {
+            color: #ddd;
+        }
 
         /* ========================================== */
         /* RESPONSIVE */
         /* ========================================== */
         @media (max-width: 992px) {
             body { padding-left: 0; }
+            body.sidebar-collapsed { padding-left: 0; }
+            .navbar { left: 0 !important; }
             .sidebar-wrapper {
                 position: relative; top: 0; width: 100%; height: auto;
                 border-right: none; border-bottom: 1px solid #e8f0e8;
@@ -206,36 +351,69 @@
             .sidebar-wrapper.collapsed .admin-name,
             .sidebar-wrapper.collapsed .admin-role,
             .sidebar-wrapper.collapsed .sidebar-category { display: block; }
-            body.sidebar-collapsed { padding-left: 0; }
             .main-content { padding: 15px; }
             .stat-card { padding: 15px; }
+            .stat-card .number { font-size: 1.5rem; }
             .table-card { padding: 15px; }
+            .search-bar { max-width: 100%; }
+        }
+
+        @media (max-width: 576px) {
+            .stat-card .number { font-size: 1.2rem; }
+            .table-card .table th,
+            .table-card .table td {
+                font-size: 0.75rem;
+                padding: 6px 4px;
+            }
+            .btn-sm-custom {
+                font-size: 0.65rem;
+                padding: 3px 8px;
+            }
+            .page-header h2 { font-size: 1.3rem; }
         }
     </style>
 </head>
 <body id="mainBody">
 
-<!-- Navbar -->
+<!-- Notification Container -->
+<div class="notification-container" id="notificationContainer"></div>
+
+<!-- ========================================== -->
+<!-- NAVBAR -->
+<!-- ========================================== -->
 <nav class="navbar navbar-expand-lg">
     <div class="container">
         <a class="navbar-brand" href="/"><i class="fas fa-store"></i> ShopEase</a>
-        <div class="d-flex align-items-center ms-auto">
-            <span class="text-white me-3 d-none d-md-inline"><i class="fas fa-shield-alt me-1"></i>Super Admin</span>
-            <a href="/logout" class="icon-btn"><i class="fas fa-sign-out-alt"></i></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/dashboard">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link active" href="#">Seller Payouts</a></li>
+            </ul>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3 d-none d-md-inline"><i class="fas fa-shield-alt me-1"></i>Super Admin</span>
+                <a href="/logout" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="fas fa-sign-out-alt"></i></a>
+            </div>
         </div>
     </div>
 </nav>
 
-<!-- Sidebar -->
+<!-- ========================================== -->
+<!-- FIXED SIDEBAR -->
+<!-- ========================================== -->
 <div class="sidebar-wrapper" id="sidebarWrapper">
     <div class="sidebar-card">
-        <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
+      <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+</button>
         <div class="admin-avatar"><i class="fas fa-user-shield"></i></div>
         <div class="admin-name"><?= session()->get('full_name') ?? 'Super Admin' ?></div>
         <div class="admin-role"><span class="badge bg-success">Super Admin</span></div>
 
+        <!-- MANAGEMENT -->
         <div class="sidebar-category">Management</div>
         <ul class="sidebar-menu">
             <li onclick="location.href='/admin/dashboard'" data-tooltip="Dashboard">
@@ -258,6 +436,7 @@
             </li>
         </ul>
 
+        <!-- FINANCE -->
         <div class="sidebar-category">Finance</div>
         <ul class="sidebar-menu">
             <li onclick="location.href='/admin/platform-fees'" data-tooltip="Platform Fees">
@@ -280,6 +459,7 @@
             </li>
         </ul>
 
+        <!-- ORDERS & DELIVERY -->
         <div class="sidebar-category">Orders & Delivery</div>
         <ul class="sidebar-menu">
             <li onclick="location.href='/admin/orders'" data-tooltip="Orders">
@@ -299,6 +479,7 @@
             </li>
         </ul>
 
+        <!-- SETTINGS -->
         <div class="sidebar-category">Settings</div>
         <ul class="sidebar-menu">
             <li onclick="location.href='/admin/settings'" data-tooltip="Settings">
@@ -309,10 +490,12 @@
     </div>
 </div>
 
-<!-- Page Header -->
+<!-- ========================================== -->
+<!-- PAGE HEADER -->
+<!-- ========================================== -->
 <section class="page-header">
     <div class="container-fluid px-4">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
                 <h2><i class="fas fa-money-bill-wave me-2 text-success"></i>Seller Payouts</h2>
                 <nav class="breadcrumb">
@@ -321,16 +504,21 @@
                     <span class="active">Seller Payouts</span>
                 </nav>
             </div>
+            <div>
+                <span class="text-muted"><i class="fas fa-clock me-1"></i>Last updated: <?= date('M d, Y H:i') ?></span>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- Main Content -->
+<!-- ========================================== -->
+<!-- MAIN CONTENT -->
+<!-- ========================================== -->
 <section class="main-content">
     <div class="container-fluid px-4">
 
         <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success alert-dismissible fade show">
+            <div class="alert alert-success alert-dismissible fade show" id="successAlert">
                 <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
@@ -343,28 +531,39 @@
             </div>
         <?php endif; ?>
 
+        <?php if (session()->getFlashdata('warning')): ?>
+            <div class="alert alert-warning alert-dismissible fade show">
+                <i class="fas fa-exclamation-triangle me-2"></i><?= session()->getFlashdata('warning') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+
         <!-- Summary Stats -->
         <div class="row g-3 mb-4">
-            <div class="col-md-3">
+            <div class="col-md-3 col-6">
                 <div class="stat-card">
+                    <div class="stat-icon text-warning"><i class="fas fa-clock"></i></div>
                     <div class="number text-warning"><?= $summary['total_pending'] ?? 0 ?></div>
                     <div class="label">Pending</div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3 col-6">
                 <div class="stat-card">
+                    <div class="stat-icon text-info"><i class="fas fa-spinner"></i></div>
                     <div class="number text-info"><?= $summary['total_processing'] ?? 0 ?></div>
                     <div class="label">Processing</div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3 col-6">
                 <div class="stat-card">
+                    <div class="stat-icon text-success"><i class="fas fa-check-circle"></i></div>
                     <div class="number text-success"><?= $summary['total_paid'] ?? 0 ?></div>
                     <div class="label">Paid</div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3 col-6">
                 <div class="stat-card">
+                    <div class="stat-icon text-primary"><i class="fas fa-dollar-sign"></i></div>
                     <div class="number text-success">$<?= number_format($summary['total_amount_pending'] ?? 0, 2) ?></div>
                     <div class="label">Pending Amount</div>
                 </div>
@@ -373,13 +572,29 @@
 
         <!-- Payouts List -->
         <div class="table-card">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0"><i class="fas fa-list me-2 text-success"></i>All Payouts</h5>
-                <span class="text-muted">Total: <?= count($payouts ?? []) ?> records</span>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+                <div>
+                    <h5 class="fw-bold mb-0"><i class="fas fa-list me-2 text-success"></i>All Payouts</h5>
+                    <span class="text-muted small">Total: <?= count($payouts ?? []) ?> records</span>
+                </div>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <!-- Filter Buttons -->
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-secondary btn-filter active" data-filter="all">All</button>
+                        <button class="btn btn-outline-secondary btn-filter" data-filter="pending">Pending</button>
+                        <button class="btn btn-outline-secondary btn-filter" data-filter="processing">Processing</button>
+                        <button class="btn btn-outline-secondary btn-filter" data-filter="paid">Paid</button>
+                        <button class="btn btn-outline-secondary btn-filter" data-filter="failed">Failed</button>
+                    </div>
+                    <!-- Search -->
+                    <div>
+                        <input type="text" class="search-bar" id="searchPayout" placeholder="Search store..." onkeyup="filterTable()">
+                    </div>
+                </div>
             </div>
 
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover" id="payoutTable">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -396,43 +611,64 @@
                     <tbody>
                         <?php if (isset($payouts) && !empty($payouts)): ?>
                             <?php foreach ($payouts as $payout): ?>
-                                <tr>
-                                    <td><?= $payout['id'] ?></td>
-                                    <td><strong><?= $payout['store_name'] ?? 'Unknown' ?></strong></td>
-                                    <td>$<?= number_format($payout['gross_amount'], 2) ?></td>
-                                    <td>$<?= number_format($payout['commission_amount'], 2) ?></td>
-                                    <td><strong>$<?= number_format($payout['net_amount'], 2) ?></strong></td>
+                                <tr data-status="<?= $payout['status'] ?>">
+                                    <td>#<?= $payout['id'] ?></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
+                                                <i class="fas fa-store text-secondary"></i>
+                                            </div>
+                                            <strong><?= esc($payout['store_name'] ?? 'Unknown Store') ?></strong>
+                                        </div>
+                                    </td>
+                                    <td class="text-muted">$<?= number_format($payout['gross_amount'], 2) ?></td>
+                                    <td class="text-danger">$<?= number_format($payout['commission_amount'], 2) ?></td>
+                                    <td><strong class="text-success">$<?= number_format($payout['net_amount'], 2) ?></strong></td>
                                     <td>
                                         <span class="status-badge status-<?= $payout['status'] ?>">
+                                            <i class="fas <?= $payout['status'] === 'pending' ? 'fa-clock' : ($payout['status'] === 'processing' ? 'fa-spinner fa-spin' : ($payout['status'] === 'paid' ? 'fa-check-circle' : 'fa-times-circle')) ?> me-1"></i>
                                             <?= ucfirst($payout['status']) ?>
                                         </span>
                                     </td>
-                                    <td><?= $payout['payment_method'] ?? '-' ?></td>
+                                    <td><?= $payout['payment_method'] ?? '<span class="text-muted">-</span>' ?></td>
                                     <td><?= date('M d, Y', strtotime($payout['created_at'])) ?></td>
                                     <td>
-                                        <?php if ($payout['status'] === 'pending'): ?>
-                                            <form action="/admin/seller-payouts/process/<?= $payout['id'] ?>" method="POST" class="d-inline">
-                                                <?= csrf_field() ?>
-                                                <input type="hidden" name="payment_method" value="bank_transfer">
-                                                <input type="hidden" name="transaction_id" value="TXN-<?= time() . $payout['id'] ?>">
-                                                <button type="submit" class="btn btn-sm btn-warning btn-sm-custom" onclick="return confirm('Mark as processing?')">
-                                                    <i class="fas fa-spinner"></i>
-                                                </button>
-                                            </form>
-                                        <?php endif; ?>
-                                        <?php if ($payout['status'] === 'processing'): ?>
-                                            <a href="/admin/seller-payouts/complete/<?= $payout['id'] ?>" class="btn btn-sm btn-success btn-sm-custom" onclick="return confirm('Mark as paid?')">
-                                                <i class="fas fa-check"></i>
+                                        <div class="d-flex gap-1">
+                                            <?php if ($payout['status'] === 'pending'): ?>
+                                                <form action="/admin/seller-payouts/process/<?= $payout['id'] ?>" method="POST" class="d-inline">
+                                                    <?= csrf_field() ?>
+                                                    <input type="hidden" name="payment_method" value="bank_transfer">
+                                                    <input type="hidden" name="transaction_id" value="TXN-<?= time() . $payout['id'] ?>">
+                                                    <button type="submit" class="btn btn-warning btn-sm-custom" onclick="return confirm('Mark this payout as processing?')" title="Mark as Processing">
+                                                        <i class="fas fa-spinner"></i>
+                                                    </button>
+                                                </form>
+                                            <?php endif; ?>
+                                            <?php if ($payout['status'] === 'processing'): ?>
+                                                <a href="/admin/seller-payouts/complete/<?= $payout['id'] ?>" class="btn btn-success btn-sm-custom" onclick="return confirm('Mark this payout as paid?')" title="Mark as Paid">
+                                                    <i class="fas fa-check"></i>
+                                                </a>
+                                            <?php endif; ?>
+                                            <a href="#" class="btn btn-info btn-sm-custom" onclick="viewPayout(<?= $payout['id'] ?>)" title="View Details">
+                                                <i class="fas fa-eye"></i>
                                             </a>
-                                        <?php endif; ?>
+                                            <?php if ($payout['status'] === 'pending' || $payout['status'] === 'failed'): ?>
+                                                <a href="/admin/seller-payouts/delete/<?= $payout['id'] ?>" class="btn btn-danger btn-sm-custom" onclick="return confirm('Delete this payout record? This action cannot be undone.')" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="9" class="text-center text-muted py-4">
-                                    <i class="fas fa-inbox fa-3x d-block mb-3 text-muted"></i>
-                                    No payouts found.
+                                <td colspan="9" class="text-center py-5">
+                                    <div class="empty-state">
+                                        <i class="fas fa-inbox fa-4x d-block mb-3 text-muted"></i>
+                                        <h5 class="text-muted">No Payouts Found</h5>
+                                        <p class="text-muted">Payouts will appear here once orders are completed and payments are processed.</p>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endif; ?>
@@ -443,14 +679,199 @@
     </div>
 </section>
 
+<!-- ========================================== -->
+<!-- SCRIPTS -->
+<!-- ========================================== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-function toggleSidebar() {
-    var wrapper = document.getElementById('sidebarWrapper');
-    var body = document.getElementById('mainBody');
-    wrapper.classList.toggle('collapsed');
-    body.classList.toggle('sidebar-collapsed');
-}
+    // ==========================================
+    // SIDEBAR TOGGLE
+    // ==========================================
+    function toggleSidebar() {
+        const wrapper = document.getElementById('sidebarWrapper');
+        const body = document.getElementById('mainBody');
+        const label = document.getElementById('toggleLabel');
+        
+        wrapper.classList.toggle('collapsed');
+        body.classList.toggle('sidebar-collapsed');
+        
+        // Update toggle button text
+        if (label) {
+            label.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+        }
+        
+        // Save state to localStorage
+        const isCollapsed = wrapper.classList.contains('collapsed');
+        localStorage.setItem('sidebarCollapsed', isCollapsed);
+    }
+
+    // ==========================================
+    // RESTORE SIDEBAR STATE
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', function() {
+        const wrapper = document.getElementById('sidebarWrapper');
+        const body = document.getElementById('mainBody');
+        const label = document.getElementById('toggleLabel');
+        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        
+        if (isCollapsed) {
+            wrapper.classList.add('collapsed');
+            body.classList.add('sidebar-collapsed');
+            if (label) {
+                label.textContent = 'Expand';
+            }
+        }
+
+        // Auto-dismiss alerts after 5 seconds
+        const alerts = document.querySelectorAll('.alert:not(.alert-dismissible)');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.remove();
+                }, 500);
+            }, 5000);
+        });
+
+        // Dismiss success alert after 8 seconds
+        const successAlert = document.getElementById('successAlert');
+        if (successAlert) {
+            setTimeout(function() {
+                successAlert.style.transition = 'opacity 0.5s';
+                successAlert.style.opacity = '0';
+                setTimeout(function() {
+                    successAlert.remove();
+                }, 500);
+            }, 8000);
+        }
+
+        // Filter buttons
+        document.querySelectorAll('.btn-filter').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.btn-filter').forEach(function(b) {
+                    b.classList.remove('active');
+                });
+                this.classList.add('active');
+                filterTable();
+            });
+        });
+    });
+
+    // ==========================================
+    // FILTER TABLE
+    // ==========================================
+    function filterTable() {
+        const filter = document.querySelector('.btn-filter.active')?.getAttribute('data-filter') || 'all';
+        const search = document.getElementById('searchPayout').value.toLowerCase();
+        const rows = document.querySelectorAll('#payoutTable tbody tr');
+
+        rows.forEach(function(row) {
+            const status = row.getAttribute('data-status');
+            const storeName = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+            
+            let show = true;
+            
+            // Filter by status
+            if (filter !== 'all' && status !== filter) {
+                show = false;
+            }
+            
+            // Filter by search
+            if (search && !storeName.includes(search)) {
+                show = false;
+            }
+            
+            row.style.display = show ? '' : 'none';
+        });
+    }
+
+    // ==========================================
+    // VIEW PAYOUT DETAILS
+    // ==========================================
+    function viewPayout(id) {
+        showNotification('Viewing payout #' + id + ' details', 'info', 'Payout Details');
+        // In production, this would open a modal or redirect to a details page
+        // window.location.href = '/admin/seller-payouts/' + id;
+    }
+
+    // ==========================================
+    // NOTIFICATION SYSTEM
+    // ==========================================
+    function showNotification(message, type = 'info', title = '') {
+        const container = document.getElementById('notificationContainer');
+        if (!container) return;
+
+        const iconMap = {
+            success: 'fas fa-check-circle text-success',
+            error: 'fas fa-exclamation-circle text-danger',
+            warning: 'fas fa-exclamation-triangle text-warning',
+            info: 'fas fa-info-circle text-info'
+        };
+
+        const icon = iconMap[type] || iconMap.info;
+
+        const toast = document.createElement('div');
+        toast.className = `notification-toast ${type}`;
+        toast.innerHTML = `
+            <div class="notif-icon"><i class="${icon}"></i></div>
+            <div class="notif-content">
+                ${title ? `<div class="notif-title">${title}</div>` : ''}
+                <div class="notif-message">${message}</div>
+                <div class="notif-time">${new Date().toLocaleTimeString()}</div>
+            </div>
+            <button class="notif-close" onclick="this.closest('.notification-toast').remove();">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+
+        container.appendChild(toast);
+
+        // Auto remove after 5 seconds
+        setTimeout(function() {
+            if (toast.parentNode) {
+                toast.classList.add('removing');
+                setTimeout(function() {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 300);
+            }
+        }, 5000);
+    }
+
+    // ==========================================
+    // KEYBOARD SHORTCUTS
+    // ==========================================
+    document.addEventListener('keydown', function(e) {
+        // Ctrl + B to toggle sidebar
+        if (e.ctrlKey && e.key === 'b') {
+            e.preventDefault();
+            toggleSidebar();
+        }
+        // Escape key to close notifications
+        if (e.key === 'Escape') {
+            const notifications = document.querySelectorAll('.notification-toast');
+            notifications.forEach(function(notif) {
+                notif.classList.add('removing');
+                setTimeout(function() {
+                    if (notif.parentNode) {
+                        notif.remove();
+                    }
+                }, 300);
+            });
+        }
+        // Ctrl + F to focus search
+        if (e.ctrlKey && e.key === 'f') {
+            e.preventDefault();
+            document.getElementById('searchPayout')?.focus();
+        }
+    });
+
+    console.log('ShopEase Admin - Seller Payouts Page Loaded');
+    console.log('Shortcut: Ctrl+B to toggle sidebar');
+    console.log('Shortcut: Ctrl+F to focus search');
+    console.log('Press ESC to close all notifications');
 </script>
 </body>
 </html>

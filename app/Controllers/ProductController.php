@@ -5,18 +5,21 @@ namespace App\Controllers;
 use App\Models\ProductModel;
 use App\Models\CategoryModel;
 use App\Models\SubcategoryModel;
+use App\Models\TenantModel;
 
 class ProductController extends BaseController
 {
     protected $productModel;
     protected $categoryModel;
     protected $subcategoryModel;
+    protected $tenantModel;
 
     public function __construct()
     {
         $this->productModel = new ProductModel();
         $this->categoryModel = new CategoryModel();
         $this->subcategoryModel = new SubcategoryModel();
+        $this->tenantModel = new TenantModel();
     }
 
     // ============ PUBLIC VIEWS ============
@@ -94,7 +97,11 @@ class ProductController extends BaseController
         if ($product['subcategory_id']) {
             $subcategory = $this->subcategoryModel->find($product['subcategory_id']);
         }
-        
+
+        // ✅ Look up the real store owner's store name instead of a hardcoded value
+        $tenant = $this->tenantModel->find($product['tenant_id']);
+        $storeName = $tenant['store_name'] ?? 'Unknown Store';
+
         $images = [];
         if ($product['product_image']) {
             $images[] = $product['product_image'];
@@ -115,7 +122,7 @@ $reviews = $reviewModel->getReviewsByProduct($product['id']);
             'description' => $product['product_description'] ?? 'No description available.',
             'category' => $category ? $category['category_name'] : 'General',
             'subcategory' => $subcategory ? $subcategory['subcategory_name'] : 'N/A',
-            'store' => 'ShopEase Store',
+            'store' => $storeName,
             'sku' => 'SKU-' . str_pad($product['id'], 6, '0', STR_PAD_LEFT),
             'image' => $product['product_image'] ?? 'https://via.placeholder.com/400x400?text=Product',
             'images' => $images,

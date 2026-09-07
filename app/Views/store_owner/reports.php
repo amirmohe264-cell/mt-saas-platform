@@ -1,17 +1,17 @@
-<!-- app/Views/store_owner/products.php -->
+<!-- app/Views/store_owner/reports.php -->
 <?php
 if (!session()->get('tenant_id')) {
     header('Location: /login');
     exit();
 }
 ?>
-<?php $active_menu = 'products'; ?>
+<?php $active_menu = 'reports'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products - ShopEase Store</title>
+    <title>Sales Reports - ShopEase Store</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -195,75 +195,34 @@ if (!session()->get('tenant_id')) {
         .main-content { padding: 20px 30px; min-height: calc(100vh - 160px); }
 
         /* ========================================== */
-        /* TABLE CARD */
+        /* DASHBOARD CARDS */
         /* ========================================== */
-        .table-card {
+        .dashboard-card {
+            background: #fff; border-radius: 12px; padding: 20px;
+            border: 1px solid #e8f0e8; transition: 0.3s; height: 100%;
+        }
+        .dashboard-card:hover { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .dashboard-card .card-number { font-size: 1.8rem; font-weight: 700; color: #1a2e1a; }
+        .dashboard-card .card-label { color: #888; font-size: 0.85rem; }
+        .dashboard-card .card-icon { font-size: 1.8rem; float: right; }
+
+        .report-table-card {
             background: #fff;
             border-radius: 12px;
             padding: 20px;
             border: 1px solid #e8f0e8;
         }
 
-        /* ========================================== */
-        /* BUTTONS */
-        /* ========================================== */
-        .btn-add {
-            background: #4caf50; color: #fff; border: none;
-            border-radius: 30px; padding: 10px 25px;
-            font-weight: 600; transition: 0.3s;
-            text-decoration: none; display: inline-block;
-        }
-        .btn-add:hover { background: #388e3c; color: #fff; }
-
-        .btn-edit {
-            background: #ffc107; color: #000; border: none;
-            border-radius: 30px; padding: 5px 15px;
-            font-weight: 600; transition: 0.3s;
-            text-decoration: none; display: inline-block; font-size: 0.8rem;
-        }
-        .btn-edit:hover { background: #e0a800; color: #000; }
-
-        .btn-delete {
-            background: #dc3545; color: #fff; border: none;
-            border-radius: 30px; padding: 5px 15px;
-            font-weight: 600; transition: 0.3s;
-            text-decoration: none; display: inline-block; font-size: 0.8rem;
-        }
-        .btn-delete:hover { background: #c82333; color: #fff; }
-
-        .btn-toggle {
-            background: #17a2b8; color: #fff; border: none;
-            border-radius: 30px; padding: 5px 15px;
-            font-weight: 600; transition: 0.3s;
-            text-decoration: none; display: inline-block; font-size: 0.8rem;
-        }
-        .btn-toggle:hover { background: #138496; color: #fff; }
-
-        /* ========================================== */
-        /* STATUS BADGES */
-        /* ========================================== */
-        .badge-published { background: #4caf50; color: #fff; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; }
-        .badge-draft { background: #ffc107; color: #000; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; }
-        .badge-archived { background: #dc3545; color: #fff; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; }
-
-        .product-image-small {
-            width: 50px; height: 50px; object-fit: cover;
-            border-radius: 8px; border: 1px solid #e8f0e8;
-        }
-
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .status-published { background: #d4edda; color: #155724; }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-confirmed { background: #cce5ff; color: #004085; }
+        .status-processing { background: #d1ecf1; color: #0c5460; }
+        .status-shipped { background: #d4edda; color: #155724; }
+        .status-delivered { background: #d4edda; color: #155724; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
         .status-draft { background: #e9ecef; color: #6c757d; }
-        .status-archived { background: #f8d7da; color: #721c24; }
+        .status-published { background: #d4edda; color: #155724; }
 
-        /* ========================================== */
-        /* RESPONSIVE - IDENTICAL TO DASHBOARD */
-        /* ========================================== */
         @media (max-width: 992px) {
             body { padding-left: 0; }
             .navbar { left: 0 !important; }
@@ -299,10 +258,10 @@ if (!session()->get('tenant_id')) {
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link active" href="#">Products</a></li>
+                <li class="nav-item"><a class="nav-link active" href="#">Sales Reports</a></li>
             </ul>
             <div class="d-flex align-items-center">
-                <span class="text-white me-3 d-none d-md-inline">Store: <?= session()->get('store_name') ?? 'Store' ?></span>
+                <span class="text-white me-3 d-none d-md-inline"><i class="fas fa-store me-1"></i><?= session()->get('store_name') ?? 'Store' ?></span>
                 <a href="/logout" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="fas fa-sign-out-alt"></i></a>
             </div>
         </div>
@@ -329,7 +288,7 @@ if (!session()->get('tenant_id')) {
                 <i class="fas fa-tachometer-alt"></i>
                 <span class="menu-text">Dashboard</span>
             </li>
-            <li class="active" onclick="location.href='/store/products'" data-tooltip="Products">
+            <li onclick="location.href='/store/products'" data-tooltip="Products">
                 <i class="fas fa-box"></i>
                 <span class="menu-text">Products</span>
             </li>
@@ -346,7 +305,7 @@ if (!session()->get('tenant_id')) {
         <!-- FINANCE & EARNINGS -->
         <div class="sidebar-category">Finance & Earnings</div>
         <ul class="sidebar-menu">
-             <li onclick="location.href='/store/reports'" data-tooltip="Reports">
+            <li class="active" onclick="location.href='/store/reports'" data-tooltip="Reports">
                 <i class="fas fa-chart-line"></i>
                 <span class="menu-text">Reports</span>
             </li>
@@ -386,16 +345,16 @@ if (!session()->get('tenant_id')) {
     <div class="container-fluid px-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
-                <h2><i class="fas fa-boxes me-2 text-success"></i>Products</h2>
+                <h2><i class="fas fa-chart-line me-2 text-success"></i>Sales Reports</h2>
                 <nav class="breadcrumb">
                     <a href="/">Home</a>
                     <span class="mx-2">/</span>
                     <a href="/store/dashboard">Dashboard</a>
                     <span class="mx-2">/</span>
-                    <span class="active">Products</span>
+                    <span class="active">Sales Reports</span>
                 </nav>
             </div>
-            <a href="/store/products/create" class="btn-add"><i class="fas fa-plus me-2"></i>Add Product</a>
+            <span class="text-muted"><?= date('F d, Y') ?></span>
         </div>
     </div>
 </section>
@@ -403,6 +362,7 @@ if (!session()->get('tenant_id')) {
 <!-- Main Content -->
 <section class="main-content">
     <div class="container-fluid px-4">
+
         <?php if (session()->getFlashdata('success')): ?>
             <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
         <?php endif; ?>
@@ -410,72 +370,54 @@ if (!session()->get('tenant_id')) {
             <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
         <?php endif; ?>
 
-        <div class="table-card">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Image</th>
-                            <th>Product Name</th>
-                            <th>Category</th>
-                            <th>Price</th>
-                            <th>Stock</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (!empty($products)): ?>
-                            <?php foreach ($products as $product): ?>
-                                <tr>
-                                    <td><?= $product['id'] ?></td>
-                                    <td>
-                                        <?php if (!empty($product['product_image'])): ?>
-                                            <img src="/<?= $product['product_image'] ?>" class="product-image-small" alt="<?= esc($product['product_name']) ?>">
-                                        <?php else: ?>
-                                            <img src="https://via.placeholder.com/50" class="product-image-small" alt="No image">
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?= esc($product['product_name']) ?></td>
-                                    <td>
-                                        <?php
-                                        if (isset($categories) && isset($categories[$product['category_id']])) {
-                                            echo esc($categories[$product['category_id']]['category_name'] ?? 'N/A');
-                                        } else {
-                                            echo 'N/A';
-                                        }
-                                        ?>
-                                    </td>
-                                    <td>$<?= number_format($product['price'], 2) ?></td>
-                                    <td><?= $product['quantity'] ?></td>
-                                    <td>
-                                        <?php if ($product['status'] == 'published'): ?>
-                                            <span class="status-badge status-published">Published</span>
-                                        <?php elseif ($product['status'] == 'draft'): ?>
-                                            <span class="status-badge status-draft">Draft</span>
-                                        <?php else: ?>
-                                            <span class="status-badge status-archived">Archived</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <a href="/store/products/edit/<?= $product['id'] ?>" class="btn-edit"><i class="fas fa-edit"></i> Edit</a>
-                                        <a href="/store/products/toggle/<?= $product['id'] ?>" class="btn-toggle"><i class="fas fa-sync"></i> Toggle</a>
-                                        <a href="/store/products/delete/<?= $product['id'] ?>" class="btn-delete" onclick="return confirm('Are you sure you want to delete this product?')"><i class="fas fa-trash"></i> Delete</a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="8" class="text-center py-4">
-                                    <i class="fas fa-box-open fa-3x text-muted mb-3 d-block"></i>
-                                    <p class="text-muted">No products found. <a href="/store/products/create">Add your first product</a></p>
-                                </td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+        <!-- Reports Stats -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="dashboard-card">
+                    <i class="fas fa-calendar-day card-icon text-info"></i>
+                    <div class="card-number">$<?= number_format($todaySales ?? 0, 2) ?></div>
+                    <div class="card-label">Today's Sales</div>
+                </div>
             </div>
+            <div class="col-md-3">
+                <div class="dashboard-card">
+                    <i class="fas fa-calendar-week card-icon text-success"></i>
+                    <div class="card-number">$<?= number_format($weekSales ?? 0, 2) ?></div>
+                    <div class="card-label">This Week</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dashboard-card">
+                    <i class="fas fa-calendar-alt card-icon text-warning"></i>
+                    <div class="card-number">$<?= number_format($monthSales ?? 0, 2) ?></div>
+                    <div class="card-label">This Month</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dashboard-card">
+                    <i class="fas fa-calendar-alt card-icon text-danger"></i>
+                    <div class="card-number">$<?= number_format($totalRevenue ?? 0, 2) ?></div>
+                    <div class="card-label">Total Revenue</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Best Selling Products -->
+        <div class="report-table-card">
+            <h5 class="fw-bold mb-3"><i class="fas fa-trophy me-2 text-warning"></i>Best Selling Products</h5>
+            <hr>
+            <?php if (isset($bestSellers) && !empty($bestSellers)): ?>
+                <ul class="list-group">
+                    <?php foreach ($bestSellers as $product): ?>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <?= $product['product_name'] ?? 'Product' ?>
+                            <span class="badge bg-success rounded-pill"><?= $product['total_sold'] ?? 0 ?> sold</span>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <p class="text-muted text-center py-4">No sales data available.</p>
+            <?php endif; ?>
         </div>
     </div>
 </section>

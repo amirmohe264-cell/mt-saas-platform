@@ -1,5 +1,17 @@
 <!-- app/Views/admin/commissions.php -->
-<?php $active_menu = 'commissions'; ?>
+<?php
+// ✅ Check for admin session
+$isLoggedIn = session()->get('is_logged_in') || session()->get('user_id');
+$isAdmin = session()->get('is_admin') || session()->get('role') === 'admin' || session()->get('role') === 'super_admin';
+
+if (!$isLoggedIn || !$isAdmin) {
+    header('Location: /login');
+    exit();
+}
+
+$active_menu = 'commissions';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,16 +34,61 @@
             min-height: 100vh;
         }
 
+        /* ========================================== */
+        /* NOTIFICATION STYLES */
+        /* ========================================== */
+        .notification-container {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+            width: 100%;
+        }
+        .notification-toast {
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            border-left: 4px solid #4caf50;
+            animation: slideInRight 0.4s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .notification-toast.error { border-left-color: #dc3545; }
+        .notification-toast.warning { border-left-color: #ffc107; }
+        .notification-toast.info { border-left-color: #17a2b8; }
+        .notification-toast .notif-icon { font-size: 1.3rem; margin-top: 2px; }
+        .notification-toast .notif-content { flex: 1; }
+        .notification-toast .notif-title { font-weight: 600; color: #1a2e1a; font-size: 0.9rem; }
+        .notification-toast .notif-message { color: #555; font-size: 0.85rem; }
+        .notification-toast .notif-time { color: #aaa; font-size: 0.7rem; margin-top: 3px; }
+        .notification-toast .notif-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1rem; padding: 0 5px; }
+        .notification-toast .notif-close:hover { color: #333; }
+        .notification-toast.removing { animation: slideOutRight 0.3s ease forwards; }
+        @keyframes slideInRight { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100px); opacity: 0; } }
+
+        /* ========================================== */
+        /* NAVBAR - WITH LEFT OFFSET FOR SIDEBAR */
+        /* ========================================== */
         .navbar {
             background: #1a2e1a !important;
             padding: 15px 0;
             box-shadow: 0 2px 20px rgba(0,0,0,0.3);
             position: fixed;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 280px;
+            right: 0;
             z-index: 1050;
+            transition: left 0.3s ease;
         }
         .navbar-brand { color: #fff !important; font-weight: bold; font-size: 1.5rem; }
         .navbar-brand i { color: #4caf50; }
+        .navbar .nav-link { color: #d4d4d4 !important; font-weight: 500; transition: 0.3s; }
+        .navbar .nav-link:hover { color: #4caf50 !important; }
         .icon-btn {
             color: #d4d4d4;
             font-size: 1.2rem;
@@ -43,11 +100,17 @@
         }
         .icon-btn:hover { color: #4caf50; transform: scale(1.1); }
 
+        body.sidebar-collapsed .navbar { left: 70px; }
+
+        /* ========================================== */
+        /* FIXED SIDEBAR - FULL HEIGHT */
+        /* ========================================== */
         .sidebar-wrapper {
             position: fixed;
-            top: 80px; left: 0;
+            top: 0;
+            left: 0;
             width: 280px;
-            height: calc(100vh - 80px);
+            height: 100vh;
             overflow-y: auto;
             background: #fff;
             border-right: 1px solid #e8f0e8;
@@ -83,6 +146,7 @@
             background: #4caf50; color: #fff;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.8rem; margin: 0 auto 10px;
+            transition: all 0.3s ease;
         }
         .sidebar-card .admin-name { text-align: center; font-weight: 700; color: #1a2e1a; font-size: 1rem; }
         .sidebar-card .admin-role { text-align: center; font-size: 0.8rem; }
@@ -91,6 +155,7 @@
             background: #4caf50; color: #fff; border: none; border-radius: 8px;
             padding: 8px 12px; font-size: 1rem; cursor: pointer; width: 100%;
             margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: 0.3s;
         }
         .toggle-sidebar-btn:hover { background: #388e3c; }
 
@@ -113,64 +178,116 @@
         .sidebar-menu li .menu-text { flex: 1; }
         .sidebar-menu li a { color: inherit; text-decoration: none; display: flex; align-items: center; width: 100%; }
 
+        /* ========================================== */
+        /* PAGE HEADER */
+        /* ========================================== */
         .page-header {
             background: #f8f9fa;
             color: #1a2e1a;
-            padding: 20px 0 20px;
+            padding: 20px 0;
             border-bottom: 1px solid #e8f0e8;
         }
         .page-header h2 { font-weight: 700; color: #1a2e1a; }
         .page-header .breadcrumb { background: none; padding: 0; margin: 0; }
         .page-header .breadcrumb a { color: #4caf50; text-decoration: none; }
+        .page-header .breadcrumb a:hover { text-decoration: underline; }
         .page-header .breadcrumb .active { color: #888; }
 
+        /* ========================================== */
+        /* MAIN CONTENT */
+        /* ========================================== */
         .main-content {
             padding: 20px 30px;
             min-height: calc(100vh - 160px);
         }
 
         /* ========================================== */
-        /* COMMISSION CARD - FIXED */
+        /* COMMISSION CARD */
         /* ========================================== */
         .commission-card {
             background: #fff;
             border-radius: 12px;
-            padding: 20px;
+            padding: 25px;
             border: 1px solid #e8f0e8;
             margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            transition: 0.3s;
+        }
+        .commission-card:hover {
+            border-color: #4caf50;
         }
 
         /* ========================================== */
-        /* FORM CONTROLS - FIXED */
+        /* FORM CONTROLS */
         /* ========================================== */
         .form-control {
             border-radius: 10px;
             padding: 12px 15px;
             border: 2px solid #e8f0e8;
+            transition: 0.3s;
         }
         .form-control:focus {
             border-color: #4caf50;
             box-shadow: 0 0 0 0.2rem rgba(76,175,80,0.25);
         }
-
-        /* ========================================== */
-        /* BUTTONS - FIXED */
-        /* ========================================== */
-        .btn-success {
-            border-radius: 10px;
-            padding: 12px 30px;
+        .form-label {
+            color: #1a2e1a;
             font-weight: 600;
         }
-        .btn-success:hover { background: #388e3c; }
 
         /* ========================================== */
-        /* INFO BOX - FIXED */
+        /* BUTTONS */
+        /* ========================================== */
+        .btn-success {
+            border-radius: 30px;
+            padding: 12px 35px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-success:hover {
+            background: #388e3c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76,175,80,0.3);
+        }
+        .btn-outline-secondary {
+            border-radius: 30px;
+            padding: 12px 35px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-outline-secondary:hover {
+            transform: translateY(-2px);
+        }
+
+        /* ========================================== */
+        /* INFO BOX */
         /* ========================================== */
         .info-box {
-            background: #f8f9fa;
+            background: #f0f8f0;
             border-radius: 10px;
-            padding: 15px;
+            padding: 15px 20px;
             border-left: 4px solid #4caf50;
+        }
+        .info-box i {
+            color: #4caf50;
+        }
+
+        /* ========================================== */
+        /* TABLE */
+        /* ========================================== */
+        .commission-card .table {
+            margin-bottom: 0;
+        }
+        .commission-card .table th {
+            color: #1a2e1a;
+            font-weight: 600;
+            border-top: none;
+        }
+        .commission-card .table td {
+            vertical-align: middle;
+        }
+        .commission-card .table tbody tr:hover {
+            background-color: #f8fdf8;
         }
 
         /* ========================================== */
@@ -178,6 +295,8 @@
         /* ========================================== */
         @media (max-width: 992px) {
             body { padding-left: 0; }
+            body.sidebar-collapsed { padding-left: 0; }
+            .navbar { left: 0 !important; }
             .sidebar-wrapper {
                 position: relative; top: 0; width: 100%; height: auto;
                 border-right: none; border-bottom: 1px solid #e8f0e8;
@@ -189,35 +308,74 @@
             .sidebar-wrapper.collapsed .admin-name,
             .sidebar-wrapper.collapsed .admin-role,
             .sidebar-wrapper.collapsed .sidebar-category { display: block; }
-            body.sidebar-collapsed { padding-left: 0; }
             .main-content { padding: 15px; }
             .commission-card { padding: 15px; }
+            .btn-success, .btn-outline-secondary {
+                width: 100%;
+                text-align: center;
+            }
+            .commission-card .table {
+                font-size: 0.85rem;
+            }
+            .commission-card .table th,
+            .commission-card .table td {
+                padding: 8px 6px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .commission-card .table {
+                font-size: 0.75rem;
+            }
+            .commission-card .table th,
+            .commission-card .table td {
+                padding: 6px 4px;
+            }
+            .page-header h2 { font-size: 1.3rem; }
         }
     </style>
 </head>
 <body id="mainBody">
 
-<!-- Navbar -->
+<!-- Notification Container -->
+<div class="notification-container" id="notificationContainer"></div>
+
+<!-- ========================================== -->
+<!-- NAVBAR -->
+<!-- ========================================== -->
 <nav class="navbar navbar-expand-lg">
     <div class="container">
         <a class="navbar-brand" href="/"><i class="fas fa-store"></i> ShopEase</a>
-        <div class="d-flex align-items-center ms-auto">
-            <span class="text-white me-3 d-none d-md-inline"><i class="fas fa-shield-alt me-1"></i>Super Admin</span>
-            <a href="/logout" class="icon-btn"><i class="fas fa-sign-out-alt"></i></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/dashboard">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link active" href="#">Commissions</a></li>
+            </ul>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3 d-none d-md-inline"><i class="fas fa-shield-alt me-1"></i>Super Admin</span>
+                <a href="/logout" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="fas fa-sign-out-alt"></i></a>
+            </div>
         </div>
     </div>
 </nav>
 
-<!-- Sidebar -->
+<!-- ========================================== -->
+<!-- FIXED SIDEBAR -->
+<!-- ========================================== -->
 <div class="sidebar-wrapper" id="sidebarWrapper">
     <div class="sidebar-card">
         <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
+    <i class="fas fa-bars"></i>
+</button>
         <div class="admin-avatar"><i class="fas fa-user-shield"></i></div>
         <div class="admin-name"><?= session()->get('full_name') ?? 'Super Admin' ?></div>
         <div class="admin-role"><span class="badge bg-success">Super Admin</span></div>
 
+        <!-- MANAGEMENT -->
         <div class="sidebar-category">Management</div>
         <ul class="sidebar-menu">
             <li onclick="location.href='/admin/dashboard'" data-tooltip="Dashboard">
@@ -240,6 +398,7 @@
             </li>
         </ul>
 
+        <!-- FINANCE -->
         <div class="sidebar-category">Finance</div>
         <ul class="sidebar-menu">
             <li onclick="location.href='/admin/platform-fees'" data-tooltip="Platform Fees">
@@ -262,6 +421,7 @@
             </li>
         </ul>
 
+        <!-- ORDERS & DELIVERY -->
         <div class="sidebar-category">Orders & Delivery</div>
         <ul class="sidebar-menu">
             <li onclick="location.href='/admin/orders'" data-tooltip="Orders">
@@ -281,6 +441,7 @@
             </li>
         </ul>
 
+        <!-- SETTINGS -->
         <div class="sidebar-category">Settings</div>
         <ul class="sidebar-menu">
             <li onclick="location.href='/admin/settings'" data-tooltip="Settings">
@@ -291,10 +452,12 @@
     </div>
 </div>
 
-<!-- Page Header -->
+<!-- ========================================== -->
+<!-- PAGE HEADER -->
+<!-- ========================================== -->
 <section class="page-header">
     <div class="container-fluid px-4">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
                 <h2><i class="fas fa-hand-holding-usd me-2 text-success"></i>Store Owner Commissions</h2>
                 <nav class="breadcrumb">
@@ -303,57 +466,87 @@
                     <span class="active">Commissions</span>
                 </nav>
             </div>
+            <div>
+                <span class="text-muted"><i class="fas fa-clock me-1"></i>Last updated: <?= date('M d, Y H:i') ?></span>
+            </div>
         </div>
     </div>
 </section>
 
+<!-- ========================================== -->
+<!-- MAIN CONTENT -->
+<!-- ========================================== -->
 <section class="main-content">
     <div class="container-fluid px-4">
 
         <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
+            <div class="alert alert-success alert-dismissible fade show" id="successAlert">
+                <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
         <?php endif; ?>
 
+        <?php if (session()->getFlashdata('error')): ?>
+            <div class="alert alert-danger alert-dismissible fade show">
+                <i class="fas fa-exclamation-circle me-2"></i><?= session()->getFlashdata('error') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+
+        <?php if (session()->getFlashdata('warning')): ?>
+            <div class="alert alert-warning alert-dismissible fade show">
+                <i class="fas fa-exclamation-triangle me-2"></i><?= session()->getFlashdata('warning') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+
+        <!-- Commission Configuration Card -->
         <div class="commission-card">
             <div class="row">
                 <div class="col-md-12">
                     <h5 class="fw-bold mb-3"><i class="fas fa-percentage me-2 text-success"></i>Commission Configuration</h5>
-                    <p class="text-muted">Configure commissions charged to store owners for each sale.</p>
+                    <p class="text-muted">Configure commissions charged to store owners for each sale. These settings affect all store owners on the platform.</p>
                 </div>
             </div>
 
-            <form action="/admin/commissions/update" method="POST">
+            <form action="/admin/commissions/update" method="POST" id="commissionForm">
                 <?= csrf_field() ?>
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-semibold">Commission (%) <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <input type="number" step="0.01" name="store_commission_percentage" class="form-control" value="<?= $commissions['store_commission_percentage'] ?? 10.00 ?>" required>
+                            <input type="number" step="0.01" min="0" max="100" name="store_commission_percentage" class="form-control" value="<?= $commissions['store_commission_percentage'] ?? 10.00 ?>" required>
                             <span class="input-group-text">%</span>
                         </div>
-                        <small class="text-muted">Percentage commission charged to store owners on each sale.</small>
+                        <small class="text-muted"><i class="fas fa-info-circle me-1 text-info"></i>Percentage commission charged to store owners on each sale.</small>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-semibold">Fixed Commission</label>
                         <div class="input-group">
                             <span class="input-group-text">$</span>
-                            <input type="number" step="0.01" name="store_commission_fixed" class="form-control" value="<?= $commissions['store_commission_fixed'] ?? 0.00 ?>">
+                            <input type="number" step="0.01" min="0" name="store_commission_fixed" class="form-control" value="<?= $commissions['store_commission_fixed'] ?? 0.00 ?>">
                         </div>
-                        <small class="text-muted">Fixed commission charged to store owners on each sale.</small>
+                        <small class="text-muted"><i class="fas fa-info-circle me-1 text-info"></i>Fixed commission charged to store owners on each sale.</small>
                     </div>
                 </div>
 
                 <div class="info-box mt-3">
-                    <i class="fas fa-info-circle text-success me-2"></i>
+                    <i class="fas fa-info-circle me-2"></i>
                     <strong>How it works:</strong> 
                     When a customer makes a purchase, the total commission = (Order Total × Commission %) + Fixed Commission.
                     The remaining amount goes to the store owner.
                 </div>
 
-                <div class="mt-3">
+                <div class="mt-4 d-flex flex-wrap gap-2">
                     <button type="submit" class="btn btn-success">
                         <i class="fas fa-save me-2"></i>Save Commissions
                     </button>
+                    <button type="reset" class="btn btn-outline-secondary">
+                        <i class="fas fa-undo me-2"></i>Reset
+                    </button>
+                    <a href="/admin/dashboard" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
                 </div>
             </form>
         </div>
@@ -361,49 +554,251 @@
         <!-- Example Calculation -->
         <div class="commission-card">
             <h6 class="fw-bold mb-3"><i class="fas fa-calculator me-2 text-info"></i>Example Calculation</h6>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Order Total</th>
-                        <th>Commission %</th>
-                        <th>Fixed Fee</th>
-                        <th>Total Commission</th>
-                        <th>Store Owner Gets</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $commissionPercent = $commissions['store_commission_percentage'] ?? 10;
-                    $fixedFee = $commissions['store_commission_fixed'] ?? 0;
-                    $orderTotals = [50, 100, 250, 500];
-                    ?>
-                    <?php foreach ($orderTotals as $total): ?>
-                        <?php
-                        $commission = ($total * $commissionPercent / 100) + $fixedFee;
-                        $storeGets = $total - $commission;
-                        ?>
+            <p class="text-muted mb-3">See how commissions affect different order amounts based on your current settings.</p>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
                         <tr>
-                            <td>$<?= number_format($total, 2) ?></td>
-                            <td><?= $commissionPercent ?>%</td>
-                            <td>$<?= number_format($fixedFee, 2) ?></td>
-                            <td>$<?= number_format($commission, 2) ?></td>
-                            <td><strong>$<?= number_format($storeGets, 2) ?></strong></td>
+                            <th>Order Total</th>
+                            <th>Commission %</th>
+                            <th>Fixed Fee</th>
+                            <th>Total Commission</th>
+                            <th>Store Owner Gets</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $commissionPercent = $commissions['store_commission_percentage'] ?? 10;
+                        $fixedFee = $commissions['store_commission_fixed'] ?? 0;
+                        $orderTotals = [50, 100, 250, 500, 1000];
+                        ?>
+                        <?php foreach ($orderTotals as $total): ?>
+                            <?php
+                            $commission = ($total * $commissionPercent / 100) + $fixedFee;
+                            $storeGets = $total - $commission;
+                            ?>
+                            <tr>
+                                <td><strong>$<?= number_format($total, 2) ?></strong></td>
+                                <td><?= number_format($commissionPercent, 2) ?>%</td>
+                                <td>$<?= number_format($fixedFee, 2) ?></td>
+                                <td><span class="text-danger">$<?= number_format($commission, 2) ?></span></td>
+                                <td><span class="text-success fw-bold">$<?= number_format($storeGets, 2) ?></span></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-2">
+                <small class="text-muted">
+                    <i class="fas fa-lightbulb text-warning me-1"></i>
+                    Tip: Higher commissions generate more revenue but may discourage store owners. Find the right balance for your marketplace.
+                </small>
+            </div>
         </div>
+
+        <!-- Commission Statistics -->
+        <div class="commission-card">
+            <h6 class="fw-bold mb-3"><i class="fas fa-chart-line me-2 text-primary"></i>Commission Statistics</h6>
+            <div class="row g-3">
+                <div class="col-md-3 col-6">
+                    <div class="p-3 bg-light rounded-3 text-center">
+                        <div class="small text-muted">Total Commission Earned</div>
+                        <div class="fw-bold fs-4 text-success">$<?= number_format($stats['total_commission'] ?? 0, 2) ?></div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="p-3 bg-light rounded-3 text-center">
+                        <div class="small text-muted">This Month</div>
+                        <div class="fw-bold fs-4 text-primary">$<?= number_format($stats['monthly_commission'] ?? 0, 2) ?></div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="p-3 bg-light rounded-3 text-center">
+                        <div class="small text-muted">Total Orders</div>
+                        <div class="fw-bold fs-4"><?= number_format($stats['total_orders'] ?? 0) ?></div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="p-3 bg-light rounded-3 text-center">
+                        <div class="small text-muted">Avg Commission per Order</div>
+                        <div class="fw-bold fs-4 text-info">$<?= number_format($stats['avg_commission'] ?? 0, 2) ?></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </section>
 
+<!-- ========================================== -->
+<!-- SCRIPTS -->
+<!-- ========================================== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-function toggleSidebar() {
-    var wrapper = document.getElementById('sidebarWrapper');
-    var body = document.getElementById('mainBody');
-    wrapper.classList.toggle('collapsed');
-    body.classList.toggle('sidebar-collapsed');
-}
+    // ==========================================
+    // SIDEBAR TOGGLE
+    // ==========================================
+    function toggleSidebar() {
+        const wrapper = document.getElementById('sidebarWrapper');
+        const body = document.getElementById('mainBody');
+        const label = document.getElementById('toggleLabel');
+        
+        wrapper.classList.toggle('collapsed');
+        body.classList.toggle('sidebar-collapsed');
+        
+        // Update toggle button text
+        if (label) {
+            label.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+        }
+        
+        // Save state to localStorage
+        const isCollapsed = wrapper.classList.contains('collapsed');
+        localStorage.setItem('sidebarCollapsed', isCollapsed);
+    }
+
+    // ==========================================
+    // RESTORE SIDEBAR STATE
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', function() {
+        const wrapper = document.getElementById('sidebarWrapper');
+        const body = document.getElementById('mainBody');
+        const label = document.getElementById('toggleLabel');
+        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        
+        if (isCollapsed) {
+            wrapper.classList.add('collapsed');
+            body.classList.add('sidebar-collapsed');
+            if (label) {
+                label.textContent = 'Expand';
+            }
+        }
+
+        // Auto-dismiss alerts after 5 seconds
+        const alerts = document.querySelectorAll('.alert:not(.alert-dismissible)');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.remove();
+                }, 500);
+            }, 5000);
+        });
+
+        // Dismiss success alert after 8 seconds
+        const successAlert = document.getElementById('successAlert');
+        if (successAlert) {
+            setTimeout(function() {
+                successAlert.style.transition = 'opacity 0.5s';
+                successAlert.style.opacity = '0';
+                setTimeout(function() {
+                    successAlert.remove();
+                }, 500);
+            }, 8000);
+        }
+
+        // Form validation
+        const form = document.getElementById('commissionForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const percentage = document.querySelector('[name="store_commission_percentage"]');
+                if (percentage && parseFloat(percentage.value) > 100) {
+                    e.preventDefault();
+                    showNotification('Commission percentage cannot exceed 100%', 'error', 'Validation Error');
+                    percentage.focus();
+                    percentage.classList.add('is-invalid');
+                }
+            });
+
+            // Remove invalid class on input
+            document.querySelectorAll('.form-control').forEach(function(input) {
+                input.addEventListener('input', function() {
+                    this.classList.remove('is-invalid');
+                });
+            });
+        }
+    });
+
+    // ==========================================
+    // NOTIFICATION SYSTEM
+    // ==========================================
+    function showNotification(message, type = 'info', title = '') {
+        const container = document.getElementById('notificationContainer');
+        if (!container) return;
+
+        const iconMap = {
+            success: 'fas fa-check-circle text-success',
+            error: 'fas fa-exclamation-circle text-danger',
+            warning: 'fas fa-exclamation-triangle text-warning',
+            info: 'fas fa-info-circle text-info'
+        };
+
+        const icon = iconMap[type] || iconMap.info;
+
+        const toast = document.createElement('div');
+        toast.className = `notification-toast ${type}`;
+        toast.innerHTML = `
+            <div class="notif-icon"><i class="${icon}"></i></div>
+            <div class="notif-content">
+                ${title ? `<div class="notif-title">${title}</div>` : ''}
+                <div class="notif-message">${message}</div>
+                <div class="notif-time">${new Date().toLocaleTimeString()}</div>
+            </div>
+            <button class="notif-close" onclick="this.closest('.notification-toast').remove();">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+
+        container.appendChild(toast);
+
+        // Auto remove after 5 seconds
+        setTimeout(function() {
+            if (toast.parentNode) {
+                toast.classList.add('removing');
+                setTimeout(function() {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 300);
+            }
+        }, 5000);
+    }
+
+    // ==========================================
+    // KEYBOARD SHORTCUTS
+    // ==========================================
+    document.addEventListener('keydown', function(e) {
+        // Ctrl + B to toggle sidebar
+        if (e.ctrlKey && e.key === 'b') {
+            e.preventDefault();
+            toggleSidebar();
+        }
+        // Escape key to close notifications
+        if (e.key === 'Escape') {
+            const notifications = document.querySelectorAll('.notification-toast');
+            notifications.forEach(function(notif) {
+                notif.classList.add('removing');
+                setTimeout(function() {
+                    if (notif.parentNode) {
+                        notif.remove();
+                    }
+                }, 300);
+            });
+        }
+        // Ctrl + S to save form
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            const form = document.getElementById('commissionForm');
+            if (form) {
+                form.submit();
+            }
+        }
+    });
+
+    console.log('ShopEase Admin - Commissions Page Loaded');
+    console.log('Shortcut: Ctrl+B to toggle sidebar');
+    console.log('Shortcut: Ctrl+S to save commissions');
+    console.log('Press ESC to close all notifications');
 </script>
 </body>
 </html>

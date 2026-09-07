@@ -1,4 +1,16 @@
-<?php $active_menu = 'change-password'; ?>
+<?php
+// ✅ Check for delivery company session
+$isLoggedIn = session()->get('is_logged_in') || session()->get('delivery_company_id');
+$isDeliveryCompany = session()->get('role') === 'delivery_company' || session()->get('delivery_company_id');
+
+if (!$isLoggedIn || !$isDeliveryCompany) {
+    header('Location: /delivery/login');
+    exit();
+}
+
+$active_menu = 'change-password';
+?>
+
 <!-- app/Views/delivery_company/change_password.php -->
 <!DOCTYPE html>
 <html lang="en">
@@ -19,14 +31,56 @@
             min-height: 100vh;
         }
 
-        /* Navbar */
+        /* ========================================== */
+        /* NOTIFICATION STYLES */
+        /* ========================================== */
+        .notification-container {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+            width: 100%;
+        }
+        .notification-toast {
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            border-left: 4px solid #4caf50;
+            animation: slideInRight 0.4s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .notification-toast.error { border-left-color: #dc3545; }
+        .notification-toast.warning { border-left-color: #ffc107; }
+        .notification-toast.info { border-left-color: #17a2b8; }
+        .notification-toast .notif-icon { font-size: 1.3rem; margin-top: 2px; }
+        .notification-toast .notif-content { flex: 1; }
+        .notification-toast .notif-title { font-weight: 600; color: #1a2e1a; font-size: 0.9rem; }
+        .notification-toast .notif-message { color: #555; font-size: 0.85rem; }
+        .notification-toast .notif-time { color: #aaa; font-size: 0.7rem; margin-top: 3px; }
+        .notification-toast .notif-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1rem; padding: 0 5px; }
+        .notification-toast .notif-close:hover { color: #333; }
+        .notification-toast.removing { animation: slideOutRight 0.3s ease forwards; }
+        @keyframes slideInRight { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100px); opacity: 0; } }
+
+        /* ========================================== */
+        /* NAVBAR */
+        /* ========================================== */
         .navbar {
             background: #1a2e1a !important;
             padding: 15px 0;
             box-shadow: 0 2px 20px rgba(0,0,0,0.3);
             position: fixed;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 280px;
+            right: 0;
             z-index: 1050;
+            transition: left 0.3s ease;
         }
         .navbar-brand {
             color: #fff !important;
@@ -34,6 +88,8 @@
             font-size: 1.5rem;
         }
         .navbar-brand i { color: #4caf50; }
+        .navbar .nav-link { color: #d4d4d4 !important; font-weight: 500; transition: 0.3s; }
+        .navbar .nav-link:hover { color: #4caf50 !important; }
         .icon-btn {
             color: #d4d4d4;
             font-size: 1.2rem;
@@ -44,14 +100,17 @@
             text-decoration: none;
         }
         .icon-btn:hover { color: #4caf50; transform: scale(1.1); }
+        body.sidebar-collapsed .navbar { left: 70px; }
 
-        /* Sidebar */
+        /* ========================================== */
+        /* SIDEBAR */
+        /* ========================================== */
         .sidebar-wrapper {
             position: fixed;
-            top: 80px;
+            top: 0;
             left: 0;
             width: 280px;
-            height: calc(100vh - 80px);
+            height: 100vh;
             overflow-y: auto;
             background: #fff;
             border-right: 1px solid #e8f0e8;
@@ -100,6 +159,7 @@
             background: #4caf50; color: #fff; border: none; border-radius: 8px;
             padding: 8px 12px; font-size: 1rem; cursor: pointer; width: 100%;
             margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: 0.3s;
         }
         .toggle-sidebar-btn:hover { background: #388e3c; }
 
@@ -122,19 +182,13 @@
         .sidebar-menu li .menu-text { flex: 1; }
         .sidebar-menu li a { color: inherit; text-decoration: none; display: flex; align-items: center; width: 100%; }
 
-        /* Main Content */
-        .main-content {
-            margin-left: 0;
-            padding: 20px 30px;
-            margin-top: 0;
-            min-height: calc(100vh - 160px);
-        }
-
-        /* Page Header */
+        /* ========================================== */
+        /* PAGE HEADER */
+        /* ========================================== */
         .page-header {
             background: #f8f9fa;
             color: #1a2e1a;
-            padding: 20px 0 20px;
+            padding: 20px 0;
             border-bottom: 1px solid #e8f0e8;
         }
         .page-header h2 {
@@ -150,39 +204,85 @@
             color: #4caf50;
             text-decoration: none;
         }
+        .page-header .breadcrumb a:hover { text-decoration: underline; }
         .page-header .breadcrumb .active {
             color: #888;
         }
 
-        /* Form Card */
+        /* ========================================== */
+        /* MAIN CONTENT */
+        /* ========================================== */
+        .main-content {
+            padding: 20px 30px;
+            min-height: calc(100vh - 160px);
+        }
+
+        /* ========================================== */
+        /* FORM CARD */
+        /* ========================================== */
         .form-card {
             background: #fff;
             border-radius: 12px;
-            padding: 25px;
+            padding: 30px;
             border: 1px solid #e8f0e8;
             max-width: 600px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+        .form-card .form-label {
+            font-weight: 600;
+            color: #1a2e1a;
         }
         .form-control {
             border-radius: 10px;
             padding: 12px 15px;
             border: 2px solid #e8f0e8;
+            transition: 0.3s;
         }
         .form-control:focus {
             border-color: #4caf50;
             box-shadow: 0 0 0 0.2rem rgba(76,175,80,0.25);
         }
-        .btn-success {
-            border-radius: 10px;
-            padding: 12px 30px;
-            font-weight: 600;
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+        .form-control.is-valid {
+            border-color: #28a745;
         }
 
-        /* Password Strength - FIXED */
+        /* ========================================== */
+        /* BUTTONS */
+        /* ========================================== */
+        .btn-success {
+            border-radius: 30px;
+            padding: 12px 35px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-success:hover {
+            background: #388e3c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76,175,80,0.3);
+        }
+        .btn-outline-secondary {
+            border-radius: 30px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-outline-secondary:hover {
+            transform: translateY(-2px);
+        }
+
+        /* ========================================== */
+        /* PASSWORD STRENGTH */
+        /* ========================================== */
         .password-strength {
             height: 5px;
             border-radius: 5px;
             margin-top: 5px;
             transition: all 0.3s ease;
+            display: block;
+            width: 0%;
         }
         .password-strength.weak {
             background: #dc3545;
@@ -208,12 +308,23 @@
         .password-requirements .req-met {
             color: #28a745;
         }
+        .password-requirements .req-met i {
+            color: #28a745;
+        }
         .password-requirements .req-unmet {
             color: #dc3545;
         }
+        .password-requirements .req-unmet i {
+            color: #dc3545;
+        }
 
+        /* ========================================== */
+        /* RESPONSIVE */
+        /* ========================================== */
         @media (max-width: 992px) {
             body { padding-left: 0; }
+            body.sidebar-collapsed { padding-left: 0; }
+            .navbar { left: 0 !important; }
             .sidebar-wrapper {
                 position: relative; top: 0; width: 100%; height: auto;
                 border-right: none; border-bottom: 1px solid #e8f0e8;
@@ -225,37 +336,64 @@
             .sidebar-wrapper.collapsed .company-name,
             .sidebar-wrapper.collapsed .company-email,
             .sidebar-wrapper.collapsed .sidebar-category { display: block; }
-            body.sidebar-collapsed { padding-left: 0; }
             .main-content { padding: 15px; }
+            .form-card { padding: 20px; }
+            .btn-success, .btn-outline-secondary {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .page-header h2 { font-size: 1.3rem; }
+            .form-card { padding: 15px; }
+            .form-control { font-size: 0.9rem; padding: 10px 12px; }
+            .password-requirements { font-size: 0.7rem; }
         }
     </style>
 </head>
 <body id="mainBody">
 
-<!-- Navbar -->
+<!-- Notification Container -->
+<div class="notification-container" id="notificationContainer"></div>
+
+<!-- ========================================== -->
+<!-- NAVBAR -->
+<!-- ========================================== -->
 <nav class="navbar navbar-expand-lg">
     <div class="container">
         <a class="navbar-brand" href="/delivery/dashboard">
             <i class="fas fa-truck"></i> ShopEase Delivery
         </a>
-        <div class="d-flex align-items-center ms-auto">
-            <span class="text-white me-3 d-none d-md-inline">
-                <i class="fas fa-store me-1"></i><?= session()->get('delivery_company_name') ?? 'Company' ?>
-            </span>
-            <a href="/delivery/logout" class="icon-btn">
-                <i class="fas fa-sign-out-alt"></i>
-            </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item">
+                    <span class="text-white me-3 d-none d-md-inline">
+                        <i class="fas fa-building me-1"></i>
+                        <?= session()->get('delivery_company_name') ?? 'Company' ?>
+                    </span>
+                </li>
+                <li class="nav-item">
+                    <a href="/delivery/logout" class="icon-btn" style="color:#d4d4d4;text-decoration:none;">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
 </nav>
 
-<!-- Sidebar -->
+<!-- ========================================== -->
+<!-- SIDEBAR -->
+<!-- ========================================== -->
 <div class="sidebar-wrapper" id="sidebarWrapper">
     <div class="sidebar-card">
-        <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
-
+      <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+</button>
         <div class="company-avatar">
             <i class="fas fa-truck"></i>
         </div>
@@ -272,7 +410,7 @@
                 <i class="fas fa-list"></i>
                 <span class="menu-text">Delivery Orders</span>
             </li>
-             <li class="<?= $active_menu == 'assign' ? 'active' : '' ?>" onclick="location.href='/delivery/assign'" data-tooltip="Assign Delivery">
+            <li onclick="location.href='/delivery/assign'" data-tooltip="Assign Delivery">
                 <i class="fas fa-user-plus"></i>
                 <span class="menu-text">Assign Delivery</span>
             </li>
@@ -314,43 +452,68 @@
     </div>
 </div>
 
-<!-- Page Header -->
+<!-- ========================================== -->
+<!-- PAGE HEADER -->
+<!-- ========================================== -->
 <section class="page-header">
     <div class="container-fluid px-4">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
                 <h2><i class="fas fa-key me-2 text-warning"></i>Change Password</h2>
                 <nav class="breadcrumb">
+                    <a href="/">Home</a>
+                    <span class="mx-2">/</span>
                     <a href="/delivery/dashboard">Dashboard</a>
                     <span class="mx-2">/</span>
                     <span class="active">Change Password</span>
                 </nav>
             </div>
+            <div>
+                <span class="text-muted"><i class="fas fa-clock me-1"></i>Last updated: <?= date('M d, Y H:i') ?></span>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- Main Content -->
+<!-- ========================================== -->
+<!-- MAIN CONTENT -->
+<!-- ========================================== -->
 <section class="main-content">
     <div class="container-fluid px-4">
 
         <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
+            <div class="alert alert-success alert-dismissible fade show" id="successAlert">
+                <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
         <?php endif; ?>
+
         <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
+            <div class="alert alert-danger alert-dismissible fade show">
+                <i class="fas fa-exclamation-circle me-2"></i><?= session()->getFlashdata('error') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
         <?php endif; ?>
+
         <?php if (session()->getFlashdata('warning')): ?>
-            <div class="alert alert-warning"><?= session()->getFlashdata('warning') ?></div>
+            <div class="alert alert-warning alert-dismissible fade show">
+                <i class="fas fa-exclamation-triangle me-2"></i><?= session()->getFlashdata('warning') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
         <?php endif; ?>
 
         <div class="form-card">
-            <form id="passwordForm" onsubmit="updatePassword(event)">
+            <h5 class="fw-bold mb-3"><i class="fas fa-lock me-2 text-warning"></i>Update Your Password</h5>
+            <p class="text-muted mb-4">For security, please choose a strong password that you don't use elsewhere.</p>
+
+            <form id="passwordForm" method="post" action="/delivery/change-password">
+                <?= csrf_field() ?>
+                
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Current Password <span class="text-danger">*</span></label>
                     <div class="input-group">
-                        <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password" required>
-                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('currentPassword')">
+                        <input type="password" name="current_password" id="currentPassword" class="form-control" placeholder="Enter current password" autocomplete="current-password" required>
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('currentPassword')" style="border-radius: 0 10px 10px 0;">
                             <i class="fas fa-eye" id="currentPasswordIcon"></i>
                         </button>
                     </div>
@@ -359,8 +522,8 @@
                 <div class="mb-3">
                     <label class="form-label fw-semibold">New Password <span class="text-danger">*</span></label>
                     <div class="input-group">
-                        <input type="password" id="newPassword" class="form-control" placeholder="Enter new password" required onkeyup="checkPasswordStrength(this.value)">
-                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('newPassword')">
+                        <input type="password" name="new_password" id="newPassword" class="form-control" placeholder="Enter new password" autocomplete="new-password" required onkeyup="checkPasswordStrength(this.value)">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('newPassword')" style="border-radius: 0 10px 10px 0;">
                             <i class="fas fa-eye" id="newPasswordIcon"></i>
                         </button>
                     </div>
@@ -377,186 +540,376 @@
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Confirm New Password <span class="text-danger">*</span></label>
                     <div class="input-group">
-                        <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm new password" required onkeyup="checkPasswordMatch()">
-                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirmPassword')">
+                        <input type="password" name="confirm_password" id="confirmPassword" class="form-control" placeholder="Confirm new password" autocomplete="new-password" required onkeyup="checkPasswordMatch()">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirmPassword')" style="border-radius: 0 10px 10px 0;">
                             <i class="fas fa-eye" id="confirmPasswordIcon"></i>
                         </button>
                     </div>
                     <small id="passwordMatchMsg" class="text-muted"></small>
                 </div>
 
-                <div class="mt-3">
-                    <button type="submit" class="btn btn-success">
+                <div class="mt-4 d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-success" id="submitBtn">
                         <i class="fas fa-save me-2"></i>Update Password
                     </button>
-                    <a href="/delivery/dashboard" class="btn btn-outline-secondary ms-2">Cancel</a>
+                    <button type="reset" class="btn btn-outline-secondary">
+                        <i class="fas fa-undo me-2"></i>Reset
+                    </button>
+                    <a href="/delivery/dashboard" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
                 </div>
             </form>
         </div>
     </div>
 </section>
 
+<!-- ========================================== -->
+<!-- SCRIPTS -->
+<!-- ========================================== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-function togglePassword(fieldId) {
-    const field = document.getElementById(fieldId);
-    const icon = document.getElementById(fieldId + 'Icon');
-    if (field.type === 'password') {
-        field.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-    } else {
-        field.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-    }
-}
+    // ==========================================
+    // SIDEBAR TOGGLE
+    // ==========================================
+    function toggleSidebar() {
+        const wrapper = document.getElementById('sidebarWrapper');
+        const body = document.getElementById('mainBody');
+        const label = document.getElementById('toggleLabel');
 
-function toggleSidebar() {
-    var wrapper = document.getElementById('sidebarWrapper');
-    var body = document.getElementById('mainBody');
-    wrapper.classList.toggle('collapsed');
-    body.classList.toggle('sidebar-collapsed');
-}
+        wrapper.classList.toggle('collapsed');
+        body.classList.toggle('sidebar-collapsed');
 
-function checkPasswordStrength(password) {
-    const strengthBar = document.getElementById('passwordStrength');
-    const reqLength = document.getElementById('reqLength');
-    const reqUppercase = document.getElementById('reqUppercase');
-    const reqLowercase = document.getElementById('reqLowercase');
-    const reqNumber = document.getElementById('reqNumber');
-    const reqSpecial = document.getElementById('reqSpecial');
-    
-    const hasLength = password.length >= 8;
-    const hasUppercase = /[A-Z]/.test(password);
-    const hasLowercase = /[a-z]/.test(password);
-    const hasNumber = /[0-9]/.test(password);
-    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-    
-    updateRequirement(reqLength, hasLength);
-    updateRequirement(reqUppercase, hasUppercase);
-    updateRequirement(reqLowercase, hasLowercase);
-    updateRequirement(reqNumber, hasNumber);
-    updateRequirement(reqSpecial, hasSpecial);
-    
-    let strength = 0;
-    if (hasLength) strength++;
-    if (hasUppercase) strength++;
-    if (hasLowercase) strength++;
-    if (hasNumber) strength++;
-    if (hasSpecial) strength++;
-    
-    strengthBar.className = 'password-strength';
-    if (password.length === 0) {
-        strengthBar.style.width = '0%';
-        strengthBar.style.background = 'transparent';
-        strengthBar.textContent = '';
-    } else if (strength <= 2) {
-        strengthBar.classList.add('weak');
-        strengthBar.textContent = 'Weak';
-    } else if (strength <= 3) {
-        strengthBar.classList.add('medium');
-        strengthBar.textContent = 'Medium';
-    } else if (strength <= 4) {
-        strengthBar.classList.add('strong');
-        strengthBar.textContent = 'Strong';
-    } else {
-        strengthBar.classList.add('very-strong');
-        strengthBar.textContent = 'Very Strong';
-    }
-    
-    checkPasswordMatch();
-}
-
-function updateRequirement(element, met) {
-    const text = element.textContent.replace(/[✓✗]/g, '').trim();
-    if (met) {
-        element.className = 'req-met';
-        element.innerHTML = '<i class="fas fa-check-circle"></i> ' + text;
-    } else {
-        element.className = 'req-unmet';
-        element.innerHTML = '<i class="fas fa-circle"></i> ' + text;
-    }
-}
-
-function checkPasswordMatch() {
-    const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    const msg = document.getElementById('passwordMatchMsg');
-    
-    if (confirmPassword.length === 0) {
-        msg.textContent = '';
-        msg.className = 'text-muted';
-        return;
-    }
-    
-    if (newPassword === confirmPassword) {
-        msg.textContent = '✅ Passwords match!';
-        msg.className = 'text-success';
-    } else {
-        msg.textContent = '❌ Passwords do not match!';
-        msg.className = 'text-danger';
-    }
-}
-
-function updatePassword(event) {
-    event.preventDefault();
-    
-    const currentPassword = document.getElementById('currentPassword').value;
-    const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    
-    if (!currentPassword) {
-        alert('Please enter your current password.');
-        return;
-    }
-    
-    if (!newPassword || newPassword.length < 8) {
-        alert('Password must be at least 8 characters.');
-        return;
-    }
-    
-    if (newPassword !== confirmPassword) {
-        alert('New passwords do not match!');
-        return;
-    }
-    
-    const formData = new URLSearchParams();
-    formData.append('current_password', currentPassword);
-    formData.append('new_password', newPassword);
-
-    fetch('/delivery/change-password', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: formData.toString()
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.message);
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
-            document.getElementById('passwordStrength').className = 'password-strength';
-            document.getElementById('passwordStrength').style.width = '0%';
-            document.getElementById('passwordMatchMsg').textContent = '';
-            document.querySelectorAll('.password-requirements span').forEach(el => {
-                el.className = 'req-unmet';
-                const text = el.textContent.replace(/[✓✗]/g, '').trim();
-                el.innerHTML = '<i class="fas fa-circle"></i> ' + text;
-            });
-        } else {
-            alert(data.message);
+        if (label) {
+            label.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to update password.');
+
+        localStorage.setItem('deliverySidebarCollapsed', wrapper.classList.contains('collapsed'));
+    }
+
+    // ==========================================
+    // RESTORE SIDEBAR STATE
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', function() {
+        const wrapper = document.getElementById('sidebarWrapper');
+        const body = document.getElementById('mainBody');
+        const label = document.getElementById('toggleLabel');
+        const isCollapsed = localStorage.getItem('deliverySidebarCollapsed') === 'true';
+
+        if (isCollapsed) {
+            wrapper.classList.add('collapsed');
+            body.classList.add('sidebar-collapsed');
+            if (label) {
+                label.textContent = 'Expand';
+            }
+        }
+
+        // Auto-dismiss alerts after 5 seconds
+        const alerts = document.querySelectorAll('.alert:not(.alert-dismissible)');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.remove();
+                }, 500);
+            }, 5000);
+        });
+
+        // Dismiss success alert after 8 seconds
+        const successAlert = document.getElementById('successAlert');
+        if (successAlert) {
+            setTimeout(function() {
+                successAlert.style.transition = 'opacity 0.5s';
+                successAlert.style.opacity = '0';
+                setTimeout(function() {
+                    successAlert.remove();
+                }, 500);
+            }, 8000);
+        }
     });
-}
+
+    // ==========================================
+    // TOGGLE PASSWORD VISIBILITY
+    // ==========================================
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const icon = document.getElementById(fieldId + 'Icon');
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            field.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    // ==========================================
+    // PASSWORD STRENGTH
+    // ==========================================
+    function checkPasswordStrength(password) {
+        const strengthBar = document.getElementById('passwordStrength');
+        const reqLength = document.getElementById('reqLength');
+        const reqUppercase = document.getElementById('reqUppercase');
+        const reqLowercase = document.getElementById('reqLowercase');
+        const reqNumber = document.getElementById('reqNumber');
+        const reqSpecial = document.getElementById('reqSpecial');
+        
+        const hasLength = password.length >= 8;
+        const hasUppercase = /[A-Z]/.test(password);
+        const hasLowercase = /[a-z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+        
+        updateRequirement(reqLength, hasLength);
+        updateRequirement(reqUppercase, hasUppercase);
+        updateRequirement(reqLowercase, hasLowercase);
+        updateRequirement(reqNumber, hasNumber);
+        updateRequirement(reqSpecial, hasSpecial);
+        
+        let strength = 0;
+        if (hasLength) strength++;
+        if (hasUppercase) strength++;
+        if (hasLowercase) strength++;
+        if (hasNumber) strength++;
+        if (hasSpecial) strength++;
+        
+        strengthBar.className = 'password-strength';
+        if (password.length === 0) {
+            strengthBar.style.width = '0%';
+            strengthBar.style.background = 'transparent';
+            strengthBar.textContent = '';
+        } else if (strength <= 2) {
+            strengthBar.classList.add('weak');
+            strengthBar.textContent = 'Weak';
+        } else if (strength <= 3) {
+            strengthBar.classList.add('medium');
+            strengthBar.textContent = 'Medium';
+        } else if (strength <= 4) {
+            strengthBar.classList.add('strong');
+            strengthBar.textContent = 'Strong';
+        } else {
+            strengthBar.classList.add('very-strong');
+            strengthBar.textContent = 'Very Strong';
+        }
+        
+        checkPasswordMatch();
+    }
+
+    function updateRequirement(element, met) {
+        const text = element.textContent.replace(/[✓✗]/g, '').trim();
+        if (met) {
+            element.className = 'req-met';
+            element.innerHTML = '<i class="fas fa-check-circle"></i> ' + text;
+        } else {
+            element.className = 'req-unmet';
+            element.innerHTML = '<i class="fas fa-circle"></i> ' + text;
+        }
+    }
+
+    // ==========================================
+    // PASSWORD MATCH CHECK
+    // ==========================================
+    function checkPasswordMatch() {
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const msg = document.getElementById('passwordMatchMsg');
+        
+        if (confirmPassword.length === 0) {
+            msg.textContent = '';
+            msg.className = 'text-muted';
+            return;
+        }
+        
+        if (newPassword === confirmPassword) {
+            msg.textContent = '✅ Passwords match!';
+            msg.className = 'text-success';
+        } else {
+            msg.textContent = '❌ Passwords do not match!';
+            msg.className = 'text-danger';
+        }
+    }
+
+    // ==========================================
+    // FORM SUBMISSION WITH VALIDATION
+    // ==========================================
+    document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Validate current password
+        if (!currentPassword) {
+            e.preventDefault();
+            showNotification('Please enter your current password.', 'warning', 'Validation Error');
+            document.getElementById('currentPassword').focus();
+            document.getElementById('currentPassword').classList.add('is-invalid');
+            return false;
+        }
+        
+        // Validate new password length
+        if (!newPassword || newPassword.length < 8) {
+            e.preventDefault();
+            showNotification('Password must be at least 8 characters long.', 'warning', 'Validation Error');
+            document.getElementById('newPassword').focus();
+            document.getElementById('newPassword').classList.add('is-invalid');
+            return false;
+        }
+
+        // Validate password requirements
+        const meetsRequirements = 
+            /[A-Z]/.test(newPassword) &&
+            /[a-z]/.test(newPassword) &&
+            /[0-9]/.test(newPassword) &&
+            /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+
+        if (!meetsRequirements) {
+            e.preventDefault();
+            showNotification('Password must include an uppercase letter, lowercase letter, number, and special character.', 'warning', 'Validation Error');
+            document.getElementById('newPassword').focus();
+            document.getElementById('newPassword').classList.add('is-invalid');
+            return false;
+        }
+        
+        // Validate password match
+        if (newPassword !== confirmPassword) {
+            e.preventDefault();
+            showNotification('New passwords do not match!', 'warning', 'Validation Error');
+            document.getElementById('confirmPassword').focus();
+            document.getElementById('confirmPassword').classList.add('is-invalid');
+            return false;
+        }
+
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+
+        // The controller returns JSON, so submit with fetch instead of allowing
+        // the browser to render the raw JSON response as a new page.
+        try {
+            const response = await fetch(this.action, {
+                method: 'POST',
+                body: new FormData(this),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin'
+            });
+
+            const contentType = response.headers.get('content-type') || '';
+            const result = contentType.includes('application/json')
+                ? await response.json()
+                : null;
+
+            if (!response.ok || !result || !result.success) {
+                throw new Error(
+                    (result && (result.message || result.error)) ||
+                    'Password update failed. Please try again.'
+                );
+            }
+
+            showNotification(
+                result.message || 'Password updated successfully!',
+                'success',
+                'Success'
+            );
+
+            setTimeout(function() {
+                window.location.href = '/delivery/dashboard';
+            }, 900);
+        } catch (error) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Password';
+            showNotification(error.message, 'error', 'Update Failed');
+        }
+    });
+
+    // ==========================================
+    // NOTIFICATION SYSTEM
+    // ==========================================
+    function showNotification(message, type = 'info', title = '') {
+        const container = document.getElementById('notificationContainer');
+        if (!container) return;
+
+        const iconMap = {
+            success: 'fas fa-check-circle text-success',
+            error: 'fas fa-exclamation-circle text-danger',
+            warning: 'fas fa-exclamation-triangle text-warning',
+            info: 'fas fa-info-circle text-info'
+        };
+
+        const icon = iconMap[type] || iconMap.info;
+
+        const toast = document.createElement('div');
+        toast.className = `notification-toast ${type}`;
+        toast.innerHTML = `
+            <div class="notif-icon"><i class="${icon}"></i></div>
+            <div class="notif-content">
+                ${title ? `<div class="notif-title">${title}</div>` : ''}
+                <div class="notif-message">${message}</div>
+                <div class="notif-time">${new Date().toLocaleTimeString()}</div>
+            </div>
+            <button class="notif-close" onclick="this.closest('.notification-toast').remove();">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+
+        container.appendChild(toast);
+
+        setTimeout(function() {
+            if (toast.parentNode) {
+                toast.classList.add('removing');
+                setTimeout(function() {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 300);
+            }
+        }, 5000);
+    }
+
+    // ==========================================
+    // KEYBOARD SHORTCUTS
+    // ==========================================
+    document.addEventListener('keydown', function(e) {
+        // Ctrl + B to toggle sidebar
+        if (e.ctrlKey && e.key === 'b') {
+            e.preventDefault();
+            toggleSidebar();
+        }
+        // Escape key to close notifications
+        if (e.key === 'Escape') {
+            const notifications = document.querySelectorAll('.notification-toast');
+            notifications.forEach(function(notif) {
+                notif.classList.add('removing');
+                setTimeout(function() {
+                    if (notif.parentNode) {
+                        notif.remove();
+                    }
+                }, 300);
+            });
+        }
+        // Ctrl + S to submit form
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            const form = document.getElementById('passwordForm');
+            if (form) {
+                form.submit();
+            }
+        }
+    });
+
+    console.log('ShopEase Delivery - Change Password Page Loaded');
+    console.log('Shortcut: Ctrl+B to toggle sidebar');
+    console.log('Shortcut: Ctrl+S to submit form');
+    console.log('Press ESC to close all notifications');
 </script>
+
 </body>
 </html>

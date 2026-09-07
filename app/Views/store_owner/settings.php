@@ -1,17 +1,17 @@
-<!-- app/Views/store_owner/products.php -->
+<!-- app/Views/store_owner/settings.php -->
 <?php
 if (!session()->get('tenant_id')) {
     header('Location: /login');
     exit();
 }
 ?>
-<?php $active_menu = 'products'; ?>
+<?php $active_menu = 'settings'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products - ShopEase Store</title>
+    <title>Store Settings - ShopEase Store</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -195,75 +195,50 @@ if (!session()->get('tenant_id')) {
         .main-content { padding: 20px 30px; min-height: calc(100vh - 160px); }
 
         /* ========================================== */
-        /* TABLE CARD */
+        /* SETTINGS CARD */
         /* ========================================== */
-        .table-card {
+        .settings-card {
             background: #fff;
             border-radius: 12px;
-            padding: 20px;
+            padding: 24px;
             border: 1px solid #e8f0e8;
+            margin-bottom: 20px;
+        }
+        .settings-card h5 {
+            font-weight: 700;
+            color: #1a2e1a;
         }
 
-        /* ========================================== */
-        /* BUTTONS */
-        /* ========================================== */
-        .btn-add {
+        .btn-add-product {
             background: #4caf50; color: #fff; border: none;
             border-radius: 30px; padding: 10px 25px;
             font-weight: 600; transition: 0.3s;
             text-decoration: none; display: inline-block;
         }
-        .btn-add:hover { background: #388e3c; color: #fff; }
+        .btn-add-product:hover { background: #388e3c; color: #fff; }
 
-        .btn-edit {
-            background: #ffc107; color: #000; border: none;
-            border-radius: 30px; padding: 5px 15px;
-            font-weight: 600; transition: 0.3s;
-            text-decoration: none; display: inline-block; font-size: 0.8rem;
+        .form-control {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 2px solid #e8f0e8;
         }
-        .btn-edit:hover { background: #e0a800; color: #000; }
-
-        .btn-delete {
-            background: #dc3545; color: #fff; border: none;
-            border-radius: 30px; padding: 5px 15px;
-            font-weight: 600; transition: 0.3s;
-            text-decoration: none; display: inline-block; font-size: 0.8rem;
-        }
-        .btn-delete:hover { background: #c82333; color: #fff; }
-
-        .btn-toggle {
-            background: #17a2b8; color: #fff; border: none;
-            border-radius: 30px; padding: 5px 15px;
-            font-weight: 600; transition: 0.3s;
-            text-decoration: none; display: inline-block; font-size: 0.8rem;
-        }
-        .btn-toggle:hover { background: #138496; color: #fff; }
-
-        /* ========================================== */
-        /* STATUS BADGES */
-        /* ========================================== */
-        .badge-published { background: #4caf50; color: #fff; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; }
-        .badge-draft { background: #ffc107; color: #000; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; }
-        .badge-archived { background: #dc3545; color: #fff; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; }
-
-        .product-image-small {
-            width: 50px; height: 50px; object-fit: cover;
-            border-radius: 8px; border: 1px solid #e8f0e8;
+        .form-control:focus {
+            border-color: #4caf50;
+            box-shadow: 0 0 0 0.2rem rgba(76,175,80,0.25);
         }
 
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
+        .password-strength {
+            height: 5px; border-radius: 5px; margin-top: 5px; transition: all 0.3s ease;
         }
-        .status-published { background: #d4edda; color: #155724; }
-        .status-draft { background: #e9ecef; color: #6c757d; }
-        .status-archived { background: #f8d7da; color: #721c24; }
+        .password-strength.weak { background: #dc3545; width: 25%; }
+        .password-strength.medium { background: #ffc107; width: 50%; }
+        .password-strength.strong { background: #28a745; width: 75%; }
+        .password-strength.very-strong { background: #17a2b8; width: 100%; }
 
-        /* ========================================== */
-        /* RESPONSIVE - IDENTICAL TO DASHBOARD */
-        /* ========================================== */
+        .password-requirements { font-size: 0.8rem; color: #888; margin-top: 5px; }
+        .password-requirements .req-met { color: #28a745; }
+        .password-requirements .req-unmet { color: #dc3545; }
+
         @media (max-width: 992px) {
             body { padding-left: 0; }
             .navbar { left: 0 !important; }
@@ -281,6 +256,7 @@ if (!session()->get('tenant_id')) {
             .sidebar-wrapper.collapsed .sidebar-category { display: block; }
             body.sidebar-collapsed { padding-left: 0; }
             .main-content { padding: 15px; }
+            .settings-card { padding: 15px; }
         }
     </style>
 </head>
@@ -299,10 +275,10 @@ if (!session()->get('tenant_id')) {
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link active" href="#">Products</a></li>
+                <li class="nav-item"><a class="nav-link active" href="#">Store Settings</a></li>
             </ul>
             <div class="d-flex align-items-center">
-                <span class="text-white me-3 d-none d-md-inline">Store: <?= session()->get('store_name') ?? 'Store' ?></span>
+                <span class="text-white me-3 d-none d-md-inline"><i class="fas fa-store me-1"></i><?= session()->get('store_name') ?? 'Store' ?></span>
                 <a href="/logout" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="fas fa-sign-out-alt"></i></a>
             </div>
         </div>
@@ -329,7 +305,7 @@ if (!session()->get('tenant_id')) {
                 <i class="fas fa-tachometer-alt"></i>
                 <span class="menu-text">Dashboard</span>
             </li>
-            <li class="active" onclick="location.href='/store/products'" data-tooltip="Products">
+            <li onclick="location.href='/store/products'" data-tooltip="Products">
                 <i class="fas fa-box"></i>
                 <span class="menu-text">Products</span>
             </li>
@@ -346,7 +322,7 @@ if (!session()->get('tenant_id')) {
         <!-- FINANCE & EARNINGS -->
         <div class="sidebar-category">Finance & Earnings</div>
         <ul class="sidebar-menu">
-             <li onclick="location.href='/store/reports'" data-tooltip="Reports">
+            <li onclick="location.href='/store/reports'" data-tooltip="Reports">
                 <i class="fas fa-chart-line"></i>
                 <span class="menu-text">Reports</span>
             </li>
@@ -367,7 +343,7 @@ if (!session()->get('tenant_id')) {
         <!-- SERVICES -->
         <div class="sidebar-category">Services</div>
         <ul class="sidebar-menu">
-            <li onclick="location.href='/store/settings'" data-tooltip="Settings">
+            <li class="active" onclick="location.href='/store/settings'" data-tooltip="Settings">
                 <i class="fas fa-store-alt"></i>
                 <span class="menu-text">Store Settings</span>
             </li>
@@ -386,16 +362,15 @@ if (!session()->get('tenant_id')) {
     <div class="container-fluid px-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
-                <h2><i class="fas fa-boxes me-2 text-success"></i>Products</h2>
+                <h2><i class="fas fa-store-alt me-2 text-success"></i>Store Settings</h2>
                 <nav class="breadcrumb">
                     <a href="/">Home</a>
                     <span class="mx-2">/</span>
                     <a href="/store/dashboard">Dashboard</a>
                     <span class="mx-2">/</span>
-                    <span class="active">Products</span>
+                    <span class="active">Store Settings</span>
                 </nav>
             </div>
-            <a href="/store/products/create" class="btn-add"><i class="fas fa-plus me-2"></i>Add Product</a>
         </div>
     </div>
 </section>
@@ -403,6 +378,7 @@ if (!session()->get('tenant_id')) {
 <!-- Main Content -->
 <section class="main-content">
     <div class="container-fluid px-4">
+
         <?php if (session()->getFlashdata('success')): ?>
             <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
         <?php endif; ?>
@@ -410,72 +386,86 @@ if (!session()->get('tenant_id')) {
             <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
         <?php endif; ?>
 
-        <div class="table-card">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Image</th>
-                            <th>Product Name</th>
-                            <th>Category</th>
-                            <th>Price</th>
-                            <th>Stock</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (!empty($products)): ?>
-                            <?php foreach ($products as $product): ?>
-                                <tr>
-                                    <td><?= $product['id'] ?></td>
-                                    <td>
-                                        <?php if (!empty($product['product_image'])): ?>
-                                            <img src="/<?= $product['product_image'] ?>" class="product-image-small" alt="<?= esc($product['product_name']) ?>">
-                                        <?php else: ?>
-                                            <img src="https://via.placeholder.com/50" class="product-image-small" alt="No image">
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?= esc($product['product_name']) ?></td>
-                                    <td>
-                                        <?php
-                                        if (isset($categories) && isset($categories[$product['category_id']])) {
-                                            echo esc($categories[$product['category_id']]['category_name'] ?? 'N/A');
-                                        } else {
-                                            echo 'N/A';
-                                        }
-                                        ?>
-                                    </td>
-                                    <td>$<?= number_format($product['price'], 2) ?></td>
-                                    <td><?= $product['quantity'] ?></td>
-                                    <td>
-                                        <?php if ($product['status'] == 'published'): ?>
-                                            <span class="status-badge status-published">Published</span>
-                                        <?php elseif ($product['status'] == 'draft'): ?>
-                                            <span class="status-badge status-draft">Draft</span>
-                                        <?php else: ?>
-                                            <span class="status-badge status-archived">Archived</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <a href="/store/products/edit/<?= $product['id'] ?>" class="btn-edit"><i class="fas fa-edit"></i> Edit</a>
-                                        <a href="/store/products/toggle/<?= $product['id'] ?>" class="btn-toggle"><i class="fas fa-sync"></i> Toggle</a>
-                                        <a href="/store/products/delete/<?= $product['id'] ?>" class="btn-delete" onclick="return confirm('Are you sure you want to delete this product?')"><i class="fas fa-trash"></i> Delete</a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="8" class="text-center py-4">
-                                    <i class="fas fa-box-open fa-3x text-muted mb-3 d-block"></i>
-                                    <p class="text-muted">No products found. <a href="/store/products/create">Add your first product</a></p>
-                                </td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+        <!-- Store Information -->
+        <div class="settings-card">
+            <h5><i class="fas fa-info-circle me-2 text-success"></i>Store Information</h5>
+            <hr>
+            <form id="storeSettingsForm" onsubmit="return false;">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Store Name</label>
+                    <input type="text" class="form-control" value="<?= session()->get('store_name') ?? '' ?>" id="storeName">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Store Description</label>
+                    <textarea class="form-control" rows="3" id="storeDescription"><?= $tenant['store_description'] ?? '' ?></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Contact Email</label>
+                    <input type="email" class="form-control" value="<?= $tenant['contact_email'] ?? '' ?>" id="contactEmail">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Contact Phone</label>
+                    <input type="tel" class="form-control" value="<?= $tenant['contact_phone'] ?? '' ?>" id="contactPhone">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Store Address</label>
+                    <textarea class="form-control" rows="2" id="storeAddress"><?= $tenant['store_address'] ?? '' ?></textarea>
+                </div>
+                <button type="button" class="btn-add-product" onclick="saveStoreSettings()">
+                    <i class="fas fa-save me-2"></i>Save Settings
+                </button>
+            </form>
+        </div>
+
+        <!-- Update Password -->
+        <div class="settings-card">
+            <h5><i class="fas fa-key me-2 text-warning"></i>Update Password</h5>
+            <p class="text-muted small">Change your account password. Use a strong password for security.</p>
+            <hr>
+            <form id="passwordForm" onsubmit="return false;">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Current Password <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="currentPassword" placeholder="Enter current password" required>
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('currentPassword')">
+                            <i class="fas fa-eye" id="currentPasswordIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">New Password <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="newPassword" placeholder="Enter new password" required onkeyup="checkPasswordStrength(this.value)">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('newPassword')">
+                            <i class="fas fa-eye" id="newPasswordIcon"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength" id="passwordStrength"></div>
+                    <div class="password-requirements" id="passwordRequirements">
+                        <span id="reqLength" class="req-unmet"><i class="fas fa-circle"></i> At least 8 characters</span><br>
+                        <span id="reqUppercase" class="req-unmet"><i class="fas fa-circle"></i> At least 1 uppercase letter</span><br>
+                        <span id="reqLowercase" class="req-unmet"><i class="fas fa-circle"></i> At least 1 lowercase letter</span><br>
+                        <span id="reqNumber" class="req-unmet"><i class="fas fa-circle"></i> At least 1 number</span><br>
+                        <span id="reqSpecial" class="req-unmet"><i class="fas fa-circle"></i> At least 1 special character</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Confirm New Password <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password" required onkeyup="checkPasswordMatch()">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirmPassword')">
+                            <i class="fas fa-eye" id="confirmPasswordIcon"></i>
+                        </button>
+                    </div>
+                    <small id="passwordMatchMsg" class="text-muted"></small>
+                </div>
+
+                <button type="button" class="btn-add-product" style="background: #ffc107; color: #1a2e1a;" onclick="updatePassword()">
+                    <i class="fas fa-key me-2"></i>Update Password
+                </button>
+            </form>
         </div>
     </div>
 </section>
@@ -526,6 +516,221 @@ if (!session()->get('tenant_id')) {
                 setTimeout(() => { if (toast.parentNode) toast.remove(); }, 300);
             }
         }, 6000);
+    }
+
+    // ==========================================
+    // TOGGLE PASSWORD VISIBILITY
+    // ==========================================
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const icon = document.getElementById(fieldId + 'Icon');
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            field.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    // ==========================================
+    // CHECK PASSWORD STRENGTH
+    // ==========================================
+    function checkPasswordStrength(password) {
+        const strengthBar = document.getElementById('passwordStrength');
+        const reqLength = document.getElementById('reqLength');
+        const reqUppercase = document.getElementById('reqUppercase');
+        const reqLowercase = document.getElementById('reqLowercase');
+        const reqNumber = document.getElementById('reqNumber');
+        const reqSpecial = document.getElementById('reqSpecial');
+
+        const hasLength = password.length >= 8;
+        const hasUppercase = /[A-Z]/.test(password);
+        const hasLowercase = /[a-z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+        updateRequirement(reqLength, hasLength);
+        updateRequirement(reqUppercase, hasUppercase);
+        updateRequirement(reqLowercase, hasLowercase);
+        updateRequirement(reqNumber, hasNumber);
+        updateRequirement(reqSpecial, hasSpecial);
+
+        let strength = 0;
+        if (hasLength) strength++;
+        if (hasUppercase) strength++;
+        if (hasLowercase) strength++;
+        if (hasNumber) strength++;
+        if (hasSpecial) strength++;
+
+        strengthBar.className = 'password-strength';
+        if (password.length === 0) {
+            strengthBar.style.width = '0%';
+            strengthBar.style.background = 'transparent';
+        } else if (strength <= 2) {
+            strengthBar.classList.add('weak');
+            strengthBar.textContent = 'Weak';
+        } else if (strength <= 3) {
+            strengthBar.classList.add('medium');
+            strengthBar.textContent = 'Medium';
+        } else if (strength <= 4) {
+            strengthBar.classList.add('strong');
+            strengthBar.textContent = 'Strong';
+        } else {
+            strengthBar.classList.add('very-strong');
+            strengthBar.textContent = 'Very Strong';
+        }
+
+        checkPasswordMatch();
+    }
+
+    function updateRequirement(element, met) {
+        if (met) {
+            element.className = 'req-met';
+            element.innerHTML = '<i class="fas fa-check-circle"></i> ' + element.textContent.replace(/[✓✗]/g, '').trim();
+        } else {
+            element.className = 'req-unmet';
+            element.innerHTML = '<i class="fas fa-circle"></i> ' + element.textContent.replace(/[✓✗]/g, '').trim();
+        }
+    }
+
+    // ==========================================
+    // CHECK PASSWORD MATCH
+    // ==========================================
+    function checkPasswordMatch() {
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const msg = document.getElementById('passwordMatchMsg');
+
+        if (confirmPassword.length === 0) {
+            msg.textContent = '';
+            msg.className = 'text-muted';
+            return;
+        }
+
+        if (newPassword === confirmPassword) {
+            msg.textContent = '✅ Passwords match!';
+            msg.className = 'text-success';
+        } else {
+            msg.textContent = '❌ Passwords do not match!';
+            msg.className = 'text-danger';
+        }
+    }
+
+    // ==========================================
+    // UPDATE PASSWORD
+    // ==========================================
+    function updatePassword() {
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (!currentPassword) {
+            showNotification('error', '❌ Error', 'Please enter your current password.');
+            document.getElementById('currentPassword').focus();
+            return;
+        }
+
+        if (!newPassword || newPassword.length < 8) {
+            showNotification('error', '❌ Error', 'Password must be at least 8 characters.');
+            document.getElementById('newPassword').focus();
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            showNotification('error', '❌ Error', 'New passwords do not match!');
+            document.getElementById('confirmPassword').focus();
+            return;
+        }
+
+        const hasUppercase = /[A-Z]/.test(newPassword);
+        const hasLowercase = /[a-z]/.test(newPassword);
+        const hasNumber = /[0-9]/.test(newPassword);
+        const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+
+        if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
+            showNotification('warning', '⚠️ Weak Password', 'Please use a stronger password with uppercase, lowercase, number and special character.');
+            return;
+        }
+
+        const formData = new URLSearchParams();
+        formData.append('current_password', currentPassword);
+        formData.append('new_password', newPassword);
+
+        fetch('/store/settings/change-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData.toString()
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('success', '✅ Password Updated', data.message);
+
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                document.getElementById('passwordStrength').className = 'password-strength';
+                document.getElementById('passwordStrength').style.width = '0%';
+                document.getElementById('passwordMatchMsg').textContent = '';
+
+                document.querySelectorAll('.password-requirements span').forEach(el => {
+                    el.className = 'req-unmet';
+                    el.innerHTML = '<i class="fas fa-circle"></i> ' + el.textContent.replace(/[✓✗]/g, '').trim();
+                });
+            } else {
+                showNotification('error', '❌ Error', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating password:', error);
+            showNotification('error', '❌ Error', 'Could not update password.');
+        });
+    }
+
+    // ==========================================
+    // SAVE STORE SETTINGS
+    // ==========================================
+    function saveStoreSettings() {
+        const storeName = document.getElementById('storeName').value;
+
+        if (!storeName) {
+            showNotification('error', '❌ Error', 'Please enter store name.');
+            return;
+        }
+
+        const formData = new URLSearchParams();
+        formData.append('store_name', storeName);
+        formData.append('store_description', document.getElementById('storeDescription').value);
+        formData.append('contact_email', document.getElementById('contactEmail').value);
+        formData.append('contact_phone', document.getElementById('contactPhone').value);
+        formData.append('store_address', document.getElementById('storeAddress').value);
+
+        fetch('/store/settings/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData.toString()
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('success', '✅ Store Settings Saved', data.message);
+            } else {
+                showNotification('error', '❌ Error', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error saving settings:', error);
+            showNotification('error', '❌ Error', 'Could not save settings.');
+        });
     }
 
     // ==========================================

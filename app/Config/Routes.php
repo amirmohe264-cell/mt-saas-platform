@@ -328,6 +328,17 @@ $routes->get('store/payment-history', 'EarningsController::paymentHistory');
 // app/Config/Routes.php
 
 // Add this route
-$routes->get('store/settings', 'StoreOwner\Dashboard::settings');
+
 // Or if your controller is in a different namespace:
-$routes->get('store/settings', 'StoreOwnerController::settings');
+
+// ==========================================
+// STORE OWNER - REPORTS & SETTINGS
+// ==========================================
+
+// Store Owner Reports
+// ==========================================
+// STORE OWNER - REPORTS & SETTINGS
+// ==========================================
+$routes->get('store/reports', 'Home::storeReports');
+$routes->get('store/settings', 'Home::storeSettings');
+$routes->get('admin/orders/view/(:num)', 'AdminController::orderDetails/$1');

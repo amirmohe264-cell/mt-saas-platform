@@ -12,9 +12,21 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Dashboard - ShopEase</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --brand: #1a1a2e;
+            --brand-mid: #16213e;
+            --accent: #e94560;
+            --accent-light: #ff6b6b;
+            --gold: #f5a623;
+            --border: #e5e7eb;
+            --surface: #f9fafb;
+            --font: 'Inter', sans-serif;
+            --display: 'Sora', sans-serif;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -25,13 +37,16 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             overflow: hidden;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f8f9fa;
-            padding-left: 280px;
+            font-family: var(--font);
+            background: var(--surface);
+            padding-left: 180px;
             padding-top: 80px;
             transition: padding-left 0.3s ease;
             height: 100vh;
             overflow: hidden;
+        }
+        h2, h5, h6, .navbar-brand, .card-number, .order-total, .order-number {
+            font-family: var(--display);
         }
 
         .notification-container {
@@ -48,18 +63,18 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             padding: 15px 20px;
             margin-bottom: 10px;
             box-shadow: 0 5px 25px rgba(0,0,0,0.15);
-            border-left: 4px solid #4caf50;
+            border-left: 4px solid #10b981;
             animation: slideInRight 0.4s ease;
             display: flex;
             align-items: flex-start;
             gap: 12px;
         }
-        .notification-toast.error { border-left-color: #dc3545; }
-        .notification-toast.warning { border-left-color: #ffc107; }
-        .notification-toast.info { border-left-color: #17a2b8; }
+        .notification-toast.error { border-left-color: var(--accent); }
+        .notification-toast.warning { border-left-color: var(--gold); }
+        .notification-toast.info { border-left-color: #6366f1; }
         .notification-toast .notif-icon { font-size: 1.3rem; margin-top: 2px; }
         .notification-toast .notif-content { flex: 1; }
-        .notification-toast .notif-title { font-weight: 600; color: #1a2e1a; font-size: 0.9rem; }
+        .notification-toast .notif-title { font-weight: 600; color: var(--brand); font-size: 0.9rem; }
         .notification-toast .notif-message { color: #555; font-size: 0.85rem; }
         .notification-toast .notif-close {
             background: none;
@@ -82,32 +97,36 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             to { transform: translateX(100px); opacity: 0; }
         }
 
+        /* ========================================== */
+        /* NAVBAR - Left: 180px to match sidebar */
+        /* ========================================== */
         .navbar {
-            background: #1a2e1a !important;
+            background: var(--brand) !important;
             padding: 12px 0;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 20px rgba(26,26,46,0.3);
             position: fixed;
             top: 0;
-            left: 0;
+            left: 180px;
             right: 0;
             z-index: 1050;
             height: 70px;
+            transition: left 0.3s ease;
         }
         .navbar-brand {
             color: #fff !important;
-            font-weight: bold;
+            font-weight: 800;
             font-size: 1.4rem;
         }
-        .navbar-brand i { color: #4caf50; }
+        .navbar-brand i { color: var(--accent); }
         .navbar .nav-link {
-            color: #d4d4d4 !important;
+            color: #d1d5db !important;
             font-weight: 500;
             transition: 0.3s;
             font-size: 0.95rem;
         }
-        .navbar .nav-link:hover { color: #4caf50 !important; }
+        .navbar .nav-link:hover { color: var(--accent-light) !important; }
         .icon-btn {
-            color: #d4d4d4;
+            color: #d1d5db;
             font-size: 1.1rem;
             margin: 0 6px;
             transition: 0.3s;
@@ -115,30 +134,33 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             border: none;
         }
         .icon-btn:hover {
-            color: #4caf50;
+            color: var(--accent-light);
             transform: scale(1.1);
         }
-        .navbar-toggler { border-color: #4caf50; }
+        .navbar-toggler { border-color: var(--accent); }
         .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(76, 175, 80, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(233, 69, 96, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
         }
 
+        /* ========================================== */
+        /* SIDEBAR - Full height, top: 0 */
+        /* ========================================== */
         .sidebar-wrapper {
             position: fixed;
-            top: 70px;
+            top: 0;
             left: 0;
-            width: 280px;
-            height: calc(100vh - 70px);
+            width: 180px;
+            height: 100vh;
             overflow-y: auto;
             background: #fff;
-            border-right: 1px solid #e8f0e8;
-            padding: 15px 15px;
+            border-right: 1px solid var(--border);
+            padding: 20px 15px;
             z-index: 1000;
             transition: width 0.3s ease;
         }
         .sidebar-wrapper::-webkit-scrollbar { width: 4px; }
-        .sidebar-wrapper::-webkit-scrollbar-thumb { background: #4caf50; border-radius: 4px; }
-        .sidebar-wrapper::-webkit-scrollbar-track { background: #e8f0e8; }
+        .sidebar-wrapper::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+        .sidebar-wrapper::-webkit-scrollbar-track { background: var(--border); }
 
         .sidebar-wrapper.collapsed {
             width: 70px;
@@ -165,7 +187,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             left: 100%;
             top: 50%;
             transform: translateY(-50%);
-            background: #1a2e1a;
+            background: var(--brand);
             color: #fff;
             padding: 5px 12px;
             border-radius: 6px;
@@ -185,11 +207,16 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             padding-left: 70px;
         }
 
+        /* Navbar follows sidebar collapsed state */
+        body.sidebar-collapsed .navbar {
+            left: 70px;
+        }
+
         .sidebar-card .user-avatar {
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: #4caf50;
+            background: var(--accent);
             color: #fff;
             display: flex;
             align-items: center;
@@ -201,7 +228,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
         .sidebar-card .user-name {
             text-align: center;
             font-weight: 700;
-            color: #1a2e1a;
+            color: var(--brand);
             font-size: 0.95rem;
             transition: all 0.3s ease;
         }
@@ -212,8 +239,9 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             transition: all 0.3s ease;
         }
 
+        /* Toggle button INSIDE sidebar */
         .toggle-sidebar-btn {
-            background: #4caf50;
+            background: var(--accent);
             color: #fff;
             border: none;
             border-radius: 8px;
@@ -229,7 +257,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             gap: 8px;
         }
         .toggle-sidebar-btn:hover {
-            background: #388e3c;
+            background: #c73652;
         }
 
         .sidebar-category {
@@ -267,12 +295,12 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             position: relative;
         }
         .sidebar-menu li:hover {
-            background: #f0f8f0;
-            color: #4caf50;
+            background: #fff5f5;
+            color: var(--accent);
         }
         .sidebar-menu li.active {
-            background: #f0f8f0;
-            color: #4caf50;
+            background: #fff5f5;
+            color: var(--accent);
             font-weight: 600;
         }
         .sidebar-menu li i {
@@ -287,7 +315,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             transition: all 0.3s ease;
         }
         .sidebar-menu li .badge-count {
-            background: #4caf50;
+            background: var(--accent);
             color: #fff;
             border-radius: 20px;
             padding: 2px 8px;
@@ -303,18 +331,21 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             width: 100%;
         }
 
+        /* ========================================== */
+        /* REST OF THE CSS - UNCHANGED */
+        /* ========================================== */
         .page-header {
-            background: #f8f9fa;
-            color: #1a2e1a;
+            background: var(--surface);
+            color: var(--brand);
             padding: 12px 0 12px;
-            border-bottom: 1px solid #e8f0e8;
+            border-bottom: 1px solid var(--border);
             height: 70px;
             display: flex;
             align-items: center;
         }
         .page-header h2 {
-            font-weight: 700;
-            color: #1a2e1a;
+            font-weight: 800;
+            color: var(--brand);
             font-size: 1.4rem;
         }
         .page-header .breadcrumb {
@@ -324,7 +355,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             font-size: 0.85rem;
         }
         .page-header .breadcrumb a {
-            color: #4caf50;
+            color: var(--accent);
             text-decoration: none;
         }
         .page-header .breadcrumb .active {
@@ -347,7 +378,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             background: #fff;
             border-radius: 12px;
             padding: 15px 18px;
-            border: 1px solid #e8f0e8;
+            border: 1px solid var(--border);
             transition: 0.3s;
             height: 100%;
         }
@@ -357,8 +388,8 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
         }
         .dashboard-card .card-number {
             font-size: 1.6rem;
-            font-weight: 700;
-            color: #1a2e1a;
+            font-weight: 800;
+            color: var(--brand);
         }
         .dashboard-card .card-label {
             color: #888;
@@ -377,16 +408,16 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             background: #fff;
             border-radius: 10px;
             padding: 10px 15px;
-            border: 1px solid #e8f0e8;
+            border: 1px solid var(--border);
             margin-bottom: 8px;
             transition: 0.3s;
         }
         .order-item:hover {
-            border-color: #4caf50;
+            border-color: var(--accent);
         }
         .order-item .order-number {
             font-weight: 600;
-            color: #1a2e1a;
+            color: var(--brand);
             font-size: 0.85rem;
         }
         .order-item .order-date {
@@ -395,7 +426,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
         }
         .order-item .order-total {
             font-weight: 700;
-            color: #1a2e1a;
+            color: var(--brand);
             font-size: 0.9rem;
         }
 
@@ -414,11 +445,11 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             width: 4px;
         }
         .recent-orders-section .orders-list::-webkit-scrollbar-thumb {
-            background: #4caf50;
+            background: var(--accent);
             border-radius: 4px;
         }
         .recent-orders-section .orders-list::-webkit-scrollbar-track {
-            background: #e8f0e8;
+            background: var(--border);
         }
 
         .sections {
@@ -443,7 +474,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
         .status-cancelled { background: #f8d7da; color: #721c24; }
 
         .btn-add-product {
-            background: #4caf50;
+            background: var(--accent);
             color: #fff;
             border: none;
             border-radius: 30px;
@@ -455,7 +486,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             display: inline-block;
         }
         .btn-add-product:hover {
-            background: #388e3c;
+            background: #c73652;
             color: #fff;
         }
 
@@ -468,16 +499,16 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             width: 4px;
         }
         .section-content::-webkit-scrollbar-thumb {
-            background: #4caf50;
+            background: var(--accent);
             border-radius: 4px;
         }
         .section-content::-webkit-scrollbar-track {
-            background: #e8f0e8;
+            background: var(--border);
         }
 
         .address-item {
             background: #fff;
-            border: 1px solid #e8f0e8;
+            border: 1px solid var(--border);
             border-radius: 10px;
             padding: 15px 20px;
             margin-bottom: 12px;
@@ -487,7 +518,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             align-items: center;
         }
         .address-item:hover {
-            border-color: #4caf50;
+            border-color: var(--accent);
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         .address-item .address-info {
@@ -495,7 +526,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
         }
         .address-item .address-type {
             font-weight: 600;
-            color: #1a2e1a;
+            color: var(--brand);
             font-size: 1rem;
         }
         .address-item .address-details {
@@ -519,7 +550,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             padding: 4px 12px;
         }
         .address-item .default-badge {
-            background: #4caf50;
+            background: var(--gold);
             color: #fff;
             padding: 2px 12px;
             border-radius: 20px;
@@ -536,14 +567,14 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
         .order-card {
             background: #fff;
             border-radius: 10px;
-            border: 1px solid #e8f0e8;
+            border: 1px solid var(--border);
             padding: 15px 18px;
             margin-bottom: 12px;
             transition: all 0.3s ease;
         }
         .order-card:hover {
-            border-color: #4caf50;
-            box-shadow: 0 2px 12px rgba(76, 175, 80, 0.08);
+            border-color: var(--accent);
+            box-shadow: 0 2px 12px rgba(233, 69, 96, 0.08);
         }
         .order-card .order-header {
             display: flex;
@@ -556,7 +587,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
         }
         .order-card .order-number {
             font-weight: 700;
-            color: #1a2e1a;
+            color: var(--brand);
             font-size: 0.95rem;
         }
         .order-card .order-date {
@@ -570,7 +601,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             margin: 6px 0;
         }
         .order-card .order-item-tag {
-            background: #f8f9fa;
+            background: var(--surface);
             padding: 3px 10px;
             border-radius: 5px;
             font-size: 0.8rem;
@@ -593,11 +624,11 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             font-size: 0.8rem;
         }
         .order-card .order-summary strong {
-            color: #1a2e1a;
+            color: var(--brand);
         }
         .order-card .order-total {
             font-weight: 700;
-            color: #1a2e1a;
+            color: var(--brand);
             font-size: 1rem;
         }
         .order-card .order-actions {
@@ -623,7 +654,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
 
         .wishlist-item {
             background: #fff;
-            border: 1px solid #e8f0e8;
+            border: 1px solid var(--border);
             border-radius: 10px;
             padding: 15px 20px;
             margin-bottom: 12px;
@@ -633,19 +664,19 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             align-items: center;
         }
         .wishlist-item:hover {
-            border-color: #dc3545;
-            box-shadow: 0 2px 12px rgba(220, 53, 69, 0.08);
+            border-color: var(--accent);
+            box-shadow: 0 2px 12px rgba(233, 69, 96, 0.08);
         }
         .wishlist-item .product-info {
             flex: 1;
         }
         .wishlist-item .product-name {
             font-weight: 600;
-            color: #1a2e1a;
+            color: var(--brand);
             font-size: 1rem;
         }
         .wishlist-item .product-price {
-            color: #4caf50;
+            color: var(--accent);
             font-weight: 700;
             font-size: 1rem;
         }
@@ -686,7 +717,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             color: #888;
         }
         .btn-add-to-cart {
-            background: #4caf50;
+            background: var(--accent);
             color: #fff;
             border: none;
             border-radius: 30px;
@@ -698,13 +729,13 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             display: inline-block;
         }
         .btn-add-to-cart:hover {
-            background: #388e3c;
+            background: #c73652;
             color: #fff;
         }
         .btn-remove-wishlist {
             background: none;
             border: none;
-            color: #dc3545;
+            color: var(--accent);
             cursor: pointer;
             transition: 0.3s;
             font-size: 1.1rem;
@@ -712,14 +743,23 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             border-radius: 4px;
         }
         .btn-remove-wishlist:hover {
-            background: #f8d7da;
-            color: #c82333;
+            background: #fff5f5;
+            color: #c73652;
             transform: scale(1.1);
         }
 
+        /* ========================================== */
+        /* MOBILE RESPONSIVE - Stacked like dashboard */
+        /* ========================================== */
         @media (max-width: 992px) {
             body {
                 padding-left: 0;
+            }
+            .navbar {
+                left: 0 !important;
+            }
+            body.sidebar-collapsed .navbar {
+                left: 0 !important;
             }
             .sidebar-wrapper {
                 position: relative;
@@ -727,7 +767,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                 width: 100%;
                 height: auto;
                 border-right: none;
-                border-bottom: 1px solid #e8f0e8;
+                border-bottom: 1px solid var(--border);
             }
             .sidebar-wrapper.collapsed {
                 width: 100%;
@@ -786,12 +826,29 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                 width: 100%;
             }
         }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 10px;
+            }
+            .page-header h2 {
+                font-size: 1.2rem;
+            }
+            .dashboard-card .card-number {
+                font-size: 1.3rem;
+            }
+            .order-item .d-flex {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+        }
     </style>
 </head>
 <body id="mainBody">
 
 <div class="notification-container" id="notificationContainer"></div>
 
+<!-- Navbar - WITHOUT toggle button (toggle is inside sidebar) -->
 <nav class="navbar navbar-expand-lg">
     <div class="container">
         <a class="navbar-brand" href="/"><i class="fas fa-store"></i> ShopEase</a>
@@ -804,20 +861,23 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                 <li class="nav-item"><a class="nav-link active" href="#">My Dashboard</a></li>
             </ul>
             <div class="d-flex align-items-center">
-                <a href="/cart" class="icon-btn" style="color:#d4d4d4;text-decoration:none;position:relative;">
+                <a href="/cart" class="icon-btn" style="color:#d1d5db;text-decoration:none;position:relative;">
                     <i class="fas fa-shopping-cart"></i>
                 </a>
-                <a href="/logout" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="fas fa-sign-out-alt"></i></a>
+                <a href="/logout" class="icon-btn" style="color:#d1d5db;text-decoration:none;"><i class="fas fa-sign-out-alt"></i></a>
             </div>
         </div>
     </div>
 </nav>
 
+<!-- Sidebar - WITH toggle button INSIDE -->
 <div class="sidebar-wrapper" id="sidebarWrapper">
     <div class="sidebar-card">
-      <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
+        <!-- Toggle Button INSIDE sidebar -->
+         <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
     <i class="fas fa-bars"></i>
 </button>
+
 
         <div class="user-avatar">
             <i class="fas fa-user"></i>
@@ -840,7 +900,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                 <span class="menu-text">My Orders</span>
             </li>
             <li onclick="showSection('wishlist')" data-tooltip="Wishlist">
-                <i class="fas fa-heart text-danger"></i>
+                <i class="fas fa-heart" style="color: var(--accent);"></i>
                 <span class="menu-text">Wishlist</span>
                 <span class="badge-count" id="wishlistBadge">0</span>
             </li>
@@ -853,7 +913,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                 <span class="menu-text">Saved Addresses</span>
             </li>
             <li onclick="showSection('addAddress')" data-tooltip="Add Address">
-                <i class="fas fa-plus-circle text-success"></i>
+                <i class="fas fa-plus-circle" style="color: var(--accent);"></i>
                 <span class="menu-text">Add New Address</span>
             </li>
         </ul>
@@ -866,7 +926,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             </li>
             <li>
                 <a href="/logout" data-tooltip="Logout">
-                    <i class="fas fa-sign-out-alt text-danger"></i>
+                    <i class="fas fa-sign-out-alt" style="color: var(--accent);"></i>
                     <span class="menu-text">Logout</span>
                 </a>
             </li>
@@ -878,7 +938,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
     <div class="container-fluid px-4">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h2><i class="fas fa-tachometer-alt me-2 text-success"></i>My Dashboard</h2>
+                <h2><i class="fas fa-tachometer-alt me-2" style="color: var(--accent);"></i>My Dashboard</h2>
                 <nav class="breadcrumb">
                     <a href="/">Home</a>
                     <span class="mx-2">/</span>
@@ -927,8 +987,8 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                     </div>
                 </div>
                 <div class="col-md-3 mb-2">
-                    <div class="dashboard-card" style="border-left: 4px solid #dc3545;">
-                        <i class="fas fa-heart card-icon text-danger"></i>
+                    <div class="dashboard-card" style="border-left: 4px solid #e94560;">
+                        <i class="fas fa-heart card-icon" style="color: var(--accent);"></i>
                         <div class="card-number" id="wishlistCardCount">0</div>
                         <div class="card-label">Wishlist Items</div>
                         <button class="btn btn-sm btn-outline-danger mt-1" onclick="showSection('wishlist')">
@@ -939,7 +999,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             </div>
 
             <div class="recent-orders-section" style="height: 65%;">
-                <h5 class="fw-bold mb-2" style="font-size: 1.1rem;"><i class="fas fa-clock me-2 text-success"></i>Recent Orders</h5>
+                <h5 class="fw-bold mb-2" style="font-size: 1.1rem;"><i class="fas fa-clock me-2" style="color: var(--accent);"></i>Recent Orders</h5>
                 <div class="orders-list" id="recentOrdersList"></div>
             </div>
         </div>
@@ -947,7 +1007,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
         <div id="profileSection" class="sections">
             <div class="section-content">
                 <div class="bg-white rounded-3 p-4 border">
-                    <h5 class="fw-bold"><i class="fas fa-user-cog me-2 text-success"></i>My Profile</h5>
+                    <h5 class="fw-bold"><i class="fas fa-user-cog me-2" style="color: var(--accent);"></i>My Profile</h5>
                     <hr>
                     <form id="profileForm" onsubmit="return updateProfile(event)">
                         <div class="row">
@@ -980,7 +1040,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             <div class="section-content">
                 <div class="bg-white rounded-3 p-4 border">
                     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                        <h5 class="fw-bold"><i class="fas fa-shopping-bag me-2 text-success"></i>My Orders</h5>
+                        <h5 class="fw-bold"><i class="fas fa-shopping-bag me-2" style="color: var(--accent);"></i>My Orders</h5>
                         <div class="d-flex gap-2 flex-wrap">
                             <select class="form-select form-select-sm" id="orderStatusFilter" style="width:auto;min-width:130px;" onchange="renderOrderList()">
                                 <option value="all">All Orders</option>
@@ -1006,7 +1066,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             <div class="section-content">
                 <div class="bg-white rounded-3 p-4 border">
                     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                        <h5 class="fw-bold"><i class="fas fa-heart me-2 text-danger"></i>My Wishlist</h5>
+                        <h5 class="fw-bold"><i class="fas fa-heart me-2" style="color: var(--accent);"></i>My Wishlist</h5>
                     </div>
                     <hr>
                     <div id="wishlistContainer"></div>
@@ -1018,7 +1078,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
             <div class="section-content">
                 <div class="bg-white rounded-3 p-4 border">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="fw-bold"><i class="fas fa-address-book me-2 text-success"></i>Saved Addresses</h5>
+                        <h5 class="fw-bold"><i class="fas fa-address-book me-2" style="color: var(--accent);"></i>Saved Addresses</h5>
                         <button class="btn-add-product" onclick="showSection('addAddress')">
                             <i class="fas fa-plus me-2"></i>Add Address
                         </button>
@@ -1032,7 +1092,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
         <div id="addAddressSection" class="sections">
             <div class="section-content">
                 <div class="bg-white rounded-3 p-4 border">
-                    <h5 class="fw-bold"><i class="fas fa-plus-circle me-2 text-success"></i>Add New Address</h5>
+                    <h5 class="fw-bold"><i class="fas fa-plus-circle me-2" style="color: var(--accent);"></i>Add New Address</h5>
                     <hr>
                     <form id="addAddressForm" onsubmit="return saveAddress(event)">
                         <div class="mb-3">
@@ -1086,7 +1146,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                         <div class="mb-3 form-check">
                             <input type="checkbox" class="form-check-input" id="setDefault">
                             <label class="form-check-label" for="setDefault">
-                                <i class="fas fa-check-circle text-success"></i> Set as default address
+                                <i class="fas fa-check-circle" style="color: var(--accent);"></i> Set as default address
                             </label>
                         </div>
                         <div class="d-flex gap-2">
@@ -1105,7 +1165,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
         <div id="settingsSection" class="sections">
             <div class="section-content">
                 <div class="bg-white rounded-3 p-4 border">
-                    <h5 class="fw-bold"><i class="fas fa-cog me-2 text-success"></i>Account Settings</h5>
+                    <h5 class="fw-bold"><i class="fas fa-cog me-2" style="color: var(--accent);"></i>Account Settings</h5>
                     <hr>
                     <form id="settingsForm" onsubmit="return changePassword(event)">
                         <div class="mb-3">
@@ -1135,7 +1195,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="promoNotif">
                         <label class="form-check-label" for="promoNotif">
-                            <i class="fas fa-tag me-1 text-success"></i> Promotional Emails
+                            <i class="fas fa-tag me-1" style="color: var(--accent);"></i> Promotional Emails
                         </label>
                     </div>
                     <div class="form-check">
@@ -1153,7 +1213,7 @@ if (!session()->get('customer_id') && !session()->get('user_id')) {
     </div>
 </section>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -1173,13 +1233,34 @@ document.addEventListener('DOMContentLoaded', function() {
     loadAddresses();
     loadOrders();
     loadWishlist();
-  const hash = window.location.hash.replace('#', '');
+    const hash = window.location.hash.replace('#', '');
     const validSections = ['dashboard', 'profile', 'orders', 'wishlist', 'addresses', 'addAddress', 'settings'];
     if (hash && validSections.includes(hash)) {
         showSection(hash);
     }  
 });
 
+// ==========================================
+// TOGGLE SIDEBAR - Same as store dashboard
+// ==========================================
+function toggleSidebar() {
+    var wrapper = document.getElementById('sidebarWrapper');
+    var body = document.getElementById('mainBody');
+    var toggleText = document.getElementById('toggleText');
+    
+    wrapper.classList.toggle('collapsed');
+    body.classList.toggle('sidebar-collapsed');
+    
+    if (wrapper.classList.contains('collapsed')) {
+        toggleText.textContent = 'Expand';
+    } else {
+        toggleText.textContent = 'Collapse';
+    }
+}
+
+// ==========================================
+// REST OF THE FUNCTIONS - UNCHANGED
+// ==========================================
 function showNotification(type, title, message) {
     const container = document.getElementById('notificationContainer');
     if (!container) return;
@@ -1251,31 +1332,9 @@ function showSection(section) {
                 'addAddress': 'fa-plus-circle',
                 'settings': 'fa-cog'
             };
-            pageTitle.innerHTML = `<i class="fas ${icons[section] || 'fa-tachometer-alt'} me-2 text-success"></i>${titles[section] || 'Dashboard'}`;
+            pageTitle.innerHTML = `<i class="fas ${icons[section] || 'fa-tachometer-alt'} me-2" style="color: var(--accent);"></i>${titles[section] || 'Dashboard'}`;
         }
     }
-}
-
-function toggleSidebar() {
-    var wrapper = document.getElementById('sidebarWrapper');
-    var body = document.getElementById('mainBody');
-    wrapper.classList.toggle('collapsed');
-    body.classList.toggle('sidebar-collapsed');
-}
-
-function updateProfile(event) {
-    event.preventDefault();
-    const firstName = document.getElementById('firstName').value;
-    const lastName = document.getElementById('lastName').value;
-    const email = document.getElementById('email').value;
-    const phone = document.getElementById('phone').value;
-    
-    const profileData = { firstName, lastName, email, phone };
-    localStorage.setItem('profileData', JSON.stringify(profileData));
-    
-    showNotification('success', '✅ Profile Updated', 
-        `${firstName} ${lastName}'s profile updated successfully!`);
-    return false;
 }
 
 // ==========================================
@@ -1337,7 +1396,7 @@ function renderAddresses() {
             <div class="address-item">
                 <div class="address-info">
                     <div>
-                        <span class="address-type"><i class="fas ${icon} me-2 text-success"></i>${addr.type} Address</span>
+                        <span class="address-type"><i class="fas ${icon} me-2" style="color: var(--accent);"></i>${addr.type} Address</span>
                         ${addr.isDefault ? '<span class="default-badge"><i class="fas fa-check-circle"></i> Default</span>' : ''}
                     </div>
                     <div class="address-details">
@@ -1463,8 +1522,23 @@ function savePreferences() {
         'Email: ' + (email ? '✅' : '❌') + ' | Promo: ' + (promo ? '✅' : '❌') + ' | SMS: ' + (sms ? '✅' : '❌'));
 }
 
+function updateProfile(event) {
+    event.preventDefault();
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    
+    const profileData = { firstName, lastName, email, phone };
+    localStorage.setItem('profileData', JSON.stringify(profileData));
+    
+    showNotification('success', '✅ Profile Updated', 
+        `${firstName} ${lastName}'s profile updated successfully!`);
+    return false;
+}
+
 // ==========================================
-// ORDER MANAGEMENT - FETCH REAL ORDERS
+// ORDER MANAGEMENT
 // ==========================================
 let ordersData = [];
 
@@ -1640,24 +1714,24 @@ function renderOrderList() {
                     </div>
                     <div class="d-flex align-items-center gap-3">
                         <span class="order-total">$${parseFloat(total).toFixed(2)}</span>
-                       <div class="order-actions">
-    <button class="btn btn-sm btn-outline-success" onclick="viewOrderDetail(${order.id})">
-        <i class="fas fa-eye"></i>
-    </button>
-    ${status === 'pending' || status === 'confirmed' ? `
-        <button class="btn btn-sm btn-outline-danger" onclick="cancelOrderItem(${order.id})">
-            <i class="fas fa-times"></i>
-        </button>
-    ` : ''}
-    ${status === 'delivered' && !order.delivery_confirmed ? `
-        <button class="btn btn-sm btn-success" onclick="confirmDelivery(${order.id})">
-            <i class="fas fa-check-circle"></i> Confirm Receipt
-        </button>
-    ` : ''}
-    ${status === 'delivered' && order.delivery_confirmed ? `
-        <span class="badge bg-success"><i class="fas fa-check-circle"></i> Confirmed</span>
-    ` : ''}
-</div>
+                        <div class="order-actions">
+                            <button class="btn btn-sm btn-outline-success" onclick="viewOrderDetail(${order.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            ${status === 'pending' || status === 'confirmed' ? `
+                                <button class="btn btn-sm btn-outline-danger" onclick="cancelOrderItem(${order.id})">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            ` : ''}
+                            ${status === 'delivered' && !order.delivery_confirmed ? `
+                                <button class="btn btn-sm btn-success" onclick="confirmDelivery(${order.id})">
+                                    <i class="fas fa-check-circle"></i> Confirm Receipt
+                                </button>
+                            ` : ''}
+                            ${status === 'delivered' && order.delivery_confirmed ? `
+                                <span class="badge bg-success"><i class="fas fa-check-circle"></i> Confirmed</span>
+                            ` : ''}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1737,7 +1811,7 @@ function viewOrderDetail(id) {
                 </div>
                 <div class="d-flex justify-content-between py-1" style="font-size:1.1rem;">
                     <span class="fw-bold">Total</span>
-                    <span class="fw-bold text-success">$${parseFloat(total).toFixed(2)}</span>
+                    <span class="fw-bold" style="color: var(--accent);">$${parseFloat(total).toFixed(2)}</span>
                 </div>
             </div>
         `);
@@ -1772,6 +1846,7 @@ function cancelOrderItem(id) {
         showNotification('error', '❌ Error', 'Could not cancel order.');
     });
 }
+
 function confirmDelivery(orderId) {
     if (!confirm('Confirm that you have received this order? This lets us release payment to the seller.')) return;
 
@@ -1796,6 +1871,7 @@ function confirmDelivery(orderId) {
         showNotification('error', '❌ Error', 'Could not confirm delivery.');
     });
 }
+
 function getStatusIcon(status) {
     const icons = {
         'pending': 'fa-clock',
@@ -1814,7 +1890,7 @@ function ucfirst(str) {
 }
 
 // ==========================================
-// WISHLIST MANAGEMENT - FETCH REAL DATA
+// WISHLIST MANAGEMENT
 // ==========================================
 let wishlistItems = [];
 

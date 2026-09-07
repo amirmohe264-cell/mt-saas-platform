@@ -1,4 +1,16 @@
-<?php $active_menu = 'dashboard'; ?>
+<?php
+// ✅ Check for delivery company session
+$isLoggedIn = session()->get('is_logged_in') || session()->get('delivery_company_id');
+$isDeliveryCompany = session()->get('role') === 'delivery_company' || session()->get('delivery_company_id');
+
+if (!$isLoggedIn || !$isDeliveryCompany) {
+    header('Location: /delivery/login');
+    exit();
+}
+
+$active_menu = 'dashboard';
+$company_name = session()->get('delivery_company_name') ?? 'Delivery Company';
+?>
 <!-- app/Views/delivery_company/dashboard.php -->
 <!DOCTYPE html>
 <html lang="en">
@@ -57,7 +69,7 @@
         @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100px); opacity: 0; } }
 
         /* ========================================== */
-        /* NAVBAR */
+        /* NAVBAR - WITH LEFT OFFSET FOR SIDEBAR */
         /* ========================================== */
         .navbar {
             background: #1a2e1a !important;
@@ -65,9 +77,10 @@
             box-shadow: 0 2px 20px rgba(0,0,0,0.3);
             position: fixed;
             top: 0;
-            left: 0;
+            left: 280px;
             right: 0;
             z-index: 1050;
+            transition: left 0.3s ease;
         }
         .navbar-brand {
             color: #fff !important;
@@ -75,6 +88,8 @@
             font-size: 1.5rem;
         }
         .navbar-brand i { color: #4caf50; }
+        .navbar .nav-link { color: #d4d4d4 !important; font-weight: 500; transition: 0.3s; }
+        .navbar .nav-link:hover { color: #4caf50 !important; }
         .icon-btn {
             color: #d4d4d4;
             font-size: 1.2rem;
@@ -89,15 +104,17 @@
             transform: scale(1.1);
         }
 
+        body.sidebar-collapsed .navbar { left: 70px; }
+
         /* ========================================== */
-        /* FIXED SIDEBAR */
+        /* FIXED SIDEBAR - FULL HEIGHT */
         /* ========================================== */
         .sidebar-wrapper {
             position: fixed;
-            top: 80px;
+            top: 0;
             left: 0;
             width: 280px;
-            height: calc(100vh - 80px);
+            height: 100vh;
             overflow-y: auto;
             background: #fff;
             border-right: 1px solid #e8f0e8;
@@ -274,7 +291,7 @@
         .page-header {
             background: #f8f9fa;
             color: #1a2e1a;
-            padding: 20px 0 20px;
+            padding: 20px 0;
             border-bottom: 1px solid #e8f0e8;
         }
         .page-header h2 {
@@ -289,6 +306,9 @@
         .page-header .breadcrumb a {
             color: #4caf50;
             text-decoration: none;
+        }
+        .page-header .breadcrumb a:hover {
+            text-decoration: underline;
         }
         .page-header .breadcrumb .active {
             color: #888;
@@ -312,10 +332,12 @@
             border: 1px solid #e8f0e8;
             transition: 0.3s;
             height: 100%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
         .dashboard-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border-color: #4caf50;
         }
         .dashboard-card .card-number {
             font-size: 1.8rem;
@@ -329,6 +351,7 @@
         .dashboard-card .card-icon {
             font-size: 1.8rem;
             float: right;
+            opacity: 0.7;
         }
 
         /* ========================================== */
@@ -341,9 +364,12 @@
             border: 1px solid #e8f0e8;
             margin-bottom: 12px;
             transition: 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
         .order-item:hover {
             border-color: #4caf50;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            transform: translateX(5px);
         }
         .order-item .order-number {
             font-weight: 600;
@@ -354,11 +380,15 @@
             font-size: 0.85rem;
         }
 
+        /* ========================================== */
+        /* STATUS BADGE */
+        /* ========================================== */
         .status-badge {
-            padding: 4px 12px;
+            padding: 4px 14px;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
+            display: inline-block;
         }
         .status-pending { background: #fff3cd; color: #856404; }
         .status-assigned { background: #cce5ff; color: #004085; }
@@ -368,10 +398,15 @@
         .status-completed { background: #c3e6cb; color: #155724; }
         .status-failed { background: #f8d7da; color: #721c24; }
 
+        /* ========================================== */
+        /* RESPONSIVE */
+        /* ========================================== */
         @media (max-width: 992px) {
             body {
                 padding-left: 0;
             }
+            body.sidebar-collapsed { padding-left: 0; }
+            .navbar { left: 0 !important; }
             .sidebar-wrapper {
                 position: relative;
                 top: 0;
@@ -397,12 +432,20 @@
             .sidebar-wrapper.collapsed .sidebar-category {
                 display: block;
             }
-            body.sidebar-collapsed {
-                padding-left: 0;
-            }
             .main-content {
                 padding: 15px;
             }
+            .dashboard-card .card-number {
+                font-size: 1.4rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .page-header h2 { font-size: 1.3rem; }
+            .dashboard-card .card-number { font-size: 1.2rem; }
+            .dashboard-card .card-icon { font-size: 1.3rem; }
+            .order-item .order-number { font-size: 0.95rem; }
+            .status-badge { font-size: 0.65rem; padding: 3px 10px; }
         }
     </style>
 </head>
@@ -411,35 +454,48 @@
 <!-- Notification Container -->
 <div class="notification-container" id="notificationContainer"></div>
 
-<!-- Navbar -->
+<!-- ========================================== -->
+<!-- NAVBAR -->
+<!-- ========================================== -->
 <nav class="navbar navbar-expand-lg">
     <div class="container">
         <a class="navbar-brand" href="/delivery/dashboard">
             <i class="fas fa-truck"></i> ShopEase Delivery
         </a>
-        <div class="d-flex align-items-center ms-auto">
-            <span class="text-white me-3 d-none d-md-inline">
-                <i class="fas fa-store me-1"></i><?= $company_name ?? 'Company' ?>
-            </span>
-            <a href="/delivery/logout" class="icon-btn">
-                <i class="fas fa-sign-out-alt"></i>
-            </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item">
+                    <span class="text-white me-3 d-none d-md-inline">
+                        <i class="fas fa-store me-1"></i><?= $company_name ?>
+                    </span>
+                </li>
+                <li class="nav-item">
+                    <a href="/delivery/logout" class="icon-btn" style="color:#d4d4d4;text-decoration:none;">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
 </nav>
 
-<!-- Fixed Sidebar -->
+<!-- ========================================== -->
+<!-- FIXED SIDEBAR -->
+<!-- ========================================== -->
 <div class="sidebar-wrapper" id="sidebarWrapper">
     <div class="sidebar-card">
-        <!-- Toggle Button -->
-        <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
+        <!-- Toggle Button with Label -->
+      <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+</button>
 
         <div class="company-avatar">
             <i class="fas fa-truck"></i>
         </div>
-        <div class="company-name"><?= $company_name ?? 'Delivery Company' ?></div>
+        <div class="company-name"><?= $company_name ?></div>
         <div class="company-email"><?= session()->get('delivery_company_email') ?? '' ?></div>
 
         <!-- MAIN -->
@@ -453,7 +509,7 @@
                 <i class="fas fa-list"></i>
                 <span class="menu-text">Delivery Orders</span>
             </li>
-             <li class="<?= $active_menu == 'assign' ? 'active' : '' ?>" onclick="location.href='/delivery/assign'" data-tooltip="Assign Delivery">
+            <li onclick="location.href='/delivery/assign'" data-tooltip="Assign Delivery">
                 <i class="fas fa-user-plus"></i>
                 <span class="menu-text">Assign Delivery</span>
             </li>
@@ -497,10 +553,12 @@
     </div>
 </div>
 
-<!-- Page Header -->
+<!-- ========================================== -->
+<!-- PAGE HEADER -->
+<!-- ========================================== -->
 <section class="page-header">
     <div class="container-fluid px-4">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
                 <h2><i class="fas fa-tachometer-alt me-2 text-success"></i>Dashboard</h2>
                 <nav class="breadcrumb">
@@ -510,40 +568,42 @@
                 </nav>
             </div>
             <div>
-                <span class="text-muted">Welcome, <?= $company_name ?? 'Company' ?>!</span>
+                <span class="text-muted"><i class="fas fa-clock me-1"></i>Last updated: <?= date('M d, Y H:i') ?></span>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Main Content -->
+<!-- ========================================== -->
+<!-- MAIN CONTENT -->
+<!-- ========================================== -->
 <section class="main-content">
     <div class="container-fluid px-4">
 
         <!-- Stats Cards -->
         <div class="row g-3 mb-4">
-            <div class="col-md-3">
+            <div class="col-md-3 col-6">
                 <div class="dashboard-card">
                     <i class="fas fa-truck card-icon text-success"></i>
                     <div class="card-number"><?= $total_orders ?? 0 ?></div>
                     <div class="card-label">Total Orders</div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3 col-6">
                 <div class="dashboard-card">
                     <i class="fas fa-spinner card-icon text-primary"></i>
                     <div class="card-number"><?= $active_deliveries ?? 0 ?></div>
                     <div class="card-label">Active Deliveries</div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3 col-6">
                 <div class="dashboard-card">
                     <i class="fas fa-check-circle card-icon text-success"></i>
                     <div class="card-number"><?= $completed_deliveries ?? 0 ?></div>
                     <div class="card-label">Completed</div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3 col-6">
                 <div class="dashboard-card">
                     <i class="fas fa-clock card-icon text-warning"></i>
                     <div class="card-number"><?= $pending_orders ?? 0 ?></div>
@@ -565,7 +625,13 @@
                 <div class="dashboard-card">
                     <i class="fas fa-percentage card-icon text-warning"></i>
                     <div class="card-number">
-                        <?= isset($completed_deliveries) && isset($total_orders) && $total_orders > 0 ? round(($completed_deliveries / $total_orders) * 100) : 0 ?>%
+                        <?php 
+                            $completionRate = 0;
+                            if (isset($completed_deliveries) && isset($total_orders) && $total_orders > 0) {
+                                $completionRate = round(($completed_deliveries / $total_orders) * 100);
+                            }
+                            echo $completionRate . '%';
+                        ?>
                     </div>
                     <div class="card-label">Completion Rate</div>
                 </div>
@@ -575,31 +641,40 @@
         <!-- Recent Orders -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="fw-bold mb-0"><i class="fas fa-clock me-2 text-success"></i>Recent Assignments</h5>
-            <a href="/delivery/orders" class="btn btn-sm btn-outline-success">View All</a>
+            <a href="/delivery/orders" class="btn btn-sm btn-outline-success" style="border-radius: 30px;">
+                View All <i class="fas fa-arrow-right ms-1"></i>
+            </a>
         </div>
 
         <?php if (isset($recent_assignments) && !empty($recent_assignments)): ?>
             <?php foreach ($recent_assignments as $assignment): ?>
                 <div class="order-item">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <div>
                             <div class="order-number">
-                                #<?= $assignment['order_number'] ?? $assignment['order_id'] ?>
-                                <small class="text-muted ms-2"><?= $assignment['store_name'] ?? 'Store' ?></small>
+                                <i class="fas fa-hashtag text-muted me-1"></i>#<?= $assignment['order_number'] ?? $assignment['order_id'] ?>
+                                <small class="text-muted ms-2">
+                                    <i class="fas fa-store me-1"></i><?= $assignment['store_name'] ?? 'Store' ?>
+                                </small>
                             </div>
-                            <div class="order-date">
+                            <div class="order-date mt-1">
                                 <i class="far fa-calendar-alt me-1"></i>
                                 <?= date('M d, Y H:i', strtotime($assignment['created_at'])) ?>
+                                <?php if (isset($assignment['agent_name'])): ?>
+                                    <span class="ms-3">
+                                        <i class="fas fa-user-check me-1 text-success"></i>
+                                        <?= $assignment['agent_name'] ?>
+                                    </span>
+                                <?php endif; ?>
                             </div>
                         </div>
-                        <div>
+                        <div class="d-flex align-items-center gap-2">
                             <span class="status-badge status-<?= str_replace('_', '', $assignment['status']) ?>">
+                                <i class="fas <?= $assignment['status'] === 'pending' ? 'fa-clock' : ($assignment['status'] === 'assigned' ? 'fa-user-check' : ($assignment['status'] === 'in_transit' ? 'fa-truck' : 'fa-check-circle')) ?> me-1"></i>
                                 <?= ucfirst(str_replace('_', ' ', $assignment['status'])) ?>
                             </span>
-                        </div>
-                        <div>
-                            <a href="/delivery/orders/<?= $assignment['id'] ?>" class="btn btn-sm btn-outline-success">
-                                <i class="fas fa-eye"></i> View
+                            <a href="/delivery/orders/<?= $assignment['id'] ?>" class="btn btn-sm btn-outline-success" style="border-radius: 30px;">
+                                <i class="fas fa-eye me-1"></i> View
                             </a>
                         </div>
                     </div>
@@ -607,78 +682,140 @@
             <?php endforeach; ?>
         <?php else: ?>
             <div class="alert alert-info">
-                <i class="fas fa-info-circle me-2"></i>No deliveries assigned yet.
+                <i class="fas fa-info-circle me-2"></i>No deliveries assigned yet. Start by <a href="/delivery/assign" class="alert-link">assigning a delivery</a>.
             </div>
         <?php endif; ?>
     </div>
 </section>
 
+<!-- ========================================== -->
+<!-- SCRIPTS -->
+<!-- ========================================== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     // ==========================================
-    // NOTIFICATION FUNCTION
+    // SIDEBAR TOGGLE
     // ==========================================
-    function showNotification(type, title, message) {
+    function toggleSidebar() {
+        const wrapper = document.getElementById('sidebarWrapper');
+        const body = document.getElementById('mainBody');
+        const label = document.getElementById('toggleLabel');
+        
+        wrapper.classList.toggle('collapsed');
+        body.classList.toggle('sidebar-collapsed');
+        
+        // Update toggle button text
+        if (label) {
+            label.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+        }
+        
+        // Save state to localStorage
+        const isCollapsed = wrapper.classList.contains('collapsed');
+        localStorage.setItem('deliverySidebarCollapsed', isCollapsed);
+    }
+
+    // ==========================================
+    // RESTORE SIDEBAR STATE
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', function() {
+        const wrapper = document.getElementById('sidebarWrapper');
+        const body = document.getElementById('mainBody');
+        const label = document.getElementById('toggleLabel');
+        const isCollapsed = localStorage.getItem('deliverySidebarCollapsed') === 'true';
+        
+        if (isCollapsed) {
+            wrapper.classList.add('collapsed');
+            body.classList.add('sidebar-collapsed');
+            if (label) {
+                label.textContent = 'Expand';
+            }
+        }
+
+        // Auto-dismiss alerts after 5 seconds
+        const alerts = document.querySelectorAll('.alert:not(.alert-dismissible)');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.remove();
+                }, 500);
+            }, 5000);
+        });
+    });
+
+    // ==========================================
+    // NOTIFICATION SYSTEM
+    // ==========================================
+    function showNotification(message, type = 'info', title = '') {
         const container = document.getElementById('notificationContainer');
         if (!container) return;
-        
-        const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
-        const icon = icons[type] || 'ℹ️';
-        
-        const now = new Date();
-        const timeString = now.toLocaleTimeString();
-        
+
+        const iconMap = {
+            success: 'fas fa-check-circle text-success',
+            error: 'fas fa-exclamation-circle text-danger',
+            warning: 'fas fa-exclamation-triangle text-warning',
+            info: 'fas fa-info-circle text-info'
+        };
+
+        const icon = iconMap[type] || iconMap.info;
+
         const toast = document.createElement('div');
-        toast.className = 'notification-toast ' + (type === 'error' ? 'error' : type === 'warning' ? 'warning' : type === 'info' ? 'info' : '');
+        toast.className = `notification-toast ${type}`;
         toast.innerHTML = `
-            <div class="notif-icon">${icon}</div>
+            <div class="notif-icon"><i class="${icon}"></i></div>
             <div class="notif-content">
-                <div class="notif-title">${title}</div>
+                ${title ? `<div class="notif-title">${title}</div>` : ''}
                 <div class="notif-message">${message}</div>
-                <div class="notif-time">${timeString}</div>
+                <div class="notif-time">${new Date().toLocaleTimeString()}</div>
             </div>
-            <button class="notif-close" onclick="this.closest('.notification-toast').remove()">
+            <button class="notif-close" onclick="this.closest('.notification-toast').remove();">
                 <i class="fas fa-times"></i>
             </button>
         `;
+
         container.appendChild(toast);
-        
-        setTimeout(() => {
+
+        // Auto remove after 5 seconds
+        setTimeout(function() {
             if (toast.parentNode) {
                 toast.classList.add('removing');
-                setTimeout(() => { if (toast.parentNode) toast.remove(); }, 300);
+                setTimeout(function() {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 300);
             }
-        }, 6000);
+        }, 5000);
     }
 
     // ==========================================
-    // TOGGLE SIDEBAR
+    // KEYBOARD SHORTCUTS
     // ==========================================
-    function toggleSidebar() {
-        var wrapper = document.getElementById('sidebarWrapper');
-        var body = document.getElementById('mainBody');
-        wrapper.classList.toggle('collapsed');
-        body.classList.toggle('sidebar-collapsed');
-    }
-
-    // ==========================================
-    // FLASH MESSAGES
-    // ==========================================
-    document.addEventListener('DOMContentLoaded', function() {
-        <?php if (session()->getFlashdata('success')): ?>
-            showNotification('success', '✅ Success', '<?= session()->getFlashdata('success') ?>');
-        <?php endif; ?>
-        <?php if (session()->getFlashdata('error')): ?>
-            showNotification('error', '❌ Error', '<?= session()->getFlashdata('error') ?>');
-        <?php endif; ?>
-        <?php if (session()->getFlashdata('warning')): ?>
-            showNotification('warning', '⚠️ Warning', '<?= session()->getFlashdata('warning') ?>');
-        <?php endif; ?>
-        <?php if (session()->getFlashdata('info')): ?>
-            showNotification('info', 'ℹ️ Info', '<?= session()->getFlashdata('info') ?>');
-        <?php endif; ?>
+    document.addEventListener('keydown', function(e) {
+        // Ctrl + B to toggle sidebar
+        if (e.ctrlKey && e.key === 'b') {
+            e.preventDefault();
+            toggleSidebar();
+        }
+        // Escape key to close notifications
+        if (e.key === 'Escape') {
+            const notifications = document.querySelectorAll('.notification-toast');
+            notifications.forEach(function(notif) {
+                notif.classList.add('removing');
+                setTimeout(function() {
+                    if (notif.parentNode) {
+                        notif.remove();
+                    }
+                }, 300);
+            });
+        }
     });
+
+    console.log('ShopEase Delivery - Dashboard Page Loaded');
+    console.log('Shortcut: Ctrl+B to toggle sidebar');
+    console.log('Press ESC to close all notifications');
 </script>
 
 </body>

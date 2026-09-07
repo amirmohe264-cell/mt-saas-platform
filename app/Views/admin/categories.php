@@ -19,6 +19,9 @@ if (!$isLoggedIn || !$isAdmin) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* ========================================== */
+        /* GLOBAL STYLES */
+        /* ========================================== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -29,24 +32,75 @@ if (!$isLoggedIn || !$isAdmin) {
             min-height: 100vh;
         }
 
+        /* ========================================== */
+        /* NOTIFICATION STYLES */
+        /* ========================================== */
+        .notification-container {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+            width: 100%;
+        }
+        .notification-toast {
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+            border-left: 4px solid #4caf50;
+            animation: slideInRight 0.4s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .notification-toast.error { border-left-color: #dc3545; }
+        .notification-toast.warning { border-left-color: #ffc107; }
+        .notification-toast.info { border-left-color: #17a2b8; }
+        .notification-toast .notif-icon { font-size: 1.3rem; margin-top: 2px; }
+        .notification-toast .notif-content { flex: 1; }
+        .notification-toast .notif-title { font-weight: 600; color: #1a2e1a; font-size: 0.9rem; }
+        .notification-toast .notif-message { color: #555; font-size: 0.85rem; }
+        .notification-toast .notif-time { color: #aaa; font-size: 0.7rem; margin-top: 3px; }
+        .notification-toast .notif-close { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1rem; padding: 0 5px; }
+        .notification-toast .notif-close:hover { color: #333; }
+        .notification-toast.removing { animation: slideOutRight 0.3s ease forwards; }
+        @keyframes slideInRight { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100px); opacity: 0; } }
+
+        /* ========================================== */
+        /* NAVBAR - WITH LEFT OFFSET FOR SIDEBAR */
+        /* ========================================== */
         .navbar {
             background: #1a2e1a !important;
             padding: 15px 0;
             box-shadow: 0 2px 20px rgba(0,0,0,0.3);
             position: fixed;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 280px;
+            right: 0;
             z-index: 1050;
+            transition: left 0.3s ease;
         }
         .navbar-brand { color: #fff !important; font-weight: bold; font-size: 1.5rem; }
         .navbar-brand i { color: #4caf50; }
+        .navbar .nav-link { color: #d4d4d4 !important; font-weight: 500; transition: 0.3s; }
+        .navbar .nav-link:hover { color: #4caf50 !important; }
         .icon-btn { color: #d4d4d4; font-size: 1.2rem; margin: 0 8px; background: none; border: none; text-decoration: none; }
-        .icon-btn:hover { color: #4caf50; }
+        .icon-btn:hover { color: #4caf50; transform: scale(1.1); }
 
+        body.sidebar-collapsed .navbar { left: 70px; }
+
+        /* ========================================== */
+        /* FIXED SIDEBAR - FULL HEIGHT */
+        /* ========================================== */
         .sidebar-wrapper {
             position: fixed;
-            top: 80px; left: 0;
+            top: 0;
+            left: 0;
             width: 280px;
-            height: calc(100vh - 80px);
+            height: 100vh;
             overflow-y: auto;
             background: #fff;
             border-right: 1px solid #e8f0e8;
@@ -91,6 +145,7 @@ if (!$isLoggedIn || !$isAdmin) {
             background: #4caf50; color: #fff; border: none; border-radius: 8px;
             padding: 8px 12px; font-size: 1rem; cursor: pointer; width: 100%;
             margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: 0.3s;
         }
         .toggle-sidebar-btn:hover { background: #388e3c; }
 
@@ -113,6 +168,9 @@ if (!$isLoggedIn || !$isAdmin) {
         .sidebar-menu li .menu-text { flex: 1; }
         .sidebar-menu li a { color: inherit; text-decoration: none; display: flex; align-items: center; width: 100%; }
 
+        /* ========================================== */
+        /* PAGE HEADER */
+        /* ========================================== */
         .page-header {
             background: #f8f9fa; color: #1a2e1a; padding: 20px 0;
             border-bottom: 1px solid #e8f0e8;
@@ -120,11 +178,43 @@ if (!$isLoggedIn || !$isAdmin) {
         .page-header h2 { font-weight: 700; color: #1a2e1a; }
         .page-header .breadcrumb { background: none; padding: 0; margin: 0; }
         .page-header .breadcrumb a { color: #4caf50; text-decoration: none; }
+        .page-header .breadcrumb a:hover { text-decoration: underline; }
         .page-header .breadcrumb .active { color: #888; }
+        .page-header .text-muted { color: #888 !important; }
 
+        /* ========================================== */
+        /* MAIN CONTENT */
+        /* ========================================== */
         .main-content { padding: 20px 30px; }
 
-        .table-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e8f0e8; }
+        /* ========================================== */
+        /* TABLE CARD */
+        /* ========================================== */
+        .table-card { 
+            background: #fff; 
+            border-radius: 12px; 
+            padding: 20px; 
+            border: 1px solid #e8f0e8;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+        .table-card .table th {
+            border-top: none;
+            color: #1a2e1a;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .table-card .table td {
+            vertical-align: middle;
+        }
+        .table-card .table tr:hover {
+            background-color: #f8fdf8;
+        }
+
+        /* ========================================== */
+        /* BUTTONS */
+        /* ========================================== */
         .btn-add {
             background: #4caf50;
             color: #fff;
@@ -136,28 +226,86 @@ if (!$isLoggedIn || !$isAdmin) {
             text-decoration: none;
             display: inline-block;
         }
-        .btn-add:hover { background: #388e3c; color: #fff; }
-        .btn-edit { background: #ffc107; color: #000; border: none; border-radius: 30px; padding: 5px 15px; font-weight: 600; transition: 0.3s; text-decoration: none; display: inline-block; font-size: 0.8rem; }
-        .btn-edit:hover { background: #e0a800; color: #000; }
-        .btn-delete { background: #dc3545; color: #fff; border: none; border-radius: 30px; padding: 5px 15px; font-weight: 600; transition: 0.3s; text-decoration: none; display: inline-block; font-size: 0.8rem; }
-        .btn-delete:hover { background: #c82333; color: #fff; }
-        .btn-toggle { background: #17a2b8; color: #fff; border: none; border-radius: 30px; padding: 5px 15px; font-weight: 600; transition: 0.3s; text-decoration: none; display: inline-block; font-size: 0.8rem; }
-        .btn-toggle:hover { background: #138496; color: #fff; }
+        .btn-add:hover { background: #388e3c; color: #fff; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(76,175,80,0.3); }
 
+        .btn-edit { 
+            background: #ffc107; 
+            color: #000; 
+            border: none; 
+            border-radius: 30px; 
+            padding: 5px 15px; 
+            font-weight: 600; 
+            transition: 0.3s; 
+            text-decoration: none; 
+            display: inline-block; 
+            font-size: 0.8rem; 
+        }
+        .btn-edit:hover { background: #e0a800; color: #000; transform: translateY(-1px); }
+
+        .btn-delete { 
+            background: #dc3545; 
+            color: #fff; 
+            border: none; 
+            border-radius: 30px; 
+            padding: 5px 15px; 
+            font-weight: 600; 
+            transition: 0.3s; 
+            text-decoration: none; 
+            display: inline-block; 
+            font-size: 0.8rem; 
+        }
+        .btn-delete:hover { background: #c82333; color: #fff; transform: translateY(-1px); }
+
+        .btn-toggle { 
+            background: #17a2b8; 
+            color: #fff; 
+            border: none; 
+            border-radius: 30px; 
+            padding: 5px 15px; 
+            font-weight: 600; 
+            transition: 0.3s; 
+            text-decoration: none; 
+            display: inline-block; 
+            font-size: 0.8rem; 
+        }
+        .btn-toggle:hover { background: #138496; color: #fff; transform: translateY(-1px); }
+
+        /* ========================================== */
+        /* STATUS BADGES */
+        /* ========================================== */
         .status-badge {
-            padding: 4px 12px;
+            padding: 4px 14px;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
+            display: inline-block;
         }
         .status-active { background: #d4edda; color: #155724; }
         .status-inactive { background: #e2e3e5; color: #383d41; }
 
         .action-btns .btn { margin: 2px; }
 
+        /* ========================================== */
+        /* EMPTY STATE */
+        /* ========================================== */
+        .empty-state {
+            padding: 40px 0;
+        }
+        .empty-state i {
+            color: #ddd;
+        }
+
+        /* ========================================== */
+        /* RESPONSIVE */
+        /* ========================================== */
         @media (max-width: 992px) {
             body { padding-left: 0; }
-            .sidebar-wrapper { position: relative; top: 0; width: 100%; height: auto; border-right: none; border-bottom: 1px solid #e8f0e8; }
+            body.sidebar-collapsed { padding-left: 0; }
+            .navbar { left: 0 !important; }
+            .sidebar-wrapper {
+                position: relative; top: 0; width: 100%; height: auto;
+                border-right: none; border-bottom: 1px solid #e8f0e8;
+            }
             .sidebar-wrapper.collapsed { width: 100%; }
             .sidebar-wrapper.collapsed .sidebar-menu li { justify-content: flex-start; }
             .sidebar-wrapper.collapsed .sidebar-menu li .menu-text { display: inline; }
@@ -165,25 +313,66 @@ if (!$isLoggedIn || !$isAdmin) {
             .sidebar-wrapper.collapsed .admin-name,
             .sidebar-wrapper.collapsed .admin-role,
             .sidebar-wrapper.collapsed .sidebar-category { display: block; }
-            body.sidebar-collapsed { padding-left: 0; }
             .main-content { padding: 15px; }
+            .table-card { padding: 15px; }
+            .action-btns .btn {
+                font-size: 0.7rem;
+                padding: 4px 10px;
+                margin: 2px 1px;
+            }
+            .btn-add {
+                padding: 8px 18px;
+                font-size: 0.9rem;
+            }
+            .page-header h2 { font-size: 1.3rem; }
+        }
+
+        @media (max-width: 576px) {
+            .table-card .table th,
+            .table-card .table td {
+                font-size: 0.8rem;
+                padding: 8px 6px;
+            }
+            .action-btns .btn {
+                font-size: 0.65rem;
+                padding: 3px 8px;
+                display: inline-block;
+                margin: 1px;
+            }
         }
     </style>
 </head>
 <body id="mainBody">
 
-<!-- Navbar -->
+<!-- Notification Container -->
+<div class="notification-container" id="notificationContainer"></div>
+
+<!-- ========================================== -->
+<!-- NAVBAR -->
+<!-- ========================================== -->
 <nav class="navbar navbar-expand-lg">
     <div class="container">
         <a class="navbar-brand" href="/"><i class="fas fa-store"></i> ShopEase</a>
-        <div class="d-flex align-items-center ms-auto">
-            <span class="text-white me-3 d-none d-md-inline"><i class="fas fa-shield-alt me-1"></i>Super Admin</span>
-            <a href="/logout" class="icon-btn"><i class="fas fa-sign-out-alt"></i></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/admin/dashboard">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link active" href="#">Categories</a></li>
+            </ul>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3 d-none d-md-inline"><i class="fas fa-shield-alt me-1"></i>Super Admin</span>
+                <a href="/logout" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="fas fa-sign-out-alt"></i></a>
+            </div>
         </div>
     </div>
 </nav>
 
-<!-- Sidebar -->
+<!-- ========================================== -->
+<!-- FIXED SIDEBAR -->
+<!-- ========================================== -->
 <div class="sidebar-wrapper" id="sidebarWrapper">
     <div class="sidebar-card">
        <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
@@ -205,7 +394,7 @@ if (!$isLoggedIn || !$isAdmin) {
                 <i class="fas fa-store"></i>
                 <span class="menu-text">Stores</span>
             </li>
-           <li onclick="location.href='/admin/delivery-companies'" data-tooltip="Delivery Companies">
+            <li onclick="location.href='/admin/delivery-companies'" data-tooltip="Delivery Companies">
                 <i class="fas fa-truck"></i>
                 <span class="menu-text">Delivery Companies</span>
             </li>
@@ -225,21 +414,19 @@ if (!$isLoggedIn || !$isAdmin) {
 
         <!-- FINANCE -->
         <div class="sidebar-category">Finance</div>
-          <ul class="sidebar-menu">
-            <li  onclick="location.href='/admin/platform-fees'" data-tooltip="Platform Fees">
+        <ul class="sidebar-menu">
+            <li onclick="location.href='/admin/platform-fees'" data-tooltip="Platform Fees">
                 <i class="fas fa-percentage"></i>
                 <span class="menu-text">Platform Fees</span>
             </li>
-             <li class="active" onclick="location.href='/admin/commissions'" data-tooltip="Commissions">
-                <i class="fas fa-hand-holding-usd"></i><span class="menu-text">Commissions</span>
+            <li onclick="location.href='/admin/commissions'" data-tooltip="Commissions">
+                <i class="fas fa-hand-holding-usd"></i>
+                <span class="menu-text">Commissions</span>
             </li>
-                        <li class="active" onclick="location.href='/admin/seller-payouts'" data-tooltip="Seller Payouts">
-                <i class="fas fa-money-bill-wave"></i><span class="menu-text">Seller Payouts</span>
+            <li onclick="location.href='/admin/seller-payouts'" data-tooltip="Seller Payouts">
+                <i class="fas fa-money-bill-wave"></i>
+                <span class="menu-text">Seller Payouts</span>
             </li>
-              <li class="active" onclick="location.href='/admin/delivery-assignments'" data-tooltip="Delivery Assignments">
-                <i class="fas fa-tasks"></i><span class="menu-text">Delivery Assignments</span>
-            </li>
-        <ul class="sidebar-menu">
             <li onclick="location.href='/admin/payment-gateways'" data-tooltip="Payments">
                 <i class="fas fa-credit-card"></i>
                 <span class="menu-text">Payments</span>
@@ -254,18 +441,24 @@ if (!$isLoggedIn || !$isAdmin) {
             </li>
         </ul>
 
-        <!-- ORDERS & PRODUCTS -->
-        <div class="sidebar-category">Orders & Products</div>
+        <!-- ORDERS & DELIVERY -->
+        <div class="sidebar-category">Orders & Delivery</div>
         <ul class="sidebar-menu">
             <li onclick="location.href='/admin/orders'" data-tooltip="Orders">
                 <i class="fas fa-shopping-bag"></i>
                 <span class="menu-text">Orders</span>
             </li>
-              <li class="active" onclick="location.href='/admin/delivery-status'" data-tooltip="Delivery Status">
-                <i class="fas fa-truck"></i><span class="menu-text">Delivery Status</span>
+            <li onclick="location.href='/admin/delivery-assignments'" data-tooltip="Delivery Assignments">
+                <i class="fas fa-tasks"></i>
+                <span class="menu-text">Delivery Assignments</span>
             </li>
-              <li class="active" onclick="location.href='/admin/refunds'" data-tooltip="Refunds">
-                <i class="fas fa-undo"></i><span class="menu-text">Refunds & Disputes</span>
+            <li onclick="location.href='/admin/delivery-status'" data-tooltip="Delivery Status">
+                <i class="fas fa-truck"></i>
+                <span class="menu-text">Delivery Status</span>
+            </li>
+            <li onclick="location.href='/admin/refunds'" data-tooltip="Refunds">
+                <i class="fas fa-undo"></i>
+                <span class="menu-text">Refunds & Disputes</span>
             </li>
             <li onclick="location.href='/admin/products'" data-tooltip="Products">
                 <i class="fas fa-box"></i>
@@ -290,7 +483,9 @@ if (!$isLoggedIn || !$isAdmin) {
     </div>
 </div>
 
-<!-- Page Header -->
+<!-- ========================================== -->
+<!-- PAGE HEADER -->
+<!-- ========================================== -->
 <section class="page-header">
     <div class="container-fluid px-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -301,7 +496,7 @@ if (!$isLoggedIn || !$isAdmin) {
                     <span class="mx-2">/</span>
                     <a href="/admin/dashboard">Dashboard</a>
                     <span class="mx-2">/</span>
-                    <span class="text-muted">Categories</span>
+                    <span class="active">Categories</span>
                 </nav>
             </div>
             <div>
@@ -311,12 +506,14 @@ if (!$isLoggedIn || !$isAdmin) {
     </div>
 </section>
 
-<!-- Main Content -->
+<!-- ========================================== -->
+<!-- MAIN CONTENT -->
+<!-- ========================================== -->
 <section class="main-content">
     <div class="container-fluid px-4">
 
         <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success alert-dismissible fade show">
+            <div class="alert alert-success alert-dismissible fade show" id="successAlert">
                 <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
@@ -341,11 +538,11 @@ if (!$isLoggedIn || !$isAdmin) {
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Category</th>
-                            <th>Description</th>
-                            <th>Products</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th><i class="fas fa-tag me-1"></i>Category</th>
+                            <th><i class="fas fa-align-left me-1"></i>Description</th>
+                            <th><i class="fas fa-box me-1"></i>Products</th>
+                            <th><i class="fas fa-circle me-1"></i>Status</th>
+                            <th><i class="fas fa-cog me-1"></i>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -353,21 +550,21 @@ if (!$isLoggedIn || !$isAdmin) {
                             <?php foreach ($categories as $category): ?>
                                 <tr>
                                     <td><strong><?= esc($category['category_name']) ?></strong></td>
-                                    <td><?= esc(substr($category['category_description'] ?? '', 0, 50)) ?>...</td>
-                                    <td><?= $category['product_count'] ?? 0 ?></td>
+                                    <td><?= esc(substr($category['category_description'] ?? '', 0, 50)) ?><?= (strlen($category['category_description'] ?? '') > 50) ? '...' : '' ?></td>
+                                    <td><span class="badge bg-secondary"><?= $category['product_count'] ?? 0 ?></span></td>
                                     <td>
                                         <span class="status-badge <?= ($category['is_active'] ?? true) ? 'status-active' : 'status-inactive' ?>">
-                                            <?= ($category['is_active'] ?? true) ? 'Active' : 'Inactive' ?>
+                                            <?= ($category['is_active'] ?? true) ? '<i class="fas fa-check-circle me-1"></i>Active' : '<i class="fas fa-times-circle me-1"></i>Inactive' ?>
                                         </span>
                                     </td>
                                     <td class="action-btns">
                                         <a href="/admin/categories/edit/<?= $category['id'] ?>" class="btn-edit">
                                             <i class="fas fa-edit"></i> Edit
                                         </a>
-                                        <a href="/admin/categories/toggle/<?= $category['id'] ?>" class="btn-toggle" onclick="return confirm('Toggle category status?')">
+                                        <a href="/admin/categories/toggle/<?= $category['id'] ?>" class="btn-toggle" onclick="return confirm('Toggle category status? This will affect all subcategories and products.')">
                                             <i class="fas fa-sync"></i> Toggle
                                         </a>
-                                        <a href="/admin/categories/delete/<?= $category['id'] ?>" class="btn-delete" onclick="return confirm('Delete this category? This will also delete all subcategories and products under it.')">
+                                        <a href="/admin/categories/delete/<?= $category['id'] ?>" class="btn-delete" onclick="return confirm('Delete this category? This will also delete all subcategories and products under it. This action cannot be undone.')">
                                             <i class="fas fa-trash"></i> Delete
                                         </a>
                                     </td>
@@ -375,9 +572,12 @@ if (!$isLoggedIn || !$isAdmin) {
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="5" class="text-center py-4">
-                                    <i class="fas fa-tags fa-3x text-muted mb-3 d-block"></i>
-                                    <p class="text-muted">No categories found. Click "Add Category" to create one.</p>
+                                <td colspan="5" class="text-center py-5">
+                                    <div class="empty-state">
+                                        <i class="fas fa-tags fa-4x text-muted mb-3 d-block"></i>
+                                        <h5 class="text-muted">No Categories Found</h5>
+                                        <p class="text-muted">Click the <strong>"Add Category"</strong> button to create your first category.</p>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endif; ?>
@@ -388,14 +588,145 @@ if (!$isLoggedIn || !$isAdmin) {
     </div>
 </section>
 
+<!-- ========================================== -->
+<!-- SCRIPTS -->
+<!-- ========================================== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
- function toggleSidebar() {
-    var wrapper = document.getElementById('sidebarWrapper');
-    var body = document.getElementById('mainBody');
-    wrapper.classList.toggle('collapsed');
-    body.classList.toggle('sidebar-collapsed');
-}
+    // ==========================================
+    // SIDEBAR TOGGLE
+    // ==========================================
+    function toggleSidebar() {
+        const wrapper = document.getElementById('sidebarWrapper');
+        const body = document.getElementById('mainBody');
+        const label = document.getElementById('toggleLabel');
+        
+        wrapper.classList.toggle('collapsed');
+        body.classList.toggle('sidebar-collapsed');
+        
+        // Update toggle button text
+        if (label) {
+            label.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+        }
+        
+        // Save state to localStorage
+        const isCollapsed = wrapper.classList.contains('collapsed');
+        localStorage.setItem('sidebarCollapsed', isCollapsed);
+    }
+
+    // ==========================================
+    // RESTORE SIDEBAR STATE
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', function() {
+        const wrapper = document.getElementById('sidebarWrapper');
+        const body = document.getElementById('mainBody');
+        const label = document.getElementById('toggleLabel');
+        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        
+        if (isCollapsed) {
+            wrapper.classList.add('collapsed');
+            body.classList.add('sidebar-collapsed');
+            if (label) {
+                label.textContent = 'Expand';
+            }
+        }
+
+        // Auto-dismiss alerts after 5 seconds
+        const alerts = document.querySelectorAll('.alert:not(.alert-dismissible)');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.remove();
+                }, 500);
+            }, 5000);
+        });
+
+        // Dismiss success alert after 8 seconds
+        const successAlert = document.getElementById('successAlert');
+        if (successAlert) {
+            setTimeout(function() {
+                successAlert.style.transition = 'opacity 0.5s';
+                successAlert.style.opacity = '0';
+                setTimeout(function() {
+                    successAlert.remove();
+                }, 500);
+            }, 8000);
+        }
+    });
+
+    // ==========================================
+    // NOTIFICATION SYSTEM
+    // ==========================================
+    function showNotification(message, type = 'info', title = '') {
+        const container = document.getElementById('notificationContainer');
+        if (!container) return;
+
+        const iconMap = {
+            success: 'fas fa-check-circle text-success',
+            error: 'fas fa-exclamation-circle text-danger',
+            warning: 'fas fa-exclamation-triangle text-warning',
+            info: 'fas fa-info-circle text-info'
+        };
+
+        const icon = iconMap[type] || iconMap.info;
+
+        const toast = document.createElement('div');
+        toast.className = `notification-toast ${type}`;
+        toast.innerHTML = `
+            <div class="notif-icon"><i class="${icon}"></i></div>
+            <div class="notif-content">
+                ${title ? `<div class="notif-title">${title}</div>` : ''}
+                <div class="notif-message">${message}</div>
+                <div class="notif-time">${new Date().toLocaleTimeString()}</div>
+            </div>
+            <button class="notif-close" onclick="this.closest('.notification-toast').remove();">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+
+        container.appendChild(toast);
+
+        // Auto remove after 5 seconds
+        setTimeout(function() {
+            if (toast.parentNode) {
+                toast.classList.add('removing');
+                setTimeout(function() {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 300);
+            }
+        }, 5000);
+    }
+
+    // ==========================================
+    // KEYBOARD SHORTCUTS
+    // ==========================================
+    document.addEventListener('keydown', function(e) {
+        // Ctrl + B to toggle sidebar
+        if (e.ctrlKey && e.key === 'b') {
+            e.preventDefault();
+            toggleSidebar();
+        }
+        // Escape key to close notifications
+        if (e.key === 'Escape') {
+            const notifications = document.querySelectorAll('.notification-toast');
+            notifications.forEach(function(notif) {
+                notif.classList.add('removing');
+                setTimeout(function() {
+                    if (notif.parentNode) {
+                        notif.remove();
+                    }
+                }, 300);
+            });
+        }
+    });
+
+    console.log('ShopEase Admin - Categories Page Loaded');
+    console.log('Shortcut: Ctrl+B to toggle sidebar');
+    console.log('Press ESC to close all notifications');
 </script>
 </body>
 </html>

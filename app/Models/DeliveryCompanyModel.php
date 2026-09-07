@@ -25,7 +25,7 @@ class DeliveryCompanyModel extends Model
         'name' => 'required|min_length[3]|max_length[100]',
         'email' => 'required|valid_email|is_unique[delivery_companies.email,id,{id}]',
         'phone' => 'required|min_length[10]|max_length[20]',
-        'password' => 'required|min_length[8]',
+         'password' => 'permit_empty|min_length[8]',
         'status' => 'in_list[pending,active,inactive]'
     ];
     

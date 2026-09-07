@@ -6,6 +6,7 @@
     <title>Products - ShopEase</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; padding-top: 80px; }
@@ -273,12 +274,7 @@
             font-weight: 700;
             font-size: 1.2rem;
         }
-        .product-card .old-price {
-            color: #aaa;
-            font-size: 0.9rem;
-            text-decoration: line-through;
-            margin-left: 8px;
-        }
+    
         .product-card .btn-add {
             background: #4caf50;
             color: #fff;
@@ -342,6 +338,377 @@
             .price-section .price-inputs input { width: 48%; }
             .product-card .product-image { height: 120px; }
         }
+
+        /* ShopEase visual system — matched to the reference page */
+        :root {
+            --brand: #1a1a2e;
+            --brand-mid: #16213e;
+            --accent: #e94560;
+            --accent-light: #ff6b6b;
+            --gold: #f5a623;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --surface: #f9fafb;
+            --white: #ffffff;
+            --radius: 12px;
+            --radius-lg: 20px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.14);
+            --font: 'Inter', sans-serif;
+            --display: 'Sora', sans-serif;
+        }
+
+        body {
+            font-family: var(--font);
+            color: var(--text);
+            background: var(--white);
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.98) !important;
+            border-bottom: 1px solid var(--border);
+            box-shadow: none;
+            padding: 18px 0;
+            backdrop-filter: blur(12px);
+        }
+
+        .navbar-scrolled {
+            background: rgba(255, 255, 255, 0.98) !important;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+            padding: 12px 0;
+        }
+
+        .navbar-brand {
+            color: var(--brand) !important;
+            font-family: var(--display);
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .navbar-brand i {
+            color: var(--accent);
+        }
+
+        .navbar .nav-link {
+            color: #374151 !important;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .navbar .nav-link:hover,
+        .navbar .nav-link.active {
+            color: var(--accent) !important;
+            background: #fff5f5;
+        }
+
+        .search-box {
+            width: 240px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            color: var(--text);
+            padding: 9px 18px;
+            font-size: 0.875rem;
+        }
+
+        .search-box::placeholder {
+            color: #9ca3af;
+        }
+
+        .search-box:focus {
+            background: var(--white);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+        }
+
+        .icon-btn {
+            width: 38px;
+            height: 38px;
+            margin: 0 0 0 8px;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            background: var(--surface);
+            color: #374151;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+        }
+
+        .icon-btn:hover {
+            background: #fff5f5;
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: none;
+        }
+
+        .cart-badge {
+            top: -5px;
+            right: -5px;
+            min-width: 18px;
+            padding: 2px 5px;
+            background: var(--accent);
+            font-size: 0.68rem;
+        }
+
+        .page-header {
+            background: var(--brand);
+            color: white;
+            padding: 44px 0 34px;
+        }
+
+        .page-header h2 {
+            font-family: var(--display);
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .page-header .breadcrumb a {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+        }
+
+        .page-header .breadcrumb a:hover {
+            color: var(--accent-light);
+        }
+
+        .page-header .breadcrumb .active {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+        }
+
+        .filter-sidebar {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .filter-sidebar .filter-header {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .filter-sidebar .filter-header h6 {
+            color: var(--brand);
+            font-family: var(--display);
+        }
+
+        .filter-sidebar .filter-header h6 i {
+            color: var(--accent) !important;
+        }
+
+        .filter-sidebar .filter-header .clear-all {
+            color: var(--accent);
+        }
+
+        .category-accordion .category-header {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .category-accordion .category-header:hover {
+            border-color: var(--accent);
+        }
+
+        .category-accordion .category-header.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .category-accordion .category-header.active .count {
+            color: #ffe4e8;
+        }
+
+        .category-accordion .sub-filter-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
+
+        .category-accordion .sub-filter-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .category-accordion .sub-filter-btn.active,
+        .active-filters .filter-tag {
+            background: #fff5f5;
+            border-color: #ffd0d8;
+            color: #c73652;
+        }
+
+        .price-section {
+            border-color: var(--border);
+        }
+
+        .price-section .price-inputs input {
+            border: 1px solid var(--border);
+        }
+
+        .price-section .price-inputs input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+        }
+
+        .filter-actions {
+            border-color: var(--border);
+        }
+
+        .filter-actions .btn-apply {
+            background: var(--accent);
+        }
+
+        .filter-actions .btn-apply:hover {
+            background: #c73652;
+        }
+
+        .filter-actions .btn-reset {
+            background: var(--surface);
+            color: #374151;
+        }
+
+        .filter-actions .btn-reset:hover {
+            background: #f3f4f6;
+        }
+
+        .product-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .product-card:hover {
+            border-color: var(--accent);
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-5px);
+        }
+
+        .product-card .product-image {
+            height: 170px;
+            padding: 8px;
+        }
+
+        .product-card .product-name {
+            color: var(--brand);
+            font-family: var(--display);
+            font-weight: 700;
+        }
+
+        .product-card .product-category {
+            color: var(--muted);
+        }
+
+        .product-card .price {
+            color: var(--accent);
+            font-family: var(--display);
+            font-weight: 800;
+        }
+
+        .product-card .btn-add {
+            background: var(--accent);
+            border-radius: 50px;
+        }
+
+        .product-card .btn-add:hover {
+            background: #c73652;
+        }
+
+        .product-card .btn-cart {
+            background: var(--brand);
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            padding: 0;
+        }
+
+        .product-card .btn-cart:hover {
+            background: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .pagination .page-link {
+            color: var(--brand);
+            border-color: var(--border);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .pagination .page-link:hover {
+            color: var(--accent);
+        }
+
+        .no-products-found h5 {
+            color: var(--brand);
+            font-family: var(--display);
+        }
+
+        .footer {
+            background: #111827;
+            padding: 60px 0 28px;
+            margin-top: 64px;
+        }
+
+        .footer h5 {
+            color: white;
+            font-family: var(--display);
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .footer a {
+            color: #6b7280;
+            font-size: 0.84rem;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+
+        .footer .text-muted {
+            color: #6b7280 !important;
+        }
+
+        .footer hr {
+            border-color: #1f2937;
+        }
+
+        .footer .form-control {
+            background: #1f2937 !important;
+            border: 1px solid #374151 !important;
+            border-radius: 50px 0 0 50px;
+            color: white;
+        }
+
+        .footer .btn-success {
+            background: var(--accent) !important;
+            border: none !important;
+            border-radius: 0 50px 50px 0;
+        }
+
+        .toast-custom {
+            border-left: 3px solid #10b981;
+            border-radius: var(--radius);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.14);
+        }
+
+        .toast-custom.error {
+            border-left-color: var(--accent);
+        }
+
+        @media (max-width: 576px) {
+            .search-box {
+                width: 180px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -363,14 +730,15 @@ function resolveImageUrl($path) {
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container">
-        <a class="navbar-brand" href="/"><i class="fas fa-store"></i> ShopEase</a>
+        <a class="navbar-brand" href="/">Shop<span style="color:var(--accent);">Ease</span></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link active" href="/products">Products</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/products">Shop</a></li>
+                <li class="nav-item"><a class="nav-link" href="/store/apply">Sell With Us</a></li>
                 <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
             </ul>
             <div class="d-flex align-items-center">
@@ -406,6 +774,9 @@ function resolveImageUrl($path) {
     <div class="container">
         <div class="d-flex justify-content-between align-items-center">
             <div>
+                <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#e5e7eb;font-size:.75rem;font-weight:600;padding:5px 14px;border-radius:50px;margin-bottom:14px;">
+                    <span style="width:6px;height:6px;border-radius:50%;background:var(--gold);"></span> Marketplace
+                </div>
                 <h2>Products</h2>
                 <nav class="breadcrumb">
                     <a href="/">Home</a>
@@ -441,7 +812,7 @@ function resolveImageUrl($path) {
                                 <div class="category-accordion">
                                     <div class="category-header" data-category-id="<?= $cat['id'] ?>" onclick="toggleCategory(this)">
                                         <span class="cat-name"><?= esc($cat['category_name']) ?></span>
-                                        <span class="count">(<?= isset($categoryCounts[$cat['id']]) ? $categoryCounts[$cat['id']] : 0 ?>)</span>
+                                        <span class="count">(<?= isset($categoryCounts[$cat['id']]) ? $categoryCounts [$cat['id']] : 0 ?>)</span>
                                         <i class="fas fa-chevron-down arrow"></i>
                                     </div>
                                     <div class="subcategory-list" id="subcat_<?= $cat['id'] ?>">
@@ -518,9 +889,9 @@ function resolveImageUrl($path) {
                                         <p class="product-subcategory"><i class="fas fa-tag me-1"></i><?= esc($product['subcategory']) ?></p>
                                     <?php endif; ?>
                                     <div>
-                                        <span class="price">$<?= number_format($product['price'], 2) ?></span>
+                                        <span class="price"><?= number_format($product['price'], 2) ?> ETB</span>
                                         <?php if (isset($product['old_price']) && $product['old_price']): ?>
-                                            <span class="old-price">$<?= number_format($product['old_price'], 2) ?></span>
+                                            
                                         <?php endif; ?>
                                     </div>
                                     <div class="d-flex gap-2 mt-2" style="margin-top: auto !important;">

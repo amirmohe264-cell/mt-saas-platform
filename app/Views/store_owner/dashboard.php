@@ -5,7 +5,7 @@ if (!session()->get('tenant_id')) {
     exit();
 }
 ?>
-
+<?php $active_menu = 'dashboard'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,11 +15,10 @@ if (!session()->get('tenant_id')) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* ========================================== */
+        /* GLOBAL STYLES */
+        /* ========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f8f9fa;
@@ -30,7 +29,7 @@ if (!session()->get('tenant_id')) {
         }
 
         /* ========================================== */
-        /* ✅ NOTIFICATION STYLES */
+        /* NOTIFICATION STYLES */
         /* ========================================== */
         .notification-container {
             position: fixed;
@@ -75,41 +74,18 @@ if (!session()->get('tenant_id')) {
             box-shadow: 0 2px 20px rgba(0,0,0,0.3);
             position: fixed;
             top: 0;
-            left: 0;
+            left: 280px;
             right: 0;
             z-index: 1050;
+            transition: left 0.3s ease;
         }
-        .navbar-brand {
-            color: #fff !important;
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
-        .navbar-brand i {
-            color: #4caf50;
-        }
-        .navbar .nav-link {
-            color: #d4d4d4 !important;
-            font-weight: 500;
-            transition: 0.3s;
-        }
-        .navbar .nav-link:hover {
-            color: #4caf50 !important;
-        }
-        .icon-btn {
-            color: #d4d4d4;
-            font-size: 1.2rem;
-            margin: 0 8px;
-            transition: 0.3s;
-            background: none;
-            border: none;
-        }
-        .icon-btn:hover {
-            color: #4caf50;
-            transform: scale(1.1);
-        }
-        .navbar-toggler {
-            border-color: #4caf50;
-        }
+        .navbar-brand { color: #fff !important; font-weight: bold; font-size: 1.5rem; }
+        .navbar-brand i { color: #4caf50; }
+        .navbar .nav-link { color: #d4d4d4 !important; font-weight: 500; transition: 0.3s; }
+        .navbar .nav-link:hover { color: #4caf50 !important; }
+        .icon-btn { color: #d4d4d4; font-size: 1.2rem; margin: 0 8px; transition: 0.3s; background: none; border: none; }
+        .icon-btn:hover { color: #4caf50; transform: scale(1.1); }
+        .navbar-toggler { border-color: #4caf50; }
         .navbar-toggler-icon {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(76, 175, 80, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
         }
@@ -119,10 +95,10 @@ if (!session()->get('tenant_id')) {
         /* ========================================== */
         .sidebar-wrapper {
             position: fixed;
-            top: 80px;
+            top: 0;
             left: 0;
             width: 280px;
-            height: calc(100vh - 80px);
+            height: 100vh;
             overflow-y: auto;
             background: #fff;
             border-right: 1px solid #e8f0e8;
@@ -130,282 +106,119 @@ if (!session()->get('tenant_id')) {
             z-index: 1000;
             transition: width 0.3s ease;
         }
-        .sidebar-wrapper::-webkit-scrollbar {
-            width: 4px;
-        }
-        .sidebar-wrapper::-webkit-scrollbar-thumb {
-            background: #4caf50;
-            border-radius: 4px;
-        }
-        .sidebar-wrapper::-webkit-scrollbar-track {
-            background: #e8f0e8;
-        }
+        .sidebar-wrapper::-webkit-scrollbar { width: 4px; }
+        .sidebar-wrapper::-webkit-scrollbar-thumb { background: #4caf50; border-radius: 4px; }
+        .sidebar-wrapper::-webkit-scrollbar-track { background: #e8f0e8; }
 
-        .sidebar-wrapper.collapsed {
-            width: 70px;
-        }
-        .sidebar-wrapper.collapsed .store-name {
-            display: none;
-        }
-        .sidebar-wrapper.collapsed .store-status {
-            display: none;
-        }
-        .sidebar-wrapper.collapsed .sidebar-category {
-            display: none;
-        }
-        .sidebar-wrapper.collapsed .sidebar-menu li {
-            padding: 10px;
-            justify-content: center;
-        }
-        .sidebar-wrapper.collapsed .sidebar-menu li .menu-text {
-            display: none;
-        }
-        .sidebar-wrapper.collapsed .sidebar-menu li i {
-            margin-right: 0;
-            font-size: 1.2rem;
-        }
-        .sidebar-wrapper.collapsed .sidebar-menu li {
-            position: relative;
-        }
+        .sidebar-wrapper.collapsed { width: 70px; }
+        .sidebar-wrapper.collapsed .store-name,
+        .sidebar-wrapper.collapsed .store-status,
+        .sidebar-wrapper.collapsed .sidebar-category { display: none; }
+        .sidebar-wrapper.collapsed .sidebar-menu li { padding: 10px; justify-content: center; }
+        .sidebar-wrapper.collapsed .sidebar-menu li .menu-text { display: none; }
+        .sidebar-wrapper.collapsed .sidebar-menu li i { margin-right: 0; font-size: 1.2rem; }
+        .sidebar-wrapper.collapsed .sidebar-menu li { position: relative; }
         .sidebar-wrapper.collapsed .sidebar-menu li:hover::after {
             content: attr(data-tooltip);
-            position: absolute;
-            left: 100%;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #1a2e1a;
-            color: #fff;
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            z-index: 999;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            margin-left: 8px;
+            position: absolute; left: 100%; top: 50%; transform: translateY(-50%);
+            background: #1a2e1a; color: #fff; padding: 5px 12px; border-radius: 6px;
+            font-size: 0.8rem; white-space: nowrap; z-index: 999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2); margin-left: 8px;
         }
-        .sidebar-wrapper.collapsed .store-avatar {
-            width: 45px;
-            height: 45px;
-            font-size: 1.2rem;
-        }
+        .sidebar-wrapper.collapsed .store-avatar { width: 45px; height: 45px; font-size: 1.2rem; }
 
-        body.sidebar-collapsed {
-            padding-left: 70px;
-        }
+        body.sidebar-collapsed { padding-left: 70px; }
+        body.sidebar-collapsed .navbar { left: 70px; }
 
         .sidebar-card .store-avatar {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: #4caf50;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            margin: 0 auto 10px;
+            width: 70px; height: 70px; border-radius: 50%;
+            background: #4caf50; color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; margin: 0 auto 10px;
             transition: all 0.3s ease;
         }
         .sidebar-card .store-name {
-            text-align: center;
-            font-weight: 700;
-            color: #1a2e1a;
-            font-size: 1rem;
+            text-align: center; font-weight: 700; color: #1a2e1a; font-size: 1rem;
             transition: all 0.3s ease;
         }
         .sidebar-card .store-status {
-            text-align: center;
-            font-size: 0.8rem;
+            text-align: center; font-size: 0.8rem;
             transition: all 0.3s ease;
         }
 
         .toggle-sidebar-btn {
-            background: #4caf50;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 1rem;
-            transition: 0.3s;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            background: #4caf50; color: #fff; border: none; border-radius: 8px;
+            padding: 8px 12px; font-size: 1rem; transition: 0.3s;
+            cursor: pointer; width: 100%; margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .toggle-sidebar-btn:hover {
-            background: #388e3c;
-        }
-        .toggle-sidebar-btn i {
-            font-size: 1.1rem;
-        }
+        .toggle-sidebar-btn:hover { background: #388e3c; }
+        .toggle-sidebar-btn i { font-size: 1.1rem; }
 
         .sidebar-category {
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: #aaa;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 15px 10px 5px;
-            border-top: 1px solid #f0f0f0;
-            margin-top: 5px;
-            transition: all 0.3s ease;
+            font-size: 0.65rem; font-weight: 700; color: #aaa;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            padding: 15px 10px 5px; border-top: 1px solid #f0f0f0;
+            margin-top: 5px; transition: all 0.3s ease;
         }
-        .sidebar-category:first-child {
-            border-top: none;
-            margin-top: 0;
-            padding-top: 5px;
-        }
+        .sidebar-category:first-child { border-top: none; margin-top: 0; padding-top: 5px; }
 
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
         .sidebar-menu li {
-            padding: 10px 12px;
-            border-radius: 8px;
-            transition: 0.3s;
-            cursor: pointer;
-            color: #555;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            transition: all 0.3s ease;
+            padding: 10px 12px; border-radius: 8px; transition: 0.3s;
+            cursor: pointer; color: #555; font-size: 0.9rem;
+            display: flex; align-items: center; transition: all 0.3s ease;
         }
-        .sidebar-menu li:hover {
-            background: #f0f8f0;
-            color: #4caf50;
-        }
-        .sidebar-menu li.active {
-            background: #f0f8f0;
-            color: #4caf50;
-            font-weight: 600;
-        }
-        .sidebar-menu li i {
-            margin-right: 12px;
-            width: 20px;
-            text-align: center;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        .sidebar-menu li .menu-text {
-            flex: 1;
-            transition: all 0.3s ease;
-        }
-        .sidebar-menu li a {
-            color: inherit;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            width: 100%;
-        }
+        .sidebar-menu li:hover { background: #f0f8f0; color: #4caf50; }
+        .sidebar-menu li.active { background: #f0f8f0; color: #4caf50; font-weight: 600; }
+        .sidebar-menu li i { margin-right: 12px; width: 20px; text-align: center; font-size: 1rem; transition: all 0.3s ease; }
+        .sidebar-menu li .menu-text { flex: 1; transition: all 0.3s ease; }
+        .sidebar-menu li a { color: inherit; text-decoration: none; display: flex; align-items: center; width: 100%; }
 
         /* ========================================== */
         /* PAGE HEADER */
         /* ========================================== */
         .page-header {
-            background: #f8f9fa;
-            color: #1a2e1a;
+            background: #f8f9fa; color: #1a2e1a;
             padding: 20px 0 20px;
             border-bottom: 1px solid #e8f0e8;
         }
-        .page-header h2 {
-            font-weight: 700;
-            color: #1a2e1a;
-        }
-        .page-header .breadcrumb {
-            background: none;
-            padding: 0;
-            margin: 0;
-        }
-        .page-header .breadcrumb a {
-            color: #4caf50;
-            text-decoration: none;
-        }
-        .page-header .breadcrumb .active {
-            color: #888;
-        }
-        .page-header .text-muted {
-            color: #888 !important;
-        }
+        .page-header h2 { font-weight: 700; color: #1a2e1a; }
+        .page-header .breadcrumb { background: none; padding: 0; margin: 0; }
+        .page-header .breadcrumb a { color: #4caf50; text-decoration: none; }
+        .page-header .breadcrumb .active { color: #888; }
+        .page-header .text-muted { color: #888 !important; }
 
         /* ========================================== */
         /* MAIN CONTENT */
         /* ========================================== */
-        .main-content {
-            padding: 20px 30px;
-            min-height: calc(100vh - 160px);
-        }
+        .main-content { padding: 20px 30px; min-height: calc(100vh - 160px); }
 
         /* ========================================== */
         /* DASHBOARD CARDS */
         /* ========================================== */
         .dashboard-card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #e8f0e8;
-            transition: 0.3s;
-            height: 100%;
+            background: #fff; border-radius: 12px; padding: 20px;
+            border: 1px solid #e8f0e8; transition: 0.3s; height: 100%;
         }
-        .dashboard-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-        }
-        .dashboard-card .card-number {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #1a2e1a;
-        }
-        .dashboard-card .card-label {
-            color: #888;
-            font-size: 0.85rem;
-        }
-        .dashboard-card .card-icon {
-            font-size: 1.8rem;
-            float: right;
-        }
+        .dashboard-card:hover { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .dashboard-card .card-number { font-size: 1.8rem; font-weight: 700; color: #1a2e1a; }
+        .dashboard-card .card-label { color: #888; font-size: 0.85rem; }
+        .dashboard-card .card-icon { font-size: 1.8rem; float: right; }
 
         .order-item {
-            background: #fff;
-            border-radius: 12px;
-            padding: 15px 20px;
-            border: 1px solid #e8f0e8;
-            margin-bottom: 12px;
-            transition: 0.3s;
+            background: #fff; border-radius: 12px; padding: 15px 20px;
+            border: 1px solid #e8f0e8; margin-bottom: 12px; transition: 0.3s;
         }
-        .order-item:hover {
-            border-color: #4caf50;
-        }
-        .order-item .order-number {
-            font-weight: 600;
-            color: #1a2e1a;
-        }
-        .order-item .order-date {
-            color: #888;
-            font-size: 0.85rem;
-        }
-        .order-item .order-total {
-            font-weight: 700;
-            color: #1a2e1a;
-        }
+        .order-item:hover { border-color: #4caf50; }
+        .order-item .order-number { font-weight: 600; color: #1a2e1a; }
+        .order-item .order-date { color: #888; font-size: 0.85rem; }
+        .order-item .order-total { font-weight: 700; color: #1a2e1a; }
 
-        .sections {
-            display: none;
-        }
-        .sections.active {
-            display: block;
-        }
+        .sections { display: none; }
+        .sections.active { display: block; }
 
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
         .status-pending { background: #fff3cd; color: #856404; }
         .status-confirmed { background: #cce5ff; color: #004085; }
         .status-processing { background: #d1ecf1; color: #0c5460; }
@@ -416,90 +229,46 @@ if (!session()->get('tenant_id')) {
         .status-published { background: #d4edda; color: #155724; }
 
         .btn-add-product {
-            background: #4caf50;
-            color: #fff;
-            border: none;
-            border-radius: 30px;
-            padding: 10px 25px;
-            font-weight: 600;
-            transition: 0.3s;
-            text-decoration: none;
-            display: inline-block;
+            background: #4caf50; color: #fff; border: none;
+            border-radius: 30px; padding: 10px 25px;
+            font-weight: 600; transition: 0.3s;
+            text-decoration: none; display: inline-block;
         }
-        .btn-add-product:hover {
-            background: #388e3c;
-            color: #fff;
-        }
+        .btn-add-product:hover { background: #388e3c; color: #fff; }
 
-        /* ✅ Password Strength Indicator */
-        .password-strength {
-            height: 5px;
-            border-radius: 5px;
-            margin-top: 5px;
-            transition: all 0.3s ease;
-        }
+        .password-strength { height: 5px; border-radius: 5px; margin-top: 5px; transition: all 0.3s ease; }
         .password-strength.weak { background: #dc3545; width: 25%; }
         .password-strength.medium { background: #ffc107; width: 50%; }
         .password-strength.strong { background: #28a745; width: 75%; }
         .password-strength.very-strong { background: #17a2b8; width: 100%; }
 
-        .password-requirements {
-            font-size: 0.8rem;
-            color: #888;
-            margin-top: 5px;
-        }
-        .password-requirements .req-met {
-            color: #28a745;
-        }
-        .password-requirements .req-unmet {
-            color: #dc3545;
-        }
+        .password-requirements { font-size: 0.8rem; color: #888; margin-top: 5px; }
+        .password-requirements .req-met { color: #28a745; }
+        .password-requirements .req-unmet { color: #dc3545; }
 
         @media (max-width: 992px) {
-            body {
-                padding-left: 0;
-            }
+            body { padding-left: 0; }
+            .navbar { left: 0 !important; }
+            body.sidebar-collapsed .navbar { left: 0 !important; }
             .sidebar-wrapper {
-                position: relative;
-                top: 0;
-                width: 100%;
-                height: auto;
-                border-right: none;
-                border-bottom: 1px solid #e8f0e8;
+                position: relative; top: 0; width: 100%; height: auto;
+                border-right: none; border-bottom: 1px solid #e8f0e8;
             }
-            .sidebar-wrapper.collapsed {
-                width: 100%;
-            }
-            .sidebar-wrapper.collapsed .sidebar-menu li {
-                justify-content: flex-start;
-            }
-            .sidebar-wrapper.collapsed .sidebar-menu li .menu-text {
-                display: inline;
-            }
-            .sidebar-wrapper.collapsed .sidebar-menu li i {
-                margin-right: 12px;
-            }
-            .sidebar-wrapper.collapsed .store-name {
-                display: block;
-            }
-            .sidebar-wrapper.collapsed .store-status {
-                display: block;
-            }
-            .sidebar-wrapper.collapsed .sidebar-category {
-                display: block;
-            }
-            body.sidebar-collapsed {
-                padding-left: 0;
-            }
-            .main-content {
-                padding: 15px;
-            }
+            .sidebar-wrapper.collapsed { width: 100%; }
+            .sidebar-wrapper.collapsed .sidebar-menu li { justify-content: flex-start; }
+            .sidebar-wrapper.collapsed .sidebar-menu li .menu-text { display: inline; }
+            .sidebar-wrapper.collapsed .sidebar-menu li i { margin-right: 12px; }
+            .sidebar-wrapper.collapsed .store-name,
+            .sidebar-wrapper.collapsed .store-status,
+            .sidebar-wrapper.collapsed .sidebar-category { display: block; }
+            body.sidebar-collapsed { padding-left: 0; }
+            .main-content { padding: 15px; }
         }
     </style>
 </head>
 <body id="mainBody">
 
-<!-- ✅ Notification Container -->
+<!-- Notification Container -->
 <div class="notification-container" id="notificationContainer"></div>
 
 <!-- Navbar -->
@@ -525,10 +294,9 @@ if (!session()->get('tenant_id')) {
 <!-- Fixed Sidebar -->
 <div class="sidebar-wrapper" id="sidebarWrapper">
     <div class="sidebar-card">
-        <!-- Toggle Button -->
-      <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
-    <i class="fas fa-bars"></i>
-</button>
+        <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
 
         <div class="store-avatar">
             <i class="fas fa-store"></i>
@@ -539,11 +307,11 @@ if (!session()->get('tenant_id')) {
         <!-- MANAGEMENT -->
         <div class="sidebar-category">Management</div>
         <ul class="sidebar-menu">
-            <li class="active" onclick="showSection('dashboard')" data-tooltip="Dashboard">
+            <li class="<?= $active_menu == 'dashboard' ? 'active' : '' ?>" onclick="showSection('dashboard')" data-tooltip="Dashboard">
                 <i class="fas fa-tachometer-alt"></i>
                 <span class="menu-text">Dashboard</span>
             </li>
-            <li onclick="showSection('products')" data-tooltip="Products">
+            <li onclick="location.href='/store/products'" data-tooltip="Products">
                 <i class="fas fa-box"></i>
                 <span class="menu-text">Products</span>
             </li>
@@ -551,7 +319,7 @@ if (!session()->get('tenant_id')) {
                 <i class="fas fa-tags"></i>
                 <span class="menu-text">Subcategories</span>
             </li>
-           <li onclick="location.href='/store/orders'" data-tooltip="Orders">
+            <li onclick="location.href='/store/orders'" data-tooltip="Orders">
                 <i class="fas fa-shopping-bag"></i>
                 <span class="menu-text">Orders</span>
             </li>
@@ -560,31 +328,28 @@ if (!session()->get('tenant_id')) {
         <!-- FINANCE & EARNINGS -->
         <div class="sidebar-category">Finance & Earnings</div>
         <ul class="sidebar-menu">
-            <li onclick="showSection('reports')" data-tooltip="Reports">
+             <li onclick="location.href='/store/reports'" data-tooltip="Reports">
                 <i class="fas fa-chart-line"></i>
                 <span class="menu-text">Reports</span>
             </li>
+            <li class="<?= $active_menu == 'earnings' ? 'active' : '' ?>" onclick="location.href='/store/earnings'" data-tooltip="Earnings">
+                <i class="fas fa-chart-line"></i>
+                <span class="menu-text">Earnings & Commission</span>
+            </li>
+            <li class="<?= $active_menu == 'payouts' ? 'active' : '' ?>" onclick="location.href='/store/payouts'" data-tooltip="Payouts">
+                <i class="fas fa-money-bill-wave"></i>
+                <span class="menu-text">Payouts</span>
+            </li>
+            <li class="<?= $active_menu == 'payment-history' ? 'active' : '' ?>" onclick="location.href='/store/payment-history'" data-tooltip="Payment History">
+                <i class="fas fa-history"></i>
+                <span class="menu-text">Payment History</span>
+            </li>
         </ul>
-
-<ul class="sidebar-menu">
-    <li onclick="location.href='/store/earnings'" data-tooltip="Earnings">
-        <i class="fas fa-chart-line"></i>
-        <span class="menu-text">Earnings & Commission</span>
-    </li>
-    <li onclick="location.href='/store/payouts'" data-tooltip="Payouts">
-        <i class="fas fa-money-bill-wave"></i>
-        <span class="menu-text">Payouts</span>
-    </li>
-    <li onclick="location.href='/store/payment-history'" data-tooltip="Payment History">
-        <i class="fas fa-history"></i>
-        <span class="menu-text">Payment History</span>
-    </li>
-</ul>
 
         <!-- SERVICES -->
         <div class="sidebar-category">Services</div>
         <ul class="sidebar-menu">
-            <li onclick="showSection('settings')" data-tooltip="Settings">
+             <li class="active" onclick="location.href='/store/settings'" data-tooltip="Settings">
                 <i class="fas fa-store-alt"></i>
                 <span class="menu-text">Store Settings</span>
             </li>
@@ -691,55 +456,7 @@ if (!session()->get('tenant_id')) {
             <?php endif; ?>
         </div>
 
-        <!-- Products Section -->
-        <div id="productsSection" class="sections">
-            <div class="bg-white rounded-3 p-4 border">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold"><i class="fas fa-box me-2 text-success"></i>My Products</h5>
-                    <a href="/store/products/create" class="btn-add-product"><i class="fas fa-plus me-2"></i>Add Product</a>
-                </div>
-                <hr>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>Price</th>
-                                <th>Stock</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (isset($products) && !empty($products)): ?>
-                                <?php foreach ($products as $product): ?>
-                                    <tr>
-                                        <td><strong><?= esc($product['product_name']) ?></strong></td>
-                                        <td>$<?= number_format($product['price'], 2) ?></td>
-                                        <td><?= $product['quantity'] ?></td>
-                                        <td>
-                                            <span class="status-badge status-<?= strtolower($product['status'] ?? 'draft') ?>">
-                                                <?= ucfirst($product['status'] ?? 'Draft') ?>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <a href="/store/products/edit/<?= $product['id'] ?>" class="btn btn-sm btn-outline-success"><i class="fas fa-edit"></i></a>
-                                            <a href="/store/products/toggle/<?= $product['id'] ?>" class="btn btn-sm btn-outline-warning" onclick="return confirm('Toggle status?')"><i class="fas fa-sync"></i></a>
-                                            <a href="/store/products/delete/<?= $product['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this product?')"><i class="fas fa-trash"></i></a>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted py-4">No products yet.</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-                <a href="/store/products" class="btn btn-success btn-sm">View All Products</a>
-            </div>
-        </div>
+      
 
         <!-- Orders Section -->
         <div id="ordersSection" class="sections">
@@ -799,21 +516,21 @@ if (!session()->get('tenant_id')) {
                     <div class="col-md-6 mb-3">
                         <div class="dashboard-card">
                             <i class="fas fa-calendar-day card-icon text-info"></i>
-                          <div class="card-number">$<?= number_format($todaySales ?? 0, 2) ?></div>
+                            <div class="card-number">$<?= number_format($todaySales ?? 0, 2) ?></div>
                             <div class="card-label">Today's Sales</div>
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="dashboard-card">
                             <i class="fas fa-calendar-week card-icon text-success"></i>
-                         <div class="card-number">$<?= number_format($weekSales ?? 0, 2) ?></div>
+                            <div class="card-number">$<?= number_format($weekSales ?? 0, 2) ?></div>
                             <div class="card-label">This Week</div>
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="dashboard-card">
                             <i class="fas fa-calendar-alt card-icon text-warning"></i>
-                         <div class="card-number">$<?= number_format($monthSales ?? 0, 2) ?></div>
+                            <div class="card-number">$<?= number_format($monthSales ?? 0, 2) ?></div>
                             <div class="card-label">This Month</div>
                         </div>
                     </div>
@@ -841,13 +558,12 @@ if (!session()->get('tenant_id')) {
             </div>
         </div>
 
-        <!-- ✅ Settings Section (ከPassword Update ጋር) -->
+        <!-- Settings Section -->
         <div id="settingsSection" class="sections">
             <div class="bg-white rounded-3 p-4 border">
                 <h5 class="fw-bold"><i class="fas fa-store-alt me-2 text-success"></i>Store Settings</h5>
                 <hr>
-                
-                <!-- Store Information -->
+
                 <form id="storeSettingsForm" onsubmit="return false;">
                     <div class="mb-3">
                         <label>Store Name</label>
@@ -876,12 +592,10 @@ if (!session()->get('tenant_id')) {
 
                 <hr>
 
-                <!-- ✅ Password Update Section -->
                 <h5 class="fw-bold mt-4"><i class="fas fa-key me-2 text-warning"></i>Update Password</h5>
                 <p class="text-muted small">Change your account password. Use a strong password for security.</p>
-                
+
                 <form id="passwordForm" onsubmit="return false;">
-                    <!-- Current Password -->
                     <div class="mb-3">
                         <label>Current Password <span class="text-danger">*</span></label>
                         <div class="input-group">
@@ -892,7 +606,6 @@ if (!session()->get('tenant_id')) {
                         </div>
                     </div>
 
-                    <!-- New Password -->
                     <div class="mb-3">
                         <label>New Password <span class="text-danger">*</span></label>
                         <div class="input-group">
@@ -901,9 +614,7 @@ if (!session()->get('tenant_id')) {
                                 <i class="fas fa-eye" id="newPasswordIcon"></i>
                             </button>
                         </div>
-                        <!-- Password Strength Indicator -->
                         <div class="password-strength" id="passwordStrength"></div>
-                        <!-- Password Requirements -->
                         <div class="password-requirements" id="passwordRequirements">
                             <span id="reqLength" class="req-unmet"><i class="fas fa-circle"></i> At least 8 characters</span><br>
                             <span id="reqUppercase" class="req-unmet"><i class="fas fa-circle"></i> At least 1 uppercase letter</span><br>
@@ -913,7 +624,6 @@ if (!session()->get('tenant_id')) {
                         </div>
                     </div>
 
-                    <!-- Confirm New Password -->
                     <div class="mb-3">
                         <label>Confirm New Password <span class="text-danger">*</span></label>
                         <div class="input-group">
@@ -936,22 +646,20 @@ if (!session()->get('tenant_id')) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- ✅ JavaScript for Password Update -->
 <script>
     // ==========================================
-    // SHOW SECTION
-    // 1. NOTIFICATION FUNCTION
+    // NOTIFICATION FUNCTION
     // ==========================================
     function showNotification(type, title, message) {
         const container = document.getElementById('notificationContainer');
         if (!container) return;
-        
+
         const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
         const icon = icons[type] || 'ℹ️';
-        
+
         const now = new Date();
         const timeString = now.toLocaleTimeString();
-        
+
         const toast = document.createElement('div');
         toast.className = 'notification-toast ' + (type === 'error' ? 'error' : type === 'warning' ? 'warning' : type === 'info' ? 'info' : '');
         toast.innerHTML = `
@@ -966,7 +674,7 @@ if (!session()->get('tenant_id')) {
             </button>
         `;
         container.appendChild(toast);
-        
+
         setTimeout(() => {
             if (toast.parentNode) {
                 toast.classList.add('removing');
@@ -976,7 +684,7 @@ if (!session()->get('tenant_id')) {
     }
 
     // ==========================================
-    // 2. TOGGLE PASSWORD VISIBILITY
+    // TOGGLE PASSWORD VISIBILITY
     // ==========================================
     function togglePassword(fieldId) {
         const field = document.getElementById(fieldId);
@@ -993,7 +701,7 @@ if (!session()->get('tenant_id')) {
     }
 
     // ==========================================
-    // 3. CHECK PASSWORD STRENGTH
+    // CHECK PASSWORD STRENGTH
     // ==========================================
     function checkPasswordStrength(password) {
         const strengthBar = document.getElementById('passwordStrength');
@@ -1002,26 +710,26 @@ if (!session()->get('tenant_id')) {
         const reqLowercase = document.getElementById('reqLowercase');
         const reqNumber = document.getElementById('reqNumber');
         const reqSpecial = document.getElementById('reqSpecial');
-        
+
         const hasLength = password.length >= 8;
         const hasUppercase = /[A-Z]/.test(password);
         const hasLowercase = /[a-z]/.test(password);
         const hasNumber = /[0-9]/.test(password);
         const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-        
+
         updateRequirement(reqLength, hasLength);
         updateRequirement(reqUppercase, hasUppercase);
         updateRequirement(reqLowercase, hasLowercase);
         updateRequirement(reqNumber, hasNumber);
         updateRequirement(reqSpecial, hasSpecial);
-        
+
         let strength = 0;
         if (hasLength) strength++;
         if (hasUppercase) strength++;
         if (hasLowercase) strength++;
         if (hasNumber) strength++;
         if (hasSpecial) strength++;
-        
+
         strengthBar.className = 'password-strength';
         if (password.length === 0) {
             strengthBar.style.width = '0%';
@@ -1039,7 +747,7 @@ if (!session()->get('tenant_id')) {
             strengthBar.classList.add('very-strong');
             strengthBar.textContent = 'Very Strong';
         }
-        
+
         checkPasswordMatch();
     }
 
@@ -1054,19 +762,19 @@ if (!session()->get('tenant_id')) {
     }
 
     // ==========================================
-    // 4. CHECK PASSWORD MATCH
+    // CHECK PASSWORD MATCH
     // ==========================================
     function checkPasswordMatch() {
         const newPassword = document.getElementById('newPassword').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
         const msg = document.getElementById('passwordMatchMsg');
-        
+
         if (confirmPassword.length === 0) {
             msg.textContent = '';
             msg.className = 'text-muted';
             return;
         }
-        
+
         if (newPassword === confirmPassword) {
             msg.textContent = '✅ Passwords match!';
             msg.className = 'text-success';
@@ -1077,120 +785,121 @@ if (!session()->get('tenant_id')) {
     }
 
     // ==========================================
-    // 5. UPDATE PASSWORD
+    // UPDATE PASSWORD
     // ==========================================
     function updatePassword() {
-    const currentPassword = document.getElementById('currentPassword').value;
-    const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    
-    if (!currentPassword) {
-        showNotification('error', '❌ Error', 'Please enter your current password.');
-        document.getElementById('currentPassword').focus();
-        return;
-    }
-    
-    if (!newPassword || newPassword.length < 8) {
-        showNotification('error', '❌ Error', 'Password must be at least 8 characters.');
-        document.getElementById('newPassword').focus();
-        return;
-    }
-    
-    if (newPassword !== confirmPassword) {
-        showNotification('error', '❌ Error', 'New passwords do not match!');
-        document.getElementById('confirmPassword').focus();
-        return;
-    }
-    
-    const hasUppercase = /[A-Z]/.test(newPassword);
-    const hasLowercase = /[a-z]/.test(newPassword);
-    const hasNumber = /[0-9]/.test(newPassword);
-    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
-    
-    if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
-        showNotification('warning', '⚠️ Weak Password', 'Please use a stronger password with uppercase, lowercase, number and special character.');
-        return;
-    }
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
 
-    const formData = new URLSearchParams();
-    formData.append('current_password', currentPassword);
-    formData.append('new_password', newPassword);
-
-    fetch('/store/settings/change-password', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: formData.toString()
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('success', '✅ Password Updated', data.message);
-
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
-            document.getElementById('passwordStrength').className = 'password-strength';
-            document.getElementById('passwordStrength').style.width = '0%';
-            document.getElementById('passwordMatchMsg').textContent = '';
-
-            document.querySelectorAll('.password-requirements span').forEach(el => {
-                el.className = 'req-unmet';
-                el.innerHTML = '<i class="fas fa-circle"></i> ' + el.textContent.replace(/[✓✗]/g, '').trim();
-            });
-        } else {
-            showNotification('error', '❌ Error', data.message);
+        if (!currentPassword) {
+            showNotification('error', '❌ Error', 'Please enter your current password.');
+            document.getElementById('currentPassword').focus();
+            return;
         }
-    })
-    .catch(error => {
-        console.error('Error updating password:', error);
-        showNotification('error', '❌ Error', 'Could not update password.');
-    });
-}
-    // ==========================================
-    // 6. SAVE STORE SETTINGS
-    // ==========================================
-function saveStoreSettings() {
-    const storeName = document.getElementById('storeName').value;
 
-    if (!storeName) {
-        showNotification('error', '❌ Error', 'Please enter store name.');
-        return;
+        if (!newPassword || newPassword.length < 8) {
+            showNotification('error', '❌ Error', 'Password must be at least 8 characters.');
+            document.getElementById('newPassword').focus();
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            showNotification('error', '❌ Error', 'New passwords do not match!');
+            document.getElementById('confirmPassword').focus();
+            return;
+        }
+
+        const hasUppercase = /[A-Z]/.test(newPassword);
+        const hasLowercase = /[a-z]/.test(newPassword);
+        const hasNumber = /[0-9]/.test(newPassword);
+        const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+
+        if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
+            showNotification('warning', '⚠️ Weak Password', 'Please use a stronger password with uppercase, lowercase, number and special character.');
+            return;
+        }
+
+        const formData = new URLSearchParams();
+        formData.append('current_password', currentPassword);
+        formData.append('new_password', newPassword);
+
+        fetch('/store/settings/change-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData.toString()
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('success', '✅ Password Updated', data.message);
+
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                document.getElementById('passwordStrength').className = 'password-strength';
+                document.getElementById('passwordStrength').style.width = '0%';
+                document.getElementById('passwordMatchMsg').textContent = '';
+
+                document.querySelectorAll('.password-requirements span').forEach(el => {
+                    el.className = 'req-unmet';
+                    el.innerHTML = '<i class="fas fa-circle"></i> ' + el.textContent.replace(/[✓✗]/g, '').trim();
+                });
+            } else {
+                showNotification('error', '❌ Error', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating password:', error);
+            showNotification('error', '❌ Error', 'Could not update password.');
+        });
     }
 
-    const formData = new URLSearchParams();
-    formData.append('store_name', storeName);
-    formData.append('store_description', document.getElementById('storeDescription').value);
-    formData.append('contact_email', document.getElementById('contactEmail').value);
-    formData.append('contact_phone', document.getElementById('contactPhone').value);
-    formData.append('store_address', document.getElementById('storeAddress').value);
+    // ==========================================
+    // SAVE STORE SETTINGS
+    // ==========================================
+    function saveStoreSettings() {
+        const storeName = document.getElementById('storeName').value;
 
-    fetch('/store/settings/update', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: formData.toString()
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('success', '✅ Store Settings Saved', data.message);
-        } else {
-            showNotification('error', '❌ Error', data.message);
+        if (!storeName) {
+            showNotification('error', '❌ Error', 'Please enter store name.');
+            return;
         }
-    })
-    .catch(error => {
-        console.error('Error saving settings:', error);
-        showNotification('error', '❌ Error', 'Could not save settings.');
-    });
-}
+
+        const formData = new URLSearchParams();
+        formData.append('store_name', storeName);
+        formData.append('store_description', document.getElementById('storeDescription').value);
+        formData.append('contact_email', document.getElementById('contactEmail').value);
+        formData.append('contact_phone', document.getElementById('contactPhone').value);
+        formData.append('store_address', document.getElementById('storeAddress').value);
+
+        fetch('/store/settings/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData.toString()
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('success', '✅ Store Settings Saved', data.message);
+            } else {
+                showNotification('error', '❌ Error', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error saving settings:', error);
+            showNotification('error', '❌ Error', 'Could not save settings.');
+        });
+    }
 
     // ==========================================
-    // 7. SIDEBAR FUNCTIONS
+    // SHOW SECTION
     // ==========================================
     function showSection(section) {
         document.querySelectorAll('.sections').forEach(function(el) {
@@ -1227,16 +936,15 @@ function saveStoreSettings() {
     // ==========================================
     // TOGGLE SIDEBAR
     // ==========================================
-  
     function toggleSidebar() {
-    var wrapper = document.getElementById('sidebarWrapper');
-    var body = document.getElementById('mainBody');
-    wrapper.classList.toggle('collapsed');
-    body.classList.toggle('sidebar-collapsed');
-}
+        var wrapper = document.getElementById('sidebarWrapper');
+        var body = document.getElementById('mainBody');
+        wrapper.classList.toggle('collapsed');
+        body.classList.toggle('sidebar-collapsed');
+    }
 
     // ==========================================
-    // 8. FLASH MESSAGES
+    // FLASH MESSAGES
     // ==========================================
     document.addEventListener('DOMContentLoaded', function() {
         <?php if (session()->getFlashdata('success')): ?>

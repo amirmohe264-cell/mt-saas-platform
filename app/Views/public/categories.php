@@ -1,81 +1,159 @@
+<!-- app/Views/public/categories.php -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Categories - ShopEase</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { padding-top: 80px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; }
-        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: #1a2e1a !important; padding: 15px 0; transition: all 0.3s ease; box-shadow: 0 2px 20px rgba(0,0,0,0.3); }
-        .navbar-scrolled { background: rgba(26, 46, 26, 0.88) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 4px 30px rgba(0,0,0,0.5); padding: 8px 0; }
-        .navbar-brand { color: #fff !important; font-weight: bold; font-size: 1.5rem; }
-        .navbar-brand i { color: #4caf50; }
-        .navbar .nav-link { color: #d4d4d4 !important; font-weight: 500; transition: 0.3s; }
-        .navbar .nav-link:hover { color: #4caf50 !important; }
-        .navbar .nav-link.active { color: #4caf50 !important; }
-        .search-box { background: #2a402a; border-radius: 30px; padding: 5px 15px; border: none; color: #fff; }
-        .search-box::placeholder { color: #aaa; }
-        .search-box:focus { outline: none; background: #2a402a; box-shadow: 0 0 0 2px #4caf50; }
-        .icon-btn { color: #d4d4d4; font-size: 1.2rem; margin: 0 8px; transition: 0.3s; background: none; border: none; }
-        .icon-btn:hover { color: #4caf50; transform: scale(1.1); }
-        .page-header { background: #1a2e1a; color: #fff; padding: 40px 0 30px; }
-        .page-header h2 { font-weight: 700; }
-        .page-header .breadcrumb { background: none; padding: 0; margin: 0; }
-        .page-header .breadcrumb a { color: #4caf50; text-decoration: none; }
-        .page-header .breadcrumb .active { color: #aaa; }
-        .sidebar-card { background: #fff; border-radius: 12px; padding: 20px; border: 1px solid #e8f0e8; }
-        .sidebar-card h6 { color: #1a2e1a; font-weight: 600; }
-        .sidebar-card .category-link { display: block; padding: 8px 12px; color: #555; text-decoration: none; border-radius: 8px; transition: 0.3s; }
-        .sidebar-card .category-link:hover { background: #f0f8f0; color: #4caf50; }
-        .sidebar-card .category-link.active { background: #f0f8f0; color: #4caf50; font-weight: 600; }
-        .footer { background: #1a2e1a; color: #d4d4d4; padding: 40px 0 20px; margin-top: 40px; }
-        .footer h5 { color: #fff; font-weight: 600; }
-        .footer a { color: #aaa; text-decoration: none; transition: 0.3s; }
-        .footer a:hover { color: #4caf50; }
-        .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .category-item { background: #fff; border-radius: 12px; padding: 30px 20px; text-align: center; box-shadow: 0 2px 15px rgba(0,0,0,0.06); transition: 0.3s; border: 1px solid #e8f0e8; cursor: pointer; text-decoration: none; display: block; color: inherit; }
-        .category-item:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(76, 175, 80, 0.15); border-color: #4caf50; }
-        .category-item i { font-size: 2.5rem; color: #4caf50; margin-bottom: 10px; }
-        .category-item h5 { color: #1a2e1a; font-weight: 600; margin: 0; }
+        :root {
+            --brand: #1a1a2e;
+            --brand-mid: #16213e;
+            --accent: #e94560;
+            --accent-light: #ff6b6b;
+            --gold: #f5a623;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --surface: #f9fafb;
+            --white: #ffffff;
+            --radius: 12px;
+            --radius-lg: 20px;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-hover: 0 12px 32px rgba(0,0,0,0.14);
+            --font: 'Inter', sans-serif;
+            --display: 'Sora', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font); color: var(--text); background: var(--surface); padding-top: 92px; }
+        a { text-decoration: none; color: inherit; }
+
+        /* ─── NAVBAR (matches homepage) ─────────────── */
+        .site-nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            padding: 18px 0;
+            background: rgba(255,255,255,0.98);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+            transition: padding 0.3s ease, box-shadow 0.3s ease;
+        }
+        .site-nav.scrolled { padding: 12px 0; box-shadow: 0 2px 16px rgba(0,0,0,0.08); }
+        .nav-logo {
+            font-family: var(--display); font-size: 1.5rem; font-weight: 800;
+            color: var(--brand); letter-spacing: -0.5px;
+        }
+        .nav-logo span { color: var(--accent); }
+        .nav-link-item {
+            font-size: 0.9rem; font-weight: 500; color: #374151;
+            padding: 6px 14px; border-radius: 8px; transition: all 0.2s;
+        }
+        .nav-link-item:hover, .nav-link-item.active { color: var(--accent); background: #fff5f5; }
+        .nav-search {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 50px; padding: 9px 18px 9px 40px;
+            font-size: 0.875rem; width: 220px; outline: none; transition: all 0.2s;
+        }
+        .nav-search:focus { border-color: var(--accent); background: var(--white); box-shadow: 0 0 0 3px rgba(233,69,96,0.1); }
+        .search-wrap { position: relative; }
+        .search-ico { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 0.82rem; }
+        .nav-action {
+            width: 38px; height: 38px; border-radius: 50%;
+            border: 1px solid var(--border); background: var(--surface);
+            display: flex; align-items: center; justify-content: center;
+            color: #374151; font-size: 0.95rem; transition: all 0.2s;
+        }
+        .nav-action:hover { border-color: var(--accent); color: var(--accent); background: #fff5f5; }
+
+        /* ─── PAGE HEADER ────────────────────────────── */
+        .page-header { background: var(--brand); color: #fff; padding: 44px 0 34px; }
+        .page-header h2 { font-family: var(--display); font-weight: 800; font-size: 1.8rem; }
+        .page-header .breadcrumb { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 0.85rem; }
+        .page-header .breadcrumb a { color: var(--accent-light); }
+        .page-header .breadcrumb .active { color: rgba(255,255,255,0.55); }
+
+        /* ─── SIDEBAR ─────────────────────────────────── */
+        .sidebar-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow); }
+        .sidebar-card h6 { font-family: var(--display); color: var(--brand); font-weight: 700; }
+        .sidebar-card hr { border-color: var(--border); }
+        .sidebar-card .category-link { display: block; padding: 9px 12px; color: var(--muted); border-radius: 8px; font-size: 0.9rem; transition: all 0.2s; }
+        .sidebar-card .category-link:hover { background: #fff5f5; color: var(--accent); }
+        .sidebar-card .category-link.active { background: #fff5f5; color: var(--accent); font-weight: 700; }
+
+        /* ─── MAIN CONTENT ───────────────────────────── */
+        .content-panel { background: var(--white); border-radius: var(--radius-lg); padding: 28px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+        .content-panel h4 { font-family: var(--display); color: var(--brand); font-weight: 800; }
+        .content-panel hr { border-color: var(--border); }
+
+        /* ─── PRODUCT CARD ───────────────────────────── */
+        .product-card { background: var(--white); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); transition: all 0.25s cubic-bezier(0.16,1,0.3,1); height: 100%; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); border-color: transparent; }
+        .product-card .product-image { height: 150px; object-fit: contain; width: 100%; }
+        .product-card .product-name { color: var(--brand); font-weight: 600; font-size: 1rem; margin-top: 10px; }
+        .product-card .product-category { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.4px; }
+        .product-card .price { font-family: var(--display); color: var(--brand); font-weight: 800; font-size: 1.2rem; }
+        .product-card .btn-add {
+            background: var(--accent); color: #fff; border: none; border-radius: 30px;
+            padding: 9px 20px; font-weight: 600; font-size: 0.85rem; transition: all 0.2s;
+            width: 100%; display: inline-block; text-align: center;
+        }
+        .product-card .btn-add:hover { background: #c73652; color: #fff; }
+
+        /* ─── FOOTER (matches homepage) ─────────────── */
+        .site-footer { background: #111827; padding: 60px 0 28px; margin-top: 40px; }
+        .footer-logo { font-family: var(--display); font-size: 1.4rem; font-weight: 800; color: white; }
+        .footer-logo span { color: var(--accent); }
+        .footer-tagline { font-size: 0.85rem; color: #6b7280; margin-top: 8px; margin-bottom: 20px; max-width: 240px; }
+        .footer-heading { color: white; font-size: 0.88rem; font-weight: 700; margin-bottom: 16px; }
+        .footer-link { display: block; color: #6b7280; font-size: 0.84rem; margin-bottom: 9px; transition: color 0.2s; }
+        .footer-link:hover { color: white; }
+        .footer-news-input { background: #1f2937; border: 1px solid #374151; color: white; border-radius: 50px; padding: 10px 18px; font-size: 0.84rem; width: 100%; outline: none; transition: border 0.2s; }
+        .footer-news-input:focus { border-color: var(--accent); }
+        .btn-footer-sub { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 50px; font-size: 0.84rem; font-weight: 600; transition: background 0.2s; }
+        .btn-footer-sub:hover { background: #c73652; }
+        .footer-divider { border-color: #1f2937; margin: 32px 0 18px; }
+        .footer-bottom { color: #4b5563; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg fixed-top">
+<!-- NAVBAR -->
+<nav class="site-nav" id="siteNav">
     <div class="container">
-        <a class="navbar-brand" href="/"><i class="fas fa-store"></i> ShopEase</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link active" href="/categories">Categories</a></li>
-                <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
-                <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
+        <div class="d-flex align-items-center gap-4">
+            <a href="/" class="nav-logo">Shop<span>Ease</span></a>
+
+            <ul class="navbar-nav flex-row gap-1 d-none d-lg-flex ms-2">
+                <li><a href="/" class="nav-link-item">Home</a></li>
+                <li><a href="/categories" class="nav-link-item active">Categories</a></li>
+                <li><a href="/products" class="nav-link-item">Products</a></li>
+                <li><a href="/contact" class="nav-link-item">Contact</a></li>
             </ul>
-            <div class="d-flex align-items-center">
-                <input class="search-box me-2" type="search" placeholder="Search for products...">
-                <button class="icon-btn"><i class="far fa-heart"></i></button>
-                <a href="/cart" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="fas fa-shopping-cart"></i></a>
-                <a href="/login" class="icon-btn" style="color:#d4d4d4;text-decoration:none;"><i class="far fa-user"></i></a>
+
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <div class="search-wrap d-none d-md-block">
+                    <i class="fas fa-search search-ico"></i>
+                    <input type="search" class="nav-search" placeholder="Search for products...">
+                </div>
+                <button class="nav-action"><i class="far fa-heart"></i></button>
+                <a href="/cart" class="nav-action"><i class="fas fa-shopping-cart"></i></a>
+                <a href="/login" class="nav-action"><i class="far fa-user"></i></a>
             </div>
         </div>
     </div>
 </nav>
 
-<!-- Page Header -->
+<!-- PAGE HEADER -->
 <section class="page-header">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
                 <h2><i class="fas fa-tags me-2"></i><?= isset($selectedCategory) ? ucfirst($selectedCategory) : 'Categories' ?></h2>
                 <nav class="breadcrumb">
                     <a href="/">Home</a>
-                    <span class="mx-2 text-white-50">/</span>
+                    <span class="text-white-50">/</span>
                     <span class="active"><?= isset($selectedCategory) ? ucfirst($selectedCategory) : 'Categories' ?></span>
                 </nav>
             </div>
@@ -86,7 +164,7 @@
     </div>
 </section>
 
-<!-- Categories Section -->
+<!-- CATEGORIES SECTION -->
 <section class="py-4">
     <div class="container">
         <div class="row">
@@ -110,10 +188,10 @@
 
             <!-- Main Content -->
             <div class="col-lg-9">
-                <div class="bg-white rounded-3 p-4 border">
+                <div class="content-panel">
                     <h4><?= isset($selectedCategory) ? ucfirst($selectedCategory) : 'All Categories' ?></h4>
                     <hr>
-                    
+
                     <?php if (isset($products) && !empty($products)): ?>
                         <div class="row">
                             <?php foreach ($products as $product): ?>
@@ -141,111 +219,46 @@
     </div>
 </section>
 
-<!-- Footer -->
-<footer class="footer">
-    <div class="container-fluid px-5">
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <h5><i class="fas fa-store text-success"></i> ShopEase</h5>
-                <p class="text-muted">Your one-stop shop for everything you need.</p>
+<!-- FOOTER -->
+<footer class="site-footer">
+    <div class="container">
+        <div class="row g-4 pb-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="footer-logo">Shop<span>Ease</span></div>
+                <p class="footer-tagline">Your one-stop shop for everything you need.</p>
             </div>
-            <div class="col-md-2 mb-4">
-                <h5>Quick Links</h5>
-                <ul class="list-unstyled">
-                    <li><a href="/about">About Us</a></li>
-                    <li><a href="/contact">Contact</a></li>
-                    <li><a href="/privacy">Privacy Policy</a></li>
-                    <li><a href="/terms">Terms & Conditions</a></li>
-                </ul>
+            <div class="col-lg-2 col-6">
+                <h6 class="footer-heading">Quick Links</h6>
+                <a href="/about" class="footer-link">About Us</a>
+                <a href="/contact" class="footer-link">Contact</a>
+                <a href="/privacy" class="footer-link">Privacy Policy</a>
+                <a href="/terms" class="footer-link">Terms & Conditions</a>
             </div>
-            <div class="col-md-3 mb-4">
-                <h5>Customer Service</h5>
-                <ul class="list-unstyled">
-                    <li><a href="/help">Help Center</a></li>
-                    <li><a href="/returns">Returns</a></li>
-                    <li><a href="/shipping">Shipping Info</a></li>
-                    <li><a href="/track">Track Order</a></li>
-                </ul>
+            <div class="col-lg-3 col-6">
+                <h6 class="footer-heading">Customer Service</h6>
+                <a href="/help" class="footer-link">Help Center</a>
+                <a href="/returns" class="footer-link">Returns</a>
+                <a href="/shipping" class="footer-link">Shipping Info</a>
+                <a href="/track" class="footer-link">Track Order</a>
             </div>
-            <div class="col-md-3 mb-4">
-                <h5>Newsletter</h5>
-                <p class="text-muted">Get the latest deals & updates</p>
-                <div class="input-group">
-                    <input type="email" class="form-control" placeholder="Your email" style="background:#2a402a;border:none;color:#fff;">
-                    <button class="btn btn-success" style="background:#4caf50;border:none;">Subscribe</button>
-                </div>
+            <div class="col-lg-3 col-md-6">
+                <h6 class="footer-heading">Newsletter</h6>
+                <p class="footer-link mb-3">Get the latest deals & updates</p>
+                <form class="d-flex gap-2">
+                    <input type="email" class="footer-news-input" placeholder="Your email">
+                    <button type="submit" class="btn-footer-sub">Join</button>
+                </form>
             </div>
         </div>
-        <hr class="border-top">
-        <p class="text-center text-muted small">&copy; 2026 ShopEase. All rights reserved.</p>
+        <hr class="footer-divider">
+        <p class="text-center footer-bottom mb-0">&copy; 2026 ShopEase. All rights reserved.</p>
     </div>
 </footer>
 
-<!-- Add product-card styles -->
-<style>
-.product-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    border: 1px solid #e8f0e8;
-    transition: 0.3s;
-    height: 100%;
-}
-.product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.12);
-    border-color: #4caf50;
-}
-.product-card .product-image {
-    height: 150px;
-    object-fit: contain;
-    width: 100%;
-}
-.product-card .product-name {
-    color: #1a2e1a;
-    font-weight: 600;
-    font-size: 1rem;
-    margin-top: 10px;
-}
-.product-card .product-category {
-    color: #888;
-    font-size: 0.85rem;
-}
-.product-card .price {
-    color: #1a2e1a;
-    font-weight: 700;
-    font-size: 1.2rem;
-}
-.product-card .btn-add {
-    background: #4caf50;
-    color: #fff;
-    border: none;
-    border-radius: 30px;
-    padding: 8px 20px;
-    font-weight: 600;
-    font-size: 0.85rem;
-    transition: 0.3s;
-    width: 100%;
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
-}
-.product-card .btn-add:hover {
-    background: #388e3c;
-    color: #fff;
-}
-</style>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     window.addEventListener('scroll', function() {
-        var navbar = document.querySelector('.navbar');
-        if (window.scrollY > 50) {
-            navbar.classList.add('navbar-scrolled');
-        } else {
-            navbar.classList.remove('navbar-scrolled');
-        }
+        document.getElementById('siteNav').classList.toggle('scrolled', window.scrollY > 40);
     });
 </script>
 </body>

@@ -30,8 +30,11 @@
             padding: 15px 0;
             box-shadow: 0 2px 20px rgba(0,0,0,0.3);
             position: fixed;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 280px;
+            right: 0;
             z-index: 1050;
+            transition: left 0.3s ease;
         }
         .navbar-brand { color: #fff !important; font-weight: bold; font-size: 1.5rem; }
         .navbar-brand i { color: #4caf50; }
@@ -45,15 +48,17 @@
             text-decoration: none;
         }
         .icon-btn:hover { color: #4caf50; transform: scale(1.1); }
+        body.sidebar-collapsed .navbar { left: 70px; }
 
         /* ========================================== */
         /* SIDEBAR */
         /* ========================================== */
         .sidebar-wrapper {
             position: fixed;
-            top: 80px; left: 0;
+            top: 0;
+            left: 0;
             width: 280px;
-            height: calc(100vh - 80px);
+            height: 100vh;
             overflow-y: auto;
             background: #fff;
             border-right: 1px solid #e8f0e8;
@@ -89,6 +94,7 @@
             background: #4caf50; color: #fff;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.8rem; margin: 0 auto 10px;
+            transition: all 0.3s ease;
         }
         .sidebar-card .admin-name { text-align: center; font-weight: 700; color: #1a2e1a; font-size: 1rem; }
         .sidebar-card .admin-role { text-align: center; font-size: 0.8rem; }
@@ -97,6 +103,7 @@
             background: #4caf50; color: #fff; border: none; border-radius: 8px;
             padding: 8px 12px; font-size: 1rem; cursor: pointer; width: 100%;
             margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: 0.3s;
         }
         .toggle-sidebar-btn:hover { background: #388e3c; }
 
@@ -222,6 +229,8 @@
         /* ========================================== */
         @media (max-width: 992px) {
             body { padding-left: 0; }
+            body.sidebar-collapsed { padding-left: 0; }
+            .navbar { left: 0 !important; }
             .sidebar-wrapper {
                 position: relative; top: 0; width: 100%; height: auto;
                 border-right: none; border-bottom: 1px solid #e8f0e8;
@@ -257,9 +266,9 @@
 <!-- Sidebar -->
 <div class="sidebar-wrapper" id="sidebarWrapper">
     <div class="sidebar-card">
-        <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
+      <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+</button>
         <div class="admin-avatar"><i class="fas fa-user-shield"></i></div>
         <div class="admin-name"><?= session()->get('full_name') ?? 'Super Admin' ?></div>
         <div class="admin-role"><span class="badge bg-success">Super Admin</span></div>
@@ -482,11 +491,37 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 function toggleSidebar() {
-    var wrapper = document.getElementById('sidebarWrapper');
-    var body = document.getElementById('mainBody');
+    const wrapper = document.getElementById('sidebarWrapper');
+    const body = document.getElementById('mainBody');
+    const label = document.getElementById('toggleLabel');
+
     wrapper.classList.toggle('collapsed');
     body.classList.toggle('sidebar-collapsed');
+
+    if (label) {
+        label.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+    }
+
+    localStorage.setItem(
+        'sidebarCollapsed',
+        wrapper.classList.contains('collapsed')
+    );
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const wrapper = document.getElementById('sidebarWrapper');
+    const body = document.getElementById('mainBody');
+    const label = document.getElementById('toggleLabel');
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+
+    if (isCollapsed) {
+        wrapper.classList.add('collapsed');
+        body.classList.add('sidebar-collapsed');
+        if (label) {
+            label.textContent = 'Expand';
+        }
+    }
+});
 </script>
 </body>
 </html>

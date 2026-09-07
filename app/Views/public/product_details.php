@@ -213,12 +213,7 @@
             font-weight: 700;
             font-size: 2rem;
         }
-        .product-old-price {
-            color: #aaa;
-            font-size: 1.2rem;
-            text-decoration: line-through;
-            margin-left: 10px;
-        }
+        
         .product-rating {
             color: #ffc107;
             font-size: 1.1rem;
@@ -349,6 +344,329 @@
                 font-size: 1.5rem;
             }
         }
+
+        /* ShopEase visual system — matched to the reference page */
+        :root {
+            --brand: #1a1a2e;
+            --brand-mid: #16213e;
+            --accent: #e94560;
+            --accent-light: #ff6b6b;
+            --gold: #f5a623;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --surface: #f9fafb;
+            --white: #ffffff;
+            --radius: 12px;
+            --radius-lg: 20px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.14);
+            --font: 'Inter', sans-serif;
+            --display: 'Sora', sans-serif;
+        }
+
+        body {
+            font-family: var(--font);
+            color: var(--text);
+            background: var(--white);
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.98) !important;
+            border-bottom: 1px solid var(--border);
+            box-shadow: none;
+            padding: 18px 0;
+            backdrop-filter: blur(12px);
+        }
+
+        .navbar-scrolled {
+            background: rgba(255, 255, 255, 0.98) !important;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+            padding: 12px 0;
+        }
+
+        .navbar-brand {
+            color: var(--brand) !important;
+            font-family: var(--display);
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .navbar-brand i {
+            color: var(--accent);
+        }
+
+        .navbar .nav-link {
+            color: #374151 !important;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .navbar .nav-link:hover,
+        .navbar .nav-link.active {
+            color: var(--accent) !important;
+            background: #fff5f5;
+        }
+
+        .navbar .nav-link::after {
+            display: none;
+        }
+
+        .search-box {
+            width: 240px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            color: var(--text);
+            padding: 9px 18px;
+            font-size: 0.875rem;
+        }
+
+        .search-box::placeholder {
+            color: #9ca3af;
+        }
+
+        .search-box:focus {
+            background: var(--white);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+        }
+
+        .icon-btn {
+            width: 38px;
+            height: 38px;
+            margin: 0;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            background: var(--surface);
+            color: #374151;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+        }
+
+        .icon-btn:hover {
+            background: #fff5f5;
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .icon-btn .badge-count {
+            top: -5px;
+            right: -5px;
+            min-width: 18px;
+            padding: 2px 5px;
+            background: var(--accent);
+            font-size: 0.68rem;
+        }
+
+        .navbar-toggler {
+            border-color: var(--accent);
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(233, 69, 96, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        .breadcrumb-custom {
+            padding: 0;
+            margin: 0;
+        }
+
+        .breadcrumb-custom a {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+        }
+
+        .breadcrumb-custom a:hover {
+            color: var(--accent-light);
+        }
+
+        .breadcrumb-custom .active {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85rem;
+        }
+
+        .product-image-main {
+            max-height: 460px;
+            padding: 28px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+        }
+
+        .product-thumbnails img {
+            border-color: var(--border);
+            border-radius: var(--radius);
+        }
+
+        .product-thumbnails img:hover,
+        .product-thumbnails img.active {
+            border-color: var(--accent);
+        }
+
+        .product-title {
+            color: var(--brand);
+            font-family: var(--display);
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .product-price {
+            color: var(--accent);
+            font-family: var(--display);
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .product-description {
+            color: var(--muted);
+        }
+
+        .product-meta {
+            color: var(--muted);
+        }
+
+        .product-meta strong {
+            color: var(--brand);
+        }
+
+        .quantity-input {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .quantity-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+        }
+
+        .btn-add-cart {
+            background: var(--accent);
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-size: 0.95rem;
+        }
+
+        .btn-add-cart:hover {
+            background: #c73652;
+            box-shadow: 0 8px 20px rgba(233, 69, 96, 0.22);
+        }
+
+        .btn-wishlist {
+            color: var(--brand);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            background: var(--white);
+            padding: 12px 20px;
+        }
+
+        .btn-wishlist:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: #fff5f5;
+        }
+
+        .badge-stock-big {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .review-card,
+        .product-section .mt-4.p-3 {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+        }
+
+        .review-card .reviewer-name {
+            color: var(--brand);
+        }
+
+        .notification-container {
+            top: 80px;
+            right: 20px;
+            width: 320px;
+        }
+
+        .notification-toast {
+            border-left: 3px solid #10b981;
+            border-radius: var(--radius);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.14);
+        }
+
+        .notification-toast.error {
+            border-left-color: var(--accent);
+        }
+
+        .notification-toast .notif-title {
+            color: var(--brand);
+        }
+
+        .footer {
+            background: #111827;
+            color: #d1d5db;
+            padding: 60px 0 28px;
+            margin-top: 64px;
+        }
+
+        .footer h5 {
+            color: white;
+            font-family: var(--display);
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .footer a {
+            color: #6b7280;
+            font-size: 0.84rem;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+
+        .footer .text-muted {
+            color: #6b7280 !important;
+        }
+
+        .footer hr {
+            border-color: #1f2937;
+        }
+
+        .footer .form-control {
+            background: #1f2937 !important;
+            border: 1px solid #374151 !important;
+            border-radius: 50px 0 0 50px;
+            color: white;
+        }
+
+        .footer .btn-success {
+            background: var(--accent) !important;
+            border: none !important;
+            border-radius: 0 50px 50px 0;
+        }
+
+        @media (max-width: 576px) {
+            .search-box {
+                width: 180px;
+            }
+
+            .product-title {
+                font-size: 1.6rem;
+            }
+
+            .product-image-main {
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -378,14 +696,15 @@ function resolveImageUrl($path) {
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container">
-        <a class="navbar-brand" href="/"><i class="fas fa-store"></i> ShopEase</a>
+        <a class="navbar-brand" href="/">Shop<span style="color:var(--accent);">Ease</span></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
+                <li class="nav-item"><a class="nav-link" href="/products">Shop</a></li>
+                <li class="nav-item"><a class="nav-link" href="/store/apply">Sell With Us</a></li>
                 <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
             </ul>
             <div class="d-flex align-items-center">
@@ -408,17 +727,23 @@ function resolveImageUrl($path) {
     </div>
 </nav>
 
-<!-- Breadcrumb -->
-<div class="container">
-    <nav class="breadcrumb-custom">
-        <a href="/">Home</a> <span class="mx-2">/</span>
-        <a href="/products">Products</a> <span class="mx-2">/</span>
-        <span class="active"><?= $product['name'] ?? 'Product' ?></span>
-    </nav>
-</div>
+<!-- Page Header -->
+<section class="page-header" style="background:var(--brand);padding:44px 0 34px;">
+    <div class="container">
+        <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#e5e7eb;font-size:.75rem;font-weight:600;padding:5px 14px;border-radius:50px;margin-bottom:14px;">
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--gold);"></span> Marketplace
+        </div>
+        <h2 style="font-family:var(--display);font-size:2rem;font-weight:800;color:white;margin-bottom:8px;">Product Details</h2>
+        <nav class="breadcrumb-custom">
+            <a href="/">Home</a> <span class="mx-2" style="color:rgba(255,255,255,.3);">/</span>
+            <a href="/products">Products</a> <span class="mx-2" style="color:rgba(255,255,255,.3);">/</span>
+            <span class="active"><?= $product['name'] ?? 'Product' ?></span>
+        </nav>
+    </div>
+</section>
 
 <!-- Product Details -->
-<section class="py-4">
+<section class="py-5 product-section">
     <div class="container">
         <div class="row">
             <!-- Product Images -->
@@ -470,9 +795,9 @@ function resolveImageUrl($path) {
                     <span class="product-rating-count">(<?= $product['reviews'] ?? 0 ?> reviews)</span>
                 </div>
                 <div>
-                    <span class="product-price">$<?= number_format($product['price'] ?? 0, 2) ?></span>
+                    <span class="product-price"><?= number_format($product['price'] ?? 0, 2) ?> ETB</span>
                     <?php if (isset($product['old_price']) && $product['old_price']): ?>
-                        <span class="product-old-price">$<?= number_format($product['old_price'], 2) ?></span>
+                        
                     <?php endif; ?>
                 </div>
                 <div class="mt-2">

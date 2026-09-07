@@ -34,19 +34,24 @@ if (!$isLoggedIn || !$isAdmin) {
             padding: 15px 0;
             box-shadow: 0 2px 20px rgba(0,0,0,0.3);
             position: fixed;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 280px;
+            right: 0;
             z-index: 1050;
+            transition: left 0.3s ease;
         }
         .navbar-brand { color: #fff !important; font-weight: bold; font-size: 1.5rem; }
         .navbar-brand i { color: #4caf50; }
         .icon-btn { color: #d4d4d4; font-size: 1.2rem; margin: 0 8px; background: none; border: none; text-decoration: none; }
         .icon-btn:hover { color: #4caf50; }
+        body.sidebar-collapsed .navbar { left: 70px; }
 
         .sidebar-wrapper {
             position: fixed;
-            top: 80px; left: 0;
+            top: 0;
+            left: 0;
             width: 280px;
-            height: calc(100vh - 80px);
+            height: 100vh;
             overflow-y: auto;
             background: #fff;
             border-right: 1px solid #e8f0e8;
@@ -91,6 +96,7 @@ if (!$isLoggedIn || !$isAdmin) {
             background: #4caf50; color: #fff; border: none; border-radius: 8px;
             padding: 8px 12px; font-size: 1rem; cursor: pointer; width: 100%;
             margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: 0.3s;
         }
         .toggle-sidebar-btn:hover { background: #388e3c; }
 
@@ -183,6 +189,8 @@ if (!$isLoggedIn || !$isAdmin) {
 
         @media (max-width: 992px) {
             body { padding-left: 0; }
+            body.sidebar-collapsed { padding-left: 0; }
+            .navbar { left: 0 !important; }
             .sidebar-wrapper { position: relative; top: 0; width: 100%; height: auto; border-right: none; border-bottom: 1px solid #e8f0e8; }
             .sidebar-wrapper.collapsed { width: 100%; }
             .sidebar-wrapper.collapsed .sidebar-menu li { justify-content: flex-start; }
@@ -213,7 +221,7 @@ if (!$isLoggedIn || !$isAdmin) {
 <!-- Sidebar -->
 <div class="sidebar-wrapper" id="sidebarWrapper">
     <div class="sidebar-card">
-        <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
+      <button class="toggle-sidebar-btn" onclick="toggleSidebar()">
     <i class="fas fa-bars"></i>
 </button>
 
@@ -453,11 +461,37 @@ if (!$isLoggedIn || !$isAdmin) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 function toggleSidebar() {
-    var wrapper = document.getElementById('sidebarWrapper');
-    var body = document.getElementById('mainBody');
+    const wrapper = document.getElementById('sidebarWrapper');
+    const body = document.getElementById('mainBody');
+    const label = document.getElementById('toggleLabel');
+
     wrapper.classList.toggle('collapsed');
     body.classList.toggle('sidebar-collapsed');
+
+    if (label) {
+        label.textContent = wrapper.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+    }
+
+    localStorage.setItem(
+        'sidebarCollapsed',
+        wrapper.classList.contains('collapsed')
+    );
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const wrapper = document.getElementById('sidebarWrapper');
+    const body = document.getElementById('mainBody');
+    const label = document.getElementById('toggleLabel');
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+
+    if (isCollapsed) {
+        wrapper.classList.add('collapsed');
+        body.classList.add('sidebar-collapsed');
+        if (label) {
+            label.textContent = 'Expand';
+        }
+    }
+});
 </script>
 </body>
 </html>

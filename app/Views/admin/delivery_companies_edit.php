@@ -34,7 +34,7 @@
         <?php endif; ?>
 
         <div class="card p-4">
-            <form action="/admin/delivery-companies/update/<?= $company['id'] ?>" method="POST">
+            <form id="companyForm" action="/admin/delivery-companies/update/<?= $company['id'] ?>" method="POST">
                 <?= csrf_field() ?>
                 
                 <div class="row">
@@ -65,8 +65,13 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-semibold">New Password (optional)</label>
-                    <input type="password" name="password" class="form-control" placeholder="Leave blank to keep current password">
+                    <input type="password" name="password" id="newPassword" class="form-control" placeholder="Leave blank to keep current password" autocomplete="new-password" minlength="8">
                     <small class="text-muted">Enter new password only if you want to change it. Must be at least 8 characters.</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Confirm New Password</label>
+                    <input type="password" name="password_confirmation" id="passwordConfirmation" class="form-control" placeholder="Confirm the new password" autocomplete="new-password">
                 </div>
 
                 <div class="mb-3">
@@ -84,5 +89,26 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('companyForm').addEventListener('submit', function (event) {
+            const password = document.getElementById('newPassword').value;
+            const confirmation = document.getElementById('passwordConfirmation').value;
+
+            if (!password) {
+                return;
+            }
+
+            if (password.length < 8) {
+                event.preventDefault();
+                alert('Password must be at least 8 characters.');
+                return;
+            }
+
+            if (password !== confirmation) {
+                event.preventDefault();
+                alert('The password confirmation does not match.');
+            }
+        });
+    </script>
 </body>
 </html>
