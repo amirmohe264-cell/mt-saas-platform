@@ -16,7 +16,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f8f9fa;
-            padding-left: 280px;
+            padding-left: 180px;
             padding-top: 80px;
             transition: padding-left 0.3s ease;
             min-height: 100vh;
@@ -31,7 +31,7 @@
             box-shadow: 0 2px 20px rgba(0,0,0,0.3);
             position: fixed;
             top: 0;
-            left: 280px;
+            left: 180px;
             right: 0;
             z-index: 1050;
             transition: left 0.3s ease;
@@ -57,7 +57,7 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 280px;
+            width: 180px;
             height: 100vh;
             overflow-y: auto;
             background: #fff;

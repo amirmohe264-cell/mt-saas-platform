@@ -28,7 +28,7 @@ $active_menu = 'orders';
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f8f9fa;
-            padding-left: 280px;
+            padding-left: 180px;
             padding-top: 80px;
             transition: padding-left 0.3s ease;
             min-height: 100vh;
@@ -80,7 +80,7 @@ $active_menu = 'orders';
             box-shadow: 0 2px 20px rgba(0,0,0,0.3);
             position: fixed;
             top: 0;
-            left: 280px;
+            left: 180px;
             right: 0;
             z-index: 1050;
             transition: left 0.3s ease;
@@ -101,7 +101,7 @@ $active_menu = 'orders';
             position: fixed;
             top: 0;
             left: 0;
-            width: 280px;
+            width: 180px;
             height: 100vh;
             overflow-y: auto;
             background: #fff;
@@ -661,9 +661,9 @@ $active_menu = 'orders';
                                             <a href="/admin/orders/view/<?= $order['id'] ?>" class="btn btn-sm btn-outline-success" title="View Order">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="/admin/orders/update-status/<?= $order['id'] ?>" class="btn btn-sm btn-outline-warning" title="Update Status" onclick="openStatusModal(<?= $order['id'] ?>, '<?= $order['order_status'] ?>')">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
+                                           <button type="button" class="btn btn-sm btn-outline-warning" title="Update Status" onclick="openStatusModal(<?= $order['id'] ?>, '<?= $order['order_status'] ?>')">
+    <i class="fas fa-edit"></i>
+</button>
                                             <?php if (strtolower($order['order_status'] ?? '') !== 'delivered' && strtolower($order['order_status'] ?? '') !== 'cancelled'): ?>
                                                 <a href="/admin/orders/cancel/<?= $order['id'] ?>" class="btn btn-sm btn-outline-danger" title="Cancel Order" onclick="return confirm('Cancel this order? This action cannot be undone.')">
                                                     <i class="fas fa-times"></i>

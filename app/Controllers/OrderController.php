@@ -105,34 +105,65 @@ class OrderController extends BaseController
         ]);
     }
 
+    // ============================================
+    // UPDATE ORDER STATUS (WORKS FOR BOTH ADMIN & STORE OWNER)
+    // ============================================
+    
     public function updateOrderStatus($id)
     {
+        // Check if user is admin OR store owner
+        $isAdmin = session()->get('is_admin') || session()->get('role') === 'admin' || session()->get('role') === 'super_admin';
         $tenantId = session()->get('tenant_id');
-        if (!$tenantId) {
+        
+        // If not admin and not store owner, redirect to login
+        if (!$isAdmin && !$tenantId) {
             return redirect()->to('/login')->with('error', 'Please login.');
         }
-
-        // Confirm this order actually belongs to this store owner's tenant
-        $order = $this->orderModel->where('id', $id)
-                                  ->where('tenant_id', $tenantId)
-                                  ->first();
-
+        
+        // Get the order
+        $order = $this->orderModel->find($id);
+        
         if (!$order) {
-            return redirect()->to('/store/orders')->with('error', 'Order not found.');
+            return redirect()->back()->with('error', 'Order not found.');
         }
-
+        
+        // If store owner, verify they own this order
+        if (!$isAdmin && $tenantId) {
+            if ($order['tenant_id'] != $tenantId) {
+                return redirect()->to('/store/orders')->with('error', 'You do not have permission to update this order.');
+            }
+        }
+        
+        // Get POST data
         $status = $this->request->getPost('status');
+        $notes = $this->request->getPost('notes');
+        
+        // Validate status
         $allowedStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
-
+        
         if (!in_array($status, $allowedStatuses, true)) {
             return redirect()->back()->with('error', 'Invalid status value.');
         }
-
-        $this->orderModel->update($id, [
+        
+        // Update the order
+        $updateData = [
             'order_status' => $status,
-        ]);
-
-        return redirect()->back()->with('success', 'Order status updated successfully!');
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+        
+        // Add notes if provided
+        if (!empty($notes)) {
+            $updateData['status_notes'] = $notes;
+        }
+        
+        $this->orderModel->update($id, $updateData);
+        
+        // Determine redirect based on user role
+        if ($isAdmin) {
+            return redirect()->to('/admin/orders')->with('success', 'Order status updated successfully!');
+        } else {
+            return redirect()->to('/store/orders')->with('success', 'Order status updated successfully!');
+        }
     }
 
     /**

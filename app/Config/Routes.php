@@ -117,7 +117,7 @@ $routes->get('admin/users', 'AdminController::users');
 $routes->get('admin/users/customer/toggle/(:num)', 'AdminController::toggleCustomerStatus/$1');
 $routes->get('admin/users/store-owner/toggle/(:num)', 'AdminController::toggleStoreOwnerStatus/$1');
 $routes->get('admin/users/store-owner/reset-password/(:num)', 'AdminController::resetStoreOwnerPassword/$1');
-
+$routes->match(['GET', 'POST'], 'admin/orders/update-status/(:num)', 'OrderController::updateOrderStatus/$1');
 // ==========================================
 // STORE APPLICATION ROUTES
 // ==========================================
@@ -321,6 +321,8 @@ $routes->get('admin/refunds', 'AdminController::refunds');
 $routes->get('admin/refunds/(:num)', 'AdminController::refundDetails/$1');
 $routes->post('admin/refunds/update/(:num)', 'AdminController::updateRefund/$1');
 $routes->get('admin/order-details/(:num)', 'AdminController::orderDetails/$1');
+$routes->post('admin/orders/update-status/(:num)', 'OrderController::updateOrderStatus/$1');
+$routes->match(['GET', 'POST'], 'admin/orders/update-status/(:num)', 'OrderController::updateOrderStatus/$1');
 // Store Owner - Earnings & Payouts
 $routes->get('store/earnings', 'EarningsController::index');
 $routes->get('store/payouts', 'EarningsController::payouts');
